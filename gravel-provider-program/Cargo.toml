@@ -1,0 +1,12 @@
+[package]
+name = "gravel-provider-program"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+gravel-core = { path = "../gravel-core" }
+glob = "^0.3.0"
+shellexpand = "^2.1.0"
+
+[target.'cfg(unix)'.dependencies]
+freedesktop_entry_parser = "^1.2.0"

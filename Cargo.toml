@@ -1,0 +1,9 @@
+[workspace]
+
+members = [
+	"gravel",
+	"gravel-core",
+	"gravel-frontend-default",
+	"gravel-provider-calculator",
+	"gravel-provider-program"
+]

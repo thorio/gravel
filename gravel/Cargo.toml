@@ -1,0 +1,10 @@
+[package]
+name = "gravel"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+gravel-core = { path = "../gravel-core" }
+gravel-frontend-default = { path = "../gravel-frontend-default" }
+gravel-provider-program = { path = "../gravel-provider-program" }
+gravel-provider-calculator = { path = "../gravel-provider-calculator" }

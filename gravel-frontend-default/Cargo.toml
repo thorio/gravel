@@ -1,0 +1,9 @@
+[package]
+name = "gravel-frontend-default"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+fltk = { version = "^1.2", features = ["fltk-bundled"] }
+gravel-core = { path = "../gravel-core" }
+lazy_static = "^1.4.0"

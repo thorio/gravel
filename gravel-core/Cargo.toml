@@ -1,0 +1,7 @@
+[package]
+name = "gravel-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+fuzzy-matcher = "0.3.7"

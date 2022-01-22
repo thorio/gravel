@@ -1,0 +1,9 @@
+[package]
+name = "gravel-provider-calculator"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+gravel-core = { path = "../gravel-core" }
+meval = "0.2"
+clipboard = "0.5.0"
