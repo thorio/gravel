@@ -9,7 +9,7 @@ lazy_static! {
 
 pub struct DefaultFrontend {
 	ui: Ui,
-	gravel: Gravel,
+	gravel: QueryEngine,
 	result: QueryResult,
 	scroll: Scroll,
 }
@@ -23,7 +23,7 @@ impl Frontend for DefaultFrontend {
 }
 
 impl DefaultFrontend {
-	pub fn new(gravel: Gravel) -> Self {
+	pub fn new(gravel: QueryEngine) -> Self {
 		let ui = builder::build();
 
 		DefaultFrontend {

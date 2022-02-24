@@ -9,13 +9,13 @@ use crate::provider::*;
 use crate::scoring::*;
 use std::process::exit;
 
-pub struct Gravel {
+pub struct QueryEngine {
 	providers: Vec<Box<dyn Provider>>,
 }
 
-impl Gravel {
+impl QueryEngine {
 	pub fn new(providers: Vec<Box<dyn Provider>>) -> Self {
-		Gravel {
+		QueryEngine {
 			providers: providers,
 		}
 	}

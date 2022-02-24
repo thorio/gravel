@@ -8,9 +8,9 @@ use gravel_provider_program::ProgramProvider;
 
 fn main() {
 	let registry = get_registry();
-	let gravel = Gravel::new(registry.providers);
+	let engine = QueryEngine::new(registry.providers);
 
-	let mut frontend = get_frontend(gravel);
+	let mut frontend = get_frontend(engine);
 
 	frontend.run();
 }
@@ -24,6 +24,6 @@ fn get_registry() -> PluginRegistry {
 	registry
 }
 
-fn get_frontend(gravel: Gravel) -> Box<dyn Frontend> {
-	Box::new(DefaultFrontend::new(gravel))
+fn get_frontend(engine: QueryEngine) -> Box<dyn Frontend> {
+	Box::new(DefaultFrontend::new(engine))
 }
