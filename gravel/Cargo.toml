@@ -8,3 +8,4 @@ gravel-core = { path = "../gravel-core" }
 gravel-frontend-default = { path = "../gravel-frontend-default" }
 gravel-provider-program = { path = "../gravel-provider-program" }
 gravel-provider-calculator = { path = "../gravel-provider-calculator" }
+hotkey = "0.3.1"

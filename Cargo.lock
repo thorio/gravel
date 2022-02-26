@@ -76,6 +76,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "crossbeam-channel"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e54ea8bc3fb1ee042f5aace6e3c6e025d3874866da222930f70ce62aceba0bfa"
+dependencies = [
+ "cfg-if",
+ "crossbeam-utils",
+]
+
+[[package]]
+name = "crossbeam-utils"
+version = "0.8.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b5e5bed1f1c269533fa816a0a5492b3545209a205ca1a54842be180eb63a16a6"
+dependencies = [
+ "cfg-if",
+ "lazy_static",
+]
+
+[[package]]
 name = "dirs-next"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -98,20 +118,22 @@ dependencies = [
 
 [[package]]
 name = "fltk"
-version = "1.2.19"
+version = "1.2.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e1047ed32bcb49609956d1da35703267a733179e514ad606e030ca711da45574"
+checksum = "c73fb6969f09976222ceb1f39d0381495a2168abffcc590002cc2b5b8372da85"
 dependencies = [
  "bitflags",
+ "crossbeam-channel",
  "fltk-sys",
  "paste",
+ "ttf-parser",
 ]
 
 [[package]]
 name = "fltk-sys"
-version = "1.2.19"
+version = "1.2.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "76f644df7b9b362dad4361de2491e844281c98d95b56e0b07ff8e591311962b1"
+checksum = "ca7556e8a7a1b8eb44829a421d597f955de57f6d1edb8c49bfe38a9346ec1510"
 dependencies = [
  "cmake",
 ]
@@ -172,6 +194,7 @@ dependencies = [
  "gravel-frontend-default",
  "gravel-provider-calculator",
  "gravel-provider-program",
+ "hotkey",
 ]
 
 [[package]]
@@ -207,6 +230,16 @@ dependencies = [
  "glob",
  "gravel-core",
  "shellexpand",
+]
+
+[[package]]
+name = "hotkey"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68ed8ca7b33e83cea6c667b7c7185443c39fb155f593dd8eb168ecdd12bed5c8"
+dependencies = [
+ "winapi",
+ "x11-dl",
 ]
 
 [[package]]
@@ -329,6 +362,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0744126afe1a6dd7f394cb50a716dbe086cb06e255e53d8d0185d82828358fb5"
 
 [[package]]
+name = "pkg-config"
+version = "0.3.24"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "58893f751c9b0412871a09abd62ecd2a00298c6c83befa223ef98c52aef40cbe"
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.34"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -439,6 +478,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "ttf-parser"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4ccbe8381883510b6a2d8f1e32905bddd178c11caef8083086d0c0c9ab0ac281"
+
+[[package]]
 name = "unicode-xid"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -491,6 +536,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "89bd49c06c9eb5d98e6ba6536cf64ac9f7ee3a009b2f53996d405b3944f6bcea"
 dependencies = [
  "xcb",
+]
+
+[[package]]
+name = "x11-dl"
+version = "2.19.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ea26926b4ce81a6f5d9d0f3a0bc401e5a37c6ae14a1bfaa8ff6099ca80038c59"
+dependencies = [
+ "lazy_static",
+ "libc",
+ "pkg-config",
 ]
 
 [[package]]

@@ -31,6 +31,7 @@ pub fn build() -> Ui {
 
 	window.end();
 	window.show();
+	window.platform_hide();
 
 	Ui {
 		window: window,
@@ -39,6 +40,7 @@ pub fn build() -> Ui {
 		scrollbar: scollbar,
 		hits: hits,
 		receiver: receiver,
+		sender: sender,
 	}
 }
 

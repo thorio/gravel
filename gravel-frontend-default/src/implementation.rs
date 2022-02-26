@@ -2,6 +2,7 @@ use crate::{builder, constants::*, scroll::Scroll, structs::*};
 use fltk::{enums::*, prelude::*};
 use gravel_core::{frontend::*, provider::*, *};
 use lazy_static::*;
+use std::sync::mpsc::Receiver;
 
 lazy_static! {
 	static ref EMPTY_HIT: HitData = HitData::empty();
@@ -9,28 +10,29 @@ lazy_static! {
 
 pub struct DefaultFrontend {
 	ui: Ui,
-	gravel: QueryEngine,
+	engine: QueryEngine,
 	result: QueryResult,
 	scroll: Scroll,
+	visible: bool,
 }
 
 impl Frontend for DefaultFrontend {
-	fn run(&mut self) {
-		self.ui.window.platform_show();
+	fn run(&mut self, receiver: Receiver<ControlMessage>) {
+		self.handle_control_messages(receiver);
 		self.run_event_loop();
-		self.ui.window.platform_hide();
 	}
 }
 
 impl DefaultFrontend {
-	pub fn new(gravel: QueryEngine) -> Self {
+	pub fn new(engine: QueryEngine) -> Self {
 		let ui = builder::build();
 
 		DefaultFrontend {
-			gravel: gravel,
+			engine: engine,
 			ui: ui,
 			result: QueryResult::empty(),
 			scroll: Scroll::new(0, HIT_COUNT),
+			visible: false,
 		}
 	}
 
@@ -46,19 +48,56 @@ impl DefaultFrontend {
 					Message::CursorPageDown => self.cursor_page_down(),
 					Message::CursorTop => self.cursor_top(),
 					Message::CursorBottom => self.cursor_bottom(),
-					Message::Cancel => break,
+					Message::Cancel => self.hide(),
+					Message::ShowWindow => self.show(),
+					Message::HideWindow => self.hide(),
+					Message::ShowOrHideWindow => self.show_or_hide(),
 				}
 			}
 		}
 	}
 
+	fn handle_control_messages(&mut self, receiver: Receiver<frontend::ControlMessage>) {
+		let own_sender = self.ui.sender.clone();
+
+		// check ControlMessages every 10ms and forward them to be handled in the main event loop
+		fltk::app::add_timeout3(0.01, move |handle| {
+			if let Ok(message) = receiver.try_recv() {
+				match message {
+					ControlMessage::ShowOrHide => own_sender.send(Message::ShowOrHideWindow),
+					ControlMessage::Show => own_sender.send(Message::ShowWindow),
+					ControlMessage::Hide => own_sender.send(Message::HideWindow),
+				}
+			}
+
+			fltk::app::repeat_timeout3(0.01, handle);
+		});
+	}
+
+	fn show_or_hide(&mut self) {
+		if self.visible {
+			self.hide();
+		} else {
+			self.show();
+		}
+	}
+
+	fn hide(&mut self) {
+		self.ui.window.platform_hide();
+		self.visible = false;
+	}
+
+	fn show(&mut self) {
+		self.ui.window.platform_show();
+		self.visible = true;
+	}
+
 	fn query(&mut self) {
-		// check if query has really changed
 		if !self.ui.input.changed() {
 			return;
 		}
 
-		self.result = self.gravel.query(&self.ui.input.value());
+		self.result = self.engine.query(&self.ui.input.value());
 
 		self.ui.input.clear_changed();
 		self.update_window();
@@ -69,7 +108,7 @@ impl DefaultFrontend {
 		if self.result.hits.len() >= 1 {
 			let cursor = self.scroll.cursor();
 			let hit = &self.result.hits[cursor as usize];
-			self.gravel.run_hit_action(Box::new(self), &hit);
+			self.engine.run_hit_action(&hit);
 		}
 	}
 

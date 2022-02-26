@@ -1,5 +1,7 @@
 use crate::scrollbar::Scrollbar;
-use fltk::{app::App, app::Receiver, frame::Frame, group::Group, input::Input, window::Window};
+use fltk::{
+	app::App, app::Receiver, app::Sender, frame::Frame, group::Group, input::Input, window::Window,
+};
 
 pub struct Ui {
 	pub window: Window,
@@ -8,6 +10,7 @@ pub struct Ui {
 	pub scrollbar: Scrollbar,
 	pub hits: Vec<HitUi>,
 	pub receiver: Receiver<Message>,
+	pub sender: Sender<Message>,
 }
 
 pub struct HitUi {
@@ -26,5 +29,8 @@ pub enum Message {
 	CursorPageDown,
 	CursorTop,
 	CursorBottom,
+	ShowWindow,
+	HideWindow,
+	ShowOrHideWindow,
 	Cancel,
 }

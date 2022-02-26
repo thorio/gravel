@@ -1,8 +1,9 @@
 use glob::glob;
-use gravel_core::provider::*;
+use gravel_core::{frontend::ControlMessage, provider::*};
 use std::error::Error;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
+use std::sync::mpsc::Sender;
 
 static PATHS: &[&str] = &[
 	"/usr/share/applications/*.desktop",
@@ -57,7 +58,7 @@ impl ExtraData {
 	}
 }
 
-fn run_program(hit: &SimpleHit<ExtraData>) {
+fn run_program(hit: &SimpleHit<ExtraData>, sender: &Sender<ControlMessage>) {
 	Command::new("gtk-launch")
 		.arg(hit.get_extra_data().desktop_file.clone())
 		// explicitly prevent stream inheritance
@@ -66,4 +67,5 @@ fn run_program(hit: &SimpleHit<ExtraData>) {
 		.stderr(Stdio::null())
 		.spawn()
 		.expect("failed to launch process");
+	sender.send(ControlMessage::Hide);
 }

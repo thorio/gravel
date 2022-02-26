@@ -4,19 +4,21 @@ pub mod plugin;
 pub mod provider;
 pub mod scoring;
 
-use crate::frontend::*;
+use crate::frontend::ControlMessage;
 use crate::provider::*;
 use crate::scoring::*;
-use std::process::exit;
+use std::sync::mpsc::Sender;
 
 pub struct QueryEngine {
 	providers: Vec<Box<dyn Provider>>,
+	sender: Sender<ControlMessage>,
 }
 
 impl QueryEngine {
-	pub fn new(providers: Vec<Box<dyn Provider>>) -> Self {
+	pub fn new(providers: Vec<Box<dyn Provider>>, sender: Sender<ControlMessage>) -> Self {
 		QueryEngine {
 			providers: providers,
+			sender: sender,
 		}
 	}
 
@@ -28,9 +30,8 @@ impl QueryEngine {
 		}
 	}
 
-	pub fn run_hit_action(&self, _frontend: Box<&dyn Frontend>, hit: &Box<dyn Hit>) {
-		hit.action();
-		exit(0);
+	pub fn run_hit_action(&self, hit: &Box<dyn Hit>) {
+		hit.action(&self.sender);
 	}
 
 	fn inner_query(&self, query: &str) -> QueryResult {

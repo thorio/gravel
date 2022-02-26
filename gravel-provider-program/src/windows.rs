@@ -1,5 +1,6 @@
 use glob::glob;
-use gravel_core::provider::*;
+use gravel_core::{frontend::ControlMessage, provider::*};
+use std::sync::mpsc::Sender;
 use std::{path::PathBuf, process::Command};
 
 static PATHS: &[&str] = &[
@@ -45,9 +46,10 @@ impl ExtraData {
 	}
 }
 
-fn run_program(hit: &SimpleHit<ExtraData>) {
+fn run_program(hit: &SimpleHit<ExtraData>, sender: &Sender<ControlMessage>) {
 	Command::new("explorer")
 		.arg(hit.get_extra_data().link_file.clone())
 		.spawn()
 		.expect("failed to launch process");
+	sender.send(ControlMessage::Hide);
 }
