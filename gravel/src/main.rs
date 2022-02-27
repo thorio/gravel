@@ -24,10 +24,14 @@ fn main() {
 
 fn init_hotkeys(sender: Sender<ControlMessage>) {
 	let mut hk = hotkey::Listener::new();
-	hk.register_hotkey(hotkey::modifiers::SHIFT, hotkey::keys::SPACEBAR, move || {
-		sender.send(ControlMessage::ShowOrHide).unwrap()
-	})
-	.expect("failed to register hotkey");
+	let result = hk.register_hotkey(hotkey::modifiers::SHIFT, hotkey::keys::SPACEBAR, move || {
+		sender.send(ControlMessage::ShowOrHide).unwrap();
+	});
+
+	if let Err(_error) = result {
+		println!("failed to register hotkey. exiting...");
+		std::process::exit(1);
+	}
 
 	hk.listen();
 }
