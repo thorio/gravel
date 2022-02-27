@@ -51,5 +51,5 @@ fn run_program(hit: &SimpleHit<ExtraData>, sender: &Sender<ControlMessage>) {
 		.arg(hit.get_extra_data().link_file.clone())
 		.spawn()
 		.expect("failed to launch process");
-	sender.send(ControlMessage::Hide);
+	sender.send(ControlMessage::Hide).unwrap();
 }

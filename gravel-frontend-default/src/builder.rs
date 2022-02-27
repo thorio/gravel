@@ -20,7 +20,8 @@ pub fn build() -> Ui {
 	let mut window = build_window();
 	let mut input = build_input();
 
-	input.handle(move |input, event| input_event(input, event, &sender));
+	window.handle(move |_window, event| window_event(event, &sender));
+	input.handle(move |_input, event| input_event(event, &sender));
 
 	let mut hits = Vec::new();
 	for i in 0..HIT_COUNT {
@@ -50,7 +51,7 @@ fn build_window() -> Window {
 		.center_screen()
 		.with_label("Gravel");
 	window.set_color(COLOR_BACKGROUND);
-	// window.set_border(false);
+	window.set_border(false);
 
 	// change the height after the window has been centered
 	window.set_size(WINDOW_WIDTH, get_window_size(0));
@@ -115,14 +116,27 @@ fn build_hit(i: i32) -> HitUi {
 	}
 }
 
-fn input_event(input: &mut Input, event: Event, sender: &Sender<Message>) -> bool {
+fn window_event(event: Event, sender: &Sender<Message>) -> bool {
 	match event {
-		Event::KeyDown => input_keydown(input, app::event_key(), sender),
+		Event::Unfocus => window_unfocus(sender),
 		_ => false,
 	}
 }
 
-fn input_keydown(_input: &mut Input, key: Key, sender: &Sender<Message>) -> bool {
+fn window_unfocus(sender: &Sender<Message>) -> bool {
+	sender.send(Message::HideWindow);
+
+	true
+}
+
+fn input_event(event: Event, sender: &Sender<Message>) -> bool {
+	match event {
+		Event::KeyDown => input_keydown(app::event_key(), sender),
+		_ => false,
+	}
+}
+
+fn input_keydown(key: Key, sender: &Sender<Message>) -> bool {
 	let message = match key {
 		Key::Escape => Message::Cancel,
 		Key::Enter | Key::KPEnter => Message::Confirm,

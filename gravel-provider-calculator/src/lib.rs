@@ -40,5 +40,5 @@ fn set_clipboard(hit: &SimpleHit<()>, sender: &Sender<ControlMessage>) {
 	let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
 	ctx.set_contents(hit.get_data().title.clone()).unwrap();
 
-	sender.send(ControlMessage::Hide);
+	sender.send(ControlMessage::Hide).unwrap();
 }

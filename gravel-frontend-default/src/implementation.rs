@@ -1,4 +1,4 @@
-use crate::{builder, constants::*, scroll::Scroll, structs::*};
+use crate::{builder, constants::*, native, scroll::Scroll, structs::*};
 use fltk::{enums::*, prelude::*};
 use gravel_core::{frontend::*, provider::*, *};
 use lazy_static::*;
@@ -88,8 +88,22 @@ impl DefaultFrontend {
 	}
 
 	fn show(&mut self) {
+		self.input_select_all();
+
 		self.ui.window.platform_show();
 		self.visible = true;
+
+		// pull the window into the foreground so it isn't stuck behind other windows
+		native::activate_window(&self.ui.window);
+	}
+
+	fn input_select_all(&mut self) {
+		let length = self.ui.input.value().chars().count() as i32;
+
+		if length > 0 {
+			self.ui.input.set_position(0).unwrap();
+			self.ui.input.set_mark(length).unwrap();
+		}
 	}
 
 	fn query(&mut self) {

@@ -24,7 +24,7 @@ fn main() {
 
 fn init_hotkeys(sender: Sender<ControlMessage>) {
 	let mut hk = hotkey::Listener::new();
-	hk.register_hotkey(hotkey::modifiers::ALT, hotkey::keys::SPACEBAR, move || {
+	hk.register_hotkey(hotkey::modifiers::SHIFT, hotkey::keys::SPACEBAR, move || {
 		sender.send(ControlMessage::ShowOrHide).unwrap()
 	})
 	.expect("failed to register hotkey");

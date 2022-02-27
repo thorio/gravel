@@ -67,5 +67,5 @@ fn run_program(hit: &SimpleHit<ExtraData>, sender: &Sender<ControlMessage>) {
 		.stderr(Stdio::null())
 		.spawn()
 		.expect("failed to launch process");
-	sender.send(ControlMessage::Hide);
+	sender.send(ControlMessage::Hide).unwrap();
 }

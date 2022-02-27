@@ -6,3 +6,7 @@ mod implementation;
 mod scroll;
 mod scrollbar;
 mod structs;
+
+#[cfg_attr(target_os = "linux", path = "native/linux.rs")]
+#[cfg_attr(windows, path = "native/windows.rs")]
+mod native;
