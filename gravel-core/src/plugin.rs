@@ -1,4 +1,4 @@
-use crate::*;
+use crate::provider::Provider;
 
 pub struct PluginRegistry {
 	pub providers: Vec<Box<dyn Provider>>,

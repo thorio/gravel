@@ -2,7 +2,7 @@ use glob::glob;
 use gravel_core::{frontend::ControlMessage, provider::*};
 use std::error::Error;
 use std::path::PathBuf;
-use std::process::{Command, Stdio};
+use std::process::Command;
 use std::sync::mpsc::Sender;
 
 static PATHS: &[&str] = &[
@@ -59,13 +59,8 @@ impl ExtraData {
 }
 
 fn run_program(hit: &SimpleHit<ExtraData>, sender: &Sender<ControlMessage>) {
-	Command::new("gtk-launch")
-		.arg(hit.get_extra_data().desktop_file.clone())
-		// explicitly prevent stream inheritance
-		.stdin(Stdio::null())
-		.stdout(Stdio::null())
-		.stderr(Stdio::null())
-		.spawn()
-		.expect("failed to launch process");
+	gravel_util::process::run_freedesktop(&hit.get_extra_data().desktop_file)
+		.expect("failed to run application");
+
 	sender.send(ControlMessage::Hide).unwrap();
 }

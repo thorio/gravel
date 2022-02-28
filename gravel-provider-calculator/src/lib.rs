@@ -15,10 +15,9 @@ impl Provider for CalculatorProvider {
 	fn query(&self, query: &str) -> QueryResult {
 		let result = eval_str(query);
 
-		if result.is_ok() {
-			QueryResult::single(get_hit(result.unwrap()))
-		} else {
-			QueryResult::empty()
+		match result {
+			Ok(result) => QueryResult::single(get_hit(result)),
+			Err(_err) => QueryResult::empty(),
 		}
 	}
 }

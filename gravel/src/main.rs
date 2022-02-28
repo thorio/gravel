@@ -6,6 +6,7 @@ use gravel_core::{frontend::*, *};
 use gravel_frontend_default::DefaultFrontend;
 use gravel_provider_calculator::CalculatorProvider;
 use gravel_provider_program::ProgramProvider;
+use gravel_provider_websearch::WebsearchProvider;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 
@@ -46,7 +47,8 @@ fn get_registry() -> PluginRegistry {
 	let mut registry = load_plugins();
 	registry
 		.provider(Box::new(ProgramProvider::new()))
-		.provider(Box::new(CalculatorProvider::new()));
+		.provider(Box::new(CalculatorProvider::new()))
+		.provider(Box::new(WebsearchProvider::new()));
 
 	registry
 }

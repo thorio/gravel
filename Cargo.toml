@@ -3,7 +3,9 @@
 members = [
 	"gravel",
 	"gravel-core",
+	"gravel-util",
 	"gravel-frontend-default",
 	"gravel-provider-calculator",
-	"gravel-provider-program"
+	"gravel-provider-program",
+	"gravel-provider-websearch",
 ]
