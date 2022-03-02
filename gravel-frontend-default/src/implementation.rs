@@ -1,6 +1,6 @@
 use crate::{builder, constants::*, native, scroll::Scroll, structs::*};
 use fltk::{enums::*, prelude::*};
-use gravel_core::{frontend::*, provider::*, *};
+use gravel_core::*;
 use lazy_static::*;
 use std::sync::mpsc::Receiver;
 
@@ -17,7 +17,7 @@ pub struct DefaultFrontend {
 }
 
 impl Frontend for DefaultFrontend {
-	fn run(&mut self, receiver: Receiver<ControlMessage>) {
+	fn run(&mut self, receiver: Receiver<FrontendMessage>) {
 		self.handle_control_messages(receiver);
 		self.run_event_loop();
 	}
@@ -57,16 +57,16 @@ impl DefaultFrontend {
 		}
 	}
 
-	fn handle_control_messages(&mut self, receiver: Receiver<frontend::ControlMessage>) {
+	fn handle_control_messages(&mut self, receiver: Receiver<FrontendMessage>) {
 		let own_sender = self.ui.sender.clone();
 
-		// check ControlMessages every 10ms and forward them to be handled in the main event loop
+		// check FrontendMessages every 10ms and forward them to be handled in the main event loop
 		fltk::app::add_timeout3(0.01, move |handle| {
 			if let Ok(message) = receiver.try_recv() {
 				match message {
-					ControlMessage::ShowOrHide => own_sender.send(Message::ShowOrHideWindow),
-					ControlMessage::Show => own_sender.send(Message::ShowWindow),
-					ControlMessage::Hide => own_sender.send(Message::HideWindow),
+					FrontendMessage::ShowOrHide => own_sender.send(Message::ShowOrHideWindow),
+					FrontendMessage::Show => own_sender.send(Message::ShowWindow),
+					FrontendMessage::Hide => own_sender.send(Message::HideWindow),
 				}
 			}
 

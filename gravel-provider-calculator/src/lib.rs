@@ -1,5 +1,5 @@
 use clipboard::{ClipboardContext, ClipboardProvider};
-use gravel_core::{frontend::ControlMessage, provider::*, scoring::*};
+use gravel_core::{scoring::MAX_SCORE, *};
 use meval::eval_str;
 use std::sync::mpsc::Sender;
 
@@ -35,9 +35,9 @@ fn round(number: f64, precision: u32) -> f64 {
 	(number * factor).round() / factor
 }
 
-fn set_clipboard(hit: &SimpleHit<()>, sender: &Sender<ControlMessage>) {
+fn set_clipboard(hit: &SimpleHit<()>, sender: &Sender<FrontendMessage>) {
 	let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
 	ctx.set_contents(hit.get_data().title.clone()).unwrap();
 
-	sender.send(ControlMessage::Hide).unwrap();
+	sender.send(FrontendMessage::Hide).unwrap();
 }

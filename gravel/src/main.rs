@@ -1,16 +1,15 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use gravel_core::{frontend::*, plugin::*, *};
+use gravel_core::{hotkeys, plugin::*, *};
 use gravel_frontend_default::DefaultFrontend;
 use gravel_provider_calculator::CalculatorProvider;
 use gravel_provider_program::ProgramProvider;
 use gravel_provider_websearch::WebsearchProvider;
-use gravel_util::hotkeys;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 
 fn main() {
-	let (sender, receiver): (Sender<ControlMessage>, Receiver<ControlMessage>) = mpsc::channel();
+	let (sender, receiver): (Sender<FrontendMessage>, Receiver<FrontendMessage>) = mpsc::channel();
 
 	let engine = create_engine(sender.clone());
 	let mut frontend = create_frontend(engine);
@@ -20,14 +19,14 @@ fn main() {
 	frontend.run(receiver);
 }
 
-fn init_hotkeys(sender: Sender<ControlMessage>) {
-	hotkeys::Listener::<ControlMessage>::new()
-		.register_emacs("S-<Space>", ControlMessage::ShowOrHide)
+fn init_hotkeys(sender: Sender<FrontendMessage>) {
+	hotkeys::Listener::<FrontendMessage>::new()
+		.register_emacs("S-<Space>", FrontendMessage::ShowOrHide)
 		.unwrap()
 		.spawn_listener(sender);
 }
 
-fn create_engine(sender: Sender<ControlMessage>) -> QueryEngine {
+fn create_engine(sender: Sender<FrontendMessage>) -> QueryEngine {
 	let registry = get_registry();
 
 	QueryEngine::new(registry.providers, sender)

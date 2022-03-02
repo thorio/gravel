@@ -1,8 +1,10 @@
 mod engine;
-pub mod environment;
-pub mod frontend;
+mod frontend;
+pub mod hotkeys;
 pub mod plugin;
-pub mod provider;
+mod provider;
 pub mod scoring;
 
 pub use engine::QueryEngine;
+pub use frontend::{Frontend, FrontendMessage};
+pub use provider::{Hit, HitData, Provider, QueryResult, SimpleHit};

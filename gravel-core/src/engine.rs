@@ -1,15 +1,15 @@
-use crate::frontend::ControlMessage;
+use crate::frontend::FrontendMessage;
 use crate::provider::*;
 use crate::scoring::*;
 use std::sync::mpsc::Sender;
 
 pub struct QueryEngine {
 	providers: Vec<Box<dyn Provider>>,
-	sender: Sender<ControlMessage>,
+	sender: Sender<FrontendMessage>,
 }
 
 impl QueryEngine {
-	pub fn new(providers: Vec<Box<dyn Provider>>, sender: Sender<ControlMessage>) -> Self {
+	pub fn new(providers: Vec<Box<dyn Provider>>, sender: Sender<FrontendMessage>) -> Self {
 		QueryEngine {
 			providers: providers,
 			sender: sender,

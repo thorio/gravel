@@ -5,7 +5,6 @@ edition = "2021"
 
 [dependencies]
 gravel-core = { path = "../gravel-core" }
-gravel-util = { path = "../gravel-util" }
 glob = "0.3.0"
 shellexpand = "2.1.0"
 

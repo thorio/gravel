@@ -191,14 +191,15 @@ dependencies = [
  "gravel-provider-calculator",
  "gravel-provider-program",
  "gravel-provider-websearch",
- "gravel-util",
 ]
 
 [[package]]
 name = "gravel-core"
 version = "0.1.0"
 dependencies = [
+ "enumflags2",
  "fuzzy-matcher",
+ "hotkey",
 ]
 
 [[package]]
@@ -227,7 +228,6 @@ dependencies = [
  "freedesktop_entry_parser",
  "glob",
  "gravel-core",
- "gravel-util",
  "shellexpand",
 ]
 
@@ -236,16 +236,7 @@ name = "gravel-provider-websearch"
 version = "0.1.0"
 dependencies = [
  "gravel-core",
- "gravel-util",
  "urlencoding",
-]
-
-[[package]]
-name = "gravel-util"
-version = "0.1.0"
-dependencies = [
- "enumflags2",
- "hotkey",
 ]
 
 [[package]]

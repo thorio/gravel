@@ -1,6 +1,7 @@
 use glob::glob;
-use gravel_core::{frontend::ControlMessage, provider::*};
+use gravel_core::*;
 use std::path::PathBuf;
+use std::process::Command;
 use std::sync::mpsc::Sender;
 
 static PATHS: &[&str] = &[
@@ -46,9 +47,11 @@ impl ExtraData {
 	}
 }
 
-fn run_program(hit: &SimpleHit<ExtraData>, sender: &Sender<ControlMessage>) {
-	gravel_util::process::run_lnk(&hit.get_extra_data().link_file)
+fn run_program(hit: &SimpleHit<ExtraData>, sender: &Sender<FrontendMessage>) {
+	Command::new("explorer")
+		.arg(&hit.get_extra_data().link_file)
+		.spawn()
 		.expect("failed to run application");
 
-	sender.send(ControlMessage::Hide).unwrap();
+	sender.send(FrontendMessage::Hide).unwrap();
 }

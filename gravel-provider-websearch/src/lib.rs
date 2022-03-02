@@ -1,7 +1,11 @@
-use gravel_core::{frontend::ControlMessage, provider::*, scoring::*};
+use gravel_core::{scoring::MIN_SCORE, *};
 use std::sync::mpsc::Sender;
 
-pub struct WebsearchProvider {}
+#[cfg_attr(target_os = "linux", path = "linux.rs")]
+#[cfg_attr(windows, path = "windows.rs")]
+mod implementation;
+
+pub struct WebsearchProvider;
 
 impl WebsearchProvider {
 	pub fn new() -> Self {
@@ -18,11 +22,11 @@ impl Provider for WebsearchProvider {
 	}
 }
 
-fn do_search(hit: &SimpleHit<()>, sender: &Sender<ControlMessage>) {
+fn do_search(hit: &SimpleHit<()>, sender: &Sender<FrontendMessage>) {
 	let encoded = urlencoding::encode(&hit.get_data().title);
 	let url = format!("https://www.google.com/search?q={}", encoded);
 
-	gravel_util::process::open_url(&url).expect("failed to open url");
+	implementation::open_url(&url).expect("failed to open url");
 
-	sender.send(ControlMessage::Hide).unwrap();
+	sender.send(FrontendMessage::Hide).unwrap();
 }

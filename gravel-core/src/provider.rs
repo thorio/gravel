@@ -1,4 +1,4 @@
-use crate::frontend::ControlMessage;
+use crate::frontend::FrontendMessage;
 use std::sync::mpsc::Sender;
 
 pub trait Provider {
@@ -7,7 +7,7 @@ pub trait Provider {
 
 pub trait Hit {
 	fn get_data(&self) -> &HitData;
-	fn action(&self, sender: &Sender<ControlMessage>);
+	fn action(&self, sender: &Sender<FrontendMessage>);
 	fn set_score(&mut self, score: u32);
 }
 
@@ -61,11 +61,11 @@ impl HitData {
 pub struct SimpleHit<T> {
 	data: HitData,
 	extra_data: T,
-	action_func: Box<dyn Fn(&Self, &Sender<ControlMessage>)>,
+	action_func: Box<dyn Fn(&Self, &Sender<FrontendMessage>)>,
 }
 
 impl SimpleHit<()> {
-	pub fn new(data: HitData, func: impl Fn(&Self, &Sender<ControlMessage>) + 'static) -> Self {
+	pub fn new(data: HitData, func: impl Fn(&Self, &Sender<FrontendMessage>) + 'static) -> Self {
 		SimpleHit {
 			data: data,
 			extra_data: (),
@@ -75,11 +75,7 @@ impl SimpleHit<()> {
 }
 
 impl<T> SimpleHit<T> {
-	pub fn new_extra(
-		data: HitData,
-		extra_data: T,
-		func: impl Fn(&Self, &Sender<ControlMessage>) + 'static,
-	) -> Self {
+	pub fn new_extra(data: HitData, extra_data: T, func: impl Fn(&Self, &Sender<FrontendMessage>) + 'static) -> Self {
 		SimpleHit {
 			data: data,
 			extra_data: extra_data,
@@ -97,7 +93,7 @@ impl<T> Hit for SimpleHit<T> {
 		&self.data
 	}
 
-	fn action(&self, sender: &Sender<ControlMessage>) {
+	fn action(&self, sender: &Sender<FrontendMessage>) {
 		(self.action_func)(self, sender)
 	}
 
