@@ -99,6 +99,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "enumflags2"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a25c90b056b3f84111cf183cbeddef0d3a0bbe9a674f057e1a1533c315f24def"
+dependencies = [
+ "enumflags2_derive",
+]
+
+[[package]]
+name = "enumflags2_derive"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "144ec79496cbab6f84fa125dc67be9264aef22eb8a28da8454d9c33f15108da4"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "fltk"
 version = "1.2.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -171,7 +191,7 @@ dependencies = [
  "gravel-provider-calculator",
  "gravel-provider-program",
  "gravel-provider-websearch",
- "hotkey",
+ "gravel-util",
 ]
 
 [[package]]
@@ -223,6 +243,10 @@ dependencies = [
 [[package]]
 name = "gravel-util"
 version = "0.1.0"
+dependencies = [
+ "enumflags2",
+ "hotkey",
+]
 
 [[package]]
 name = "hotkey"

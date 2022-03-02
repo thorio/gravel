@@ -5,8 +5,8 @@ edition = "2021"
 
 [dependencies]
 gravel-core = { path = "../gravel-core" }
+gravel-util = { path = "../gravel-util" }
 gravel-frontend-default = { path = "../gravel-frontend-default" }
 gravel-provider-program = { path = "../gravel-provider-program" }
 gravel-provider-calculator = { path = "../gravel-provider-calculator" }
 gravel-provider-websearch = { path = "../gravel-provider-websearch" }
-hotkey = "0.3.1"

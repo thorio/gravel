@@ -1,12 +1,11 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use gravel_core::frontend::ControlMessage;
-use gravel_core::plugin::*;
-use gravel_core::{frontend::*, *};
+use gravel_core::{frontend::*, plugin::*, *};
 use gravel_frontend_default::DefaultFrontend;
 use gravel_provider_calculator::CalculatorProvider;
 use gravel_provider_program::ProgramProvider;
 use gravel_provider_websearch::WebsearchProvider;
+use gravel_util::hotkeys;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 
@@ -16,25 +15,16 @@ fn main() {
 	let engine = create_engine(sender.clone());
 	let mut frontend = create_frontend(engine);
 
-	std::thread::spawn(move || {
-		init_hotkeys(sender);
-	});
+	init_hotkeys(sender);
 
 	frontend.run(receiver);
 }
 
 fn init_hotkeys(sender: Sender<ControlMessage>) {
-	let mut hk = hotkey::Listener::new();
-	let result = hk.register_hotkey(hotkey::modifiers::SHIFT, hotkey::keys::SPACEBAR, move || {
-		sender.send(ControlMessage::ShowOrHide).unwrap();
-	});
-
-	if let Err(_error) = result {
-		println!("failed to register hotkey. exiting...");
-		std::process::exit(1);
-	}
-
-	hk.listen();
+	hotkeys::Listener::<ControlMessage>::new()
+		.register_emacs("S-<Space>", ControlMessage::ShowOrHide)
+		.unwrap()
+		.spawn_listener(sender);
 }
 
 fn create_engine(sender: Sender<ControlMessage>) -> QueryEngine {
