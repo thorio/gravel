@@ -1,8 +1,5 @@
 use crate::{constants::*, scrollbar::Scrollbar, structs::*};
-use fltk::{
-	app, app::Sender, enums::*, frame::Frame, group::Group, input::Input, prelude::*,
-	window::Window,
-};
+use fltk::{app, app::Sender, enums::*, frame::Frame, group::Group, input::Input, prelude::*, window::Window};
 
 pub fn get_window_size(hit_count: i32) -> i32 {
 	// when there are no results, we don't need padding between the input and the result list
@@ -20,8 +17,11 @@ pub fn build() -> Ui {
 	let mut window = build_window();
 	let mut input = build_input();
 
-	window.handle(move |_window, event| window_event(event, &sender));
-	input.handle(move |_input, event| input_event(event, &sender));
+	let mut sender_clone = sender.clone();
+	window.handle(move |_window, event| window_event(event, &sender_clone));
+
+	sender_clone = sender.clone();
+	input.handle(move |_input, event| input_event(event, &sender_clone));
 
 	let mut hits = Vec::new();
 	for i in 0..HIT_COUNT {
@@ -86,9 +86,7 @@ fn build_hit(i: i32) -> HitUi {
 	let x = PADDING;
 	let y = PADDING * 2 + QUERY_HEIGHT + HIT_HEIGHT * i;
 
-	let mut group = Group::default()
-		.with_pos(x, y)
-		.with_size(HIT_WIDTH, HIT_HEIGHT);
+	let mut group = Group::default().with_pos(x, y).with_size(HIT_WIDTH, HIT_HEIGHT);
 	group.set_color(COLOR_ACCENT);
 	group.set_frame(FrameType::FlatBox);
 

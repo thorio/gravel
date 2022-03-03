@@ -9,7 +9,7 @@ use std::sync::mpsc::Sender;
 static PATHS: &[&str] = &[
 	"/usr/share/applications/*.desktop",
 	"/usr/local/share/applications/*.desktop",
-	"${XDG_DATA_HOMA:-$HOME/.local/share}/applications/*.desktop",
+	"${XDG_DATA_HOME:-$HOME/.local/share}/applications/*.desktop",
 ];
 
 pub fn get_programs() -> Vec<Box<dyn Hit>> {

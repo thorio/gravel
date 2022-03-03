@@ -2,7 +2,7 @@ use enumflags2::BitFlags;
 use std::fmt::Debug;
 use std::sync::mpsc::Sender;
 
-pub use crate::hotkeys::structs::*;
+pub use self::{parsing::ParseError, structs::*};
 
 mod parsing;
 mod structs;
@@ -18,7 +18,7 @@ pub struct Listener<T: 'static + Send + Clone + Debug> {
 	hotkeys: Vec<Hotkey<T>>,
 }
 
-impl<T: 'static + Send + Clone + Copy + Debug> Listener<T> {
+impl<T: 'static + Send + Clone + Debug> Listener<T> {
 	pub fn new() -> Self {
 		Self { hotkeys: vec![] }
 	}
@@ -35,7 +35,7 @@ impl<T: 'static + Send + Clone + Copy + Debug> Listener<T> {
 		self
 	}
 
-	pub fn register_emacs(&mut self, binding: &str, value: T) -> Result<&mut Self, parsing::ParseError> {
+	pub fn register_emacs(&mut self, binding: &str, value: T) -> Result<&mut Self, ParseError> {
 		let result = parsing::parse_binding(binding)?;
 		self.register(result.modifiers, result.key, value);
 
@@ -53,7 +53,7 @@ impl<T: 'static + Send + Clone + Copy + Debug> Listener<T> {
 	}
 }
 
-fn init_hotkeys<T: 'static + Clone + Copy + Debug>(sender: Sender<T>, hotkeys: Vec<Hotkey<T>>) -> hotkey::Listener {
+fn init_hotkeys<T: 'static + Clone + Debug>(sender: Sender<T>, hotkeys: Vec<Hotkey<T>>) -> hotkey::Listener {
 	let mut hk = hotkey::Listener::new();
 
 	for hotkey in hotkeys {
@@ -63,11 +63,11 @@ fn init_hotkeys<T: 'static + Clone + Copy + Debug>(sender: Sender<T>, hotkeys: V
 		let key = convert_key(hotkey.key);
 
 		let result = hk.register_hotkey(modifiers, key, move || {
-			sender_clone.send(value_clone).unwrap();
+			sender_clone.send(value_clone.clone()).unwrap();
 		});
 
 		if let Err(_error) = result {
-			println!("failed to register hotkey {:?}", hotkey);
+			println!("failed to register hotkey {:?}, skipping", hotkey);
 		}
 	}
 

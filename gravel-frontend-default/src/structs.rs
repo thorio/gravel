@@ -1,7 +1,5 @@
 use crate::scrollbar::Scrollbar;
-use fltk::{
-	app::App, app::Receiver, app::Sender, frame::Frame, group::Group, input::Input, window::Window,
-};
+use fltk::{app::App, app::Receiver, app::Sender, frame::Frame, group::Group, input::Input, window::Window};
 
 pub struct Ui {
 	pub window: Window,
@@ -19,7 +17,7 @@ pub struct HitUi {
 	pub subtitle: Frame,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Message {
 	Query,
 	Confirm,
@@ -32,5 +30,6 @@ pub enum Message {
 	ShowWindow,
 	HideWindow,
 	ShowOrHideWindow,
+	ShowWithQuery(String),
 	Cancel,
 }

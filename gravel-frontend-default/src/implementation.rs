@@ -52,6 +52,7 @@ impl DefaultFrontend {
 					Message::ShowWindow => self.show(),
 					Message::HideWindow => self.hide(),
 					Message::ShowOrHideWindow => self.show_or_hide(),
+					Message::ShowWithQuery(query) => self.show_with(&query),
 				}
 			}
 		}
@@ -67,6 +68,7 @@ impl DefaultFrontend {
 					FrontendMessage::ShowOrHide => own_sender.send(Message::ShowOrHideWindow),
 					FrontendMessage::Show => own_sender.send(Message::ShowWindow),
 					FrontendMessage::Hide => own_sender.send(Message::HideWindow),
+					FrontendMessage::ShowWithQuery(query) => own_sender.send(Message::ShowWithQuery(query)),
 				}
 			}
 
@@ -85,6 +87,12 @@ impl DefaultFrontend {
 	fn hide(&mut self) {
 		self.ui.window.platform_hide();
 		self.visible = false;
+	}
+
+	fn show_with(&mut self, query: &str) {
+		self.show();
+		self.ui.input.set_value(query);
+		self.query_force();
 	}
 
 	fn show(&mut self) {
@@ -111,6 +119,10 @@ impl DefaultFrontend {
 			return;
 		}
 
+		self.query_force();
+	}
+
+	fn query_force(&mut self) {
 		self.result = self.engine.query(&self.ui.input.value());
 
 		self.ui.input.clear_changed();
