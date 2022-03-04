@@ -1,3 +1,5 @@
+//! gravel's default frontend, based on fltk.
+
 pub use implementation::DefaultFrontend;
 
 mod builder;

@@ -1,3 +1,10 @@
+//! Calculator provider based on [`meval`].
+//!
+//! Whenever the input can be parsed as a mathematical expression, shows the
+//! result as the first hit.
+//!
+//! Selecting the hit copies the calculated value to the system's clipboard.
+
 use clipboard::{ClipboardContext, ClipboardProvider};
 use gravel_core::{scoring::MAX_SCORE, *};
 use meval::eval_str;

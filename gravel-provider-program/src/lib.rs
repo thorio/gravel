@@ -1,3 +1,21 @@
+//! Program provider.
+//! Searches for applications and allows you to launch them.
+//!
+//! ### Linux
+//! Searches for .desktop files in
+//! - `/usr/share/applications`
+//! - `/usr/local/share/applications`
+//! - `$XDG_DATA_HOME/applications`
+//!
+//! Launches applications using gtk-launch.
+//!
+//! ### Windows
+//! Searches for .lnk files in
+//! - `%ProgramData%\Microsoft\Windows\Start Menu\Programs`
+//! - `%APPDATA%\Microsoft\Windows\Start Menu\Programs`
+//!
+//! Launches applications using explorer.
+
 use gravel_core::*;
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]

@@ -18,7 +18,7 @@ pub struct DefaultFrontend {
 
 impl Frontend for DefaultFrontend {
 	fn run(&mut self, receiver: Receiver<FrontendMessage>) {
-		self.handle_control_messages(receiver);
+		self.handle_frontend_messages(receiver);
 		self.run_event_loop();
 	}
 }
@@ -36,6 +36,7 @@ impl DefaultFrontend {
 		}
 	}
 
+	/// Runs the FLTK event loop. Blocks until the app exits.
 	fn run_event_loop(&mut self) {
 		while self.ui.app.wait() {
 			if let Some(message) = self.ui.receiver.recv() {
@@ -58,18 +59,14 @@ impl DefaultFrontend {
 		}
 	}
 
-	fn handle_control_messages(&mut self, receiver: Receiver<FrontendMessage>) {
+	/// Registers a recurring timeout that forwards [`FrontendMessage`]s on
+	/// the given [`Receiver`] to the frontend's own channel.
+	fn handle_frontend_messages(&mut self, receiver: Receiver<FrontendMessage>) {
 		let own_sender = self.ui.sender.clone();
 
-		// check FrontendMessages every 10ms and forward them to be handled in the main event loop
 		fltk::app::add_timeout3(0.01, move |handle| {
 			if let Ok(message) = receiver.try_recv() {
-				match message {
-					FrontendMessage::ShowOrHide => own_sender.send(Message::ShowOrHideWindow),
-					FrontendMessage::Show => own_sender.send(Message::ShowWindow),
-					FrontendMessage::Hide => own_sender.send(Message::HideWindow),
-					FrontendMessage::ShowWithQuery(query) => own_sender.send(Message::ShowWithQuery(query)),
-				}
+				own_sender.send(convert_message(message));
 			}
 
 			fltk::app::repeat_timeout3(0.01, handle);
@@ -89,13 +86,8 @@ impl DefaultFrontend {
 		self.visible = false;
 	}
 
-	fn show_with(&mut self, query: &str) {
-		self.show();
-		self.ui.input.set_value(query);
-		self.query_force();
-	}
-
 	fn show(&mut self) {
+		// select the entire previous query so it is overwritten when the user starts typing
 		self.input_select_all();
 
 		self.ui.window.platform_show();
@@ -103,6 +95,13 @@ impl DefaultFrontend {
 
 		// pull the window into the foreground so it isn't stuck behind other windows
 		native::activate_window(&self.ui.window);
+	}
+
+	/// Shows the window and populates the input with the given query.
+	fn show_with(&mut self, query: &str) {
+		self.show();
+		self.ui.input.set_value(query);
+		self.query_force();
 	}
 
 	fn input_select_all(&mut self) {
@@ -114,6 +113,7 @@ impl DefaultFrontend {
 		}
 	}
 
+	/// Queries the [`QueryEngine`] if the input has changed.
 	fn query(&mut self) {
 		if !self.ui.input.changed() {
 			return;
@@ -122,14 +122,19 @@ impl DefaultFrontend {
 		self.query_force();
 	}
 
+	/// Queries the [`QueryEngine`].
 	fn query_force(&mut self) {
 		self.result = self.engine.query(&self.ui.input.value());
-
 		self.ui.input.clear_changed();
-		self.update_window();
+
+		self.scroll.set_length(self.result.hits.len() as i32);
+		let height = builder::get_window_size(self.scroll.view_size());
+		self.ui.window.set_size(WINDOW_WIDTH, height);
+
 		self.update_hits();
 	}
 
+	/// Runs the action of the selected hit.
 	fn confirm(&self) {
 		if self.result.hits.len() >= 1 {
 			let cursor = self.scroll.cursor();
@@ -168,14 +173,8 @@ impl DefaultFrontend {
 		self.update_hits();
 	}
 
-	fn update_window(&mut self) {
-		self.scroll.set_length(self.result.hits.len() as i32);
-		let height = builder::get_window_size(self.scroll.view_size());
-		self.ui.window.set_size(WINDOW_WIDTH, height);
-	}
-
+	/// Writes the hit data to the UI elements.
 	fn update_hits(&mut self) {
-		// hits offscreen are not updated
 		for i in 0..HIT_COUNT {
 			let position = self.scroll.scroll() + i;
 			let selected = position == self.scroll.cursor();
@@ -183,6 +182,7 @@ impl DefaultFrontend {
 			let hitdata = if position < self.result.hits.len() as i32 {
 				self.result.hits[position as usize].get_data()
 			} else {
+				// hits offscreen must be set to empty, otherwise any residual data might still be visible.
 				&EMPTY_HIT
 			};
 
@@ -193,6 +193,7 @@ impl DefaultFrontend {
 		self.update_scrollbar();
 	}
 
+	/// Writes scroll data to the scrollbar.
 	fn update_scrollbar(&mut self) {
 		// only show the scrollbar if there is something to scroll
 		if self.scroll.view_size() >= self.result.hits.len() as i32 {
@@ -208,6 +209,18 @@ impl DefaultFrontend {
 	}
 }
 
+fn convert_message(message: FrontendMessage) -> Message {
+	match message {
+		FrontendMessage::ShowOrHide => Message::ShowOrHideWindow,
+		FrontendMessage::Show => Message::ShowWindow,
+		FrontendMessage::Hide => Message::HideWindow,
+		FrontendMessage::ShowWithQuery(query) => Message::ShowWithQuery(query),
+	}
+}
+
+/// Writes the given [`HitData`] to the given [`HitUi`].
+///
+/// `selected` highlights the hit.
 fn update_hit(hit: &mut HitUi, data: &HitData, selected: bool) {
 	hit.title.set_label(&data.title);
 	hit.subtitle.set_label(&data.subtitle);

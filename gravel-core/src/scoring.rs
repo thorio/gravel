@@ -7,6 +7,7 @@ pub const MAX_SCORE: u32 = u32::MAX;
 pub const MIN_SCORE: u32 = u32::MIN + 1;
 pub const NULL_SCORE: u32 = u32::MIN;
 
+/// Assigns each hit a score based on how closely its title matches the query.
 pub fn score_hits(query: &str, result: &mut QueryResult) {
 	let matcher = SkimMatcherV2::default();
 
@@ -24,10 +25,13 @@ pub fn score_hits(query: &str, result: &mut QueryResult) {
 	}
 }
 
+/// Discards any hits that were assigned a [`NULL_SCORE`].
+/// This happens when the title doesn't match the query at all.
 pub fn trim_hits(result: &mut QueryResult) {
 	result.hits.retain(|h| h.get_data().score != NULL_SCORE);
 }
 
+/// Orders the hits by their scores, highest to lowest.
 pub fn order_hits(result: &mut QueryResult) {
 	result.hits.sort_by(compare_hits);
 }

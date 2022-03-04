@@ -2,6 +2,8 @@ use crate::init::config::*;
 use gravel_core::{hotkeys::*, *};
 use std::sync::mpsc::Sender;
 
+/// Initializes a hotkey listener on a different thread.
+/// See [`Listener`].
 pub fn hotkeys(hotkeys: &Vec<Hotkey>, sender: Sender<FrontendMessage>) {
 	let mut listener = Listener::<FrontendMessage>::new();
 

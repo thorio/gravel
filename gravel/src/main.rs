@@ -1,3 +1,6 @@
+//! gravel's bin crate.
+//! Reads the config, loads plugins and initializes features.
+
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use gravel_core::{plugin::*, *};
@@ -23,12 +26,14 @@ fn main() {
 	frontend.run(receiver);
 }
 
+/// placeholder
 fn create_engine(sender: Sender<FrontendMessage>) -> QueryEngine {
 	let registry = get_registry();
 
 	QueryEngine::new(registry.providers, sender)
 }
 
+/// placeholder
 fn get_registry() -> PluginRegistry {
 	let mut registry = load_plugins();
 	registry
@@ -39,6 +44,7 @@ fn get_registry() -> PluginRegistry {
 	registry
 }
 
+/// placeholder
 fn create_frontend(engine: QueryEngine) -> Box<dyn Frontend> {
 	Box::new(DefaultFrontend::new(engine))
 }

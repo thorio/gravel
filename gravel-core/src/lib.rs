@@ -1,3 +1,7 @@
+//! gravel's core library.
+//! Contains traits and structs needed to write a plugin, as well as
+//! core functionality for querying and scoring.
+
 mod engine;
 mod frontend;
 pub mod hotkeys;

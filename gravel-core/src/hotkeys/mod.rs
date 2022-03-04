@@ -14,6 +14,10 @@ struct Hotkey<T> {
 	pub value: T,
 }
 
+/// Listens for system-wide hotkeys and sends an arbitrary value through
+/// the given [`Sender`].
+///
+/// The listener runs in a separate thread to avoid blocking.
 pub struct Listener<T: 'static + Send + Clone + Debug> {
 	hotkeys: Vec<Hotkey<T>>,
 }
@@ -23,6 +27,7 @@ impl<T: 'static + Send + Clone + Debug> Listener<T> {
 		Self { hotkeys: vec![] }
 	}
 
+	/// Registers a hotkey given the modifiers and key.
 	pub fn register(&mut self, modifiers: BitFlags<Modifier>, key: Key, value: T) -> &mut Self {
 		let hotkey = Hotkey {
 			modifiers: modifiers,
@@ -35,6 +40,14 @@ impl<T: 'static + Send + Clone + Debug> Listener<T> {
 		self
 	}
 
+	/// Registers a hotkey given an emacs-like binding.
+	///
+	/// Examples:
+	/// - `A-<Space>` => Alt + Space
+	/// - `C-M-s` => Control + Super/Windows + S
+	/// - `a` => A
+	///
+	/// For a complete list of keys and modifiers, see [`Key`], [`Modifier`]
 	pub fn register_emacs(&mut self, binding: &str, value: T) -> Result<&mut Self, ParseError> {
 		let result = parsing::parse_binding(binding)?;
 		self.register(result.modifiers, result.key, value);
@@ -42,9 +55,11 @@ impl<T: 'static + Send + Clone + Debug> Listener<T> {
 		Ok(self)
 	}
 
+	/// Spawns the listener with the registered hotkeys.
 	pub fn spawn_listener(&mut self, sender: Sender<T>) -> &mut Self {
 		let hotkeys = self.hotkeys.clone();
 
+		// Run the listener on another thread to avoid blocking the current one
 		std::thread::spawn(move || {
 			init_hotkeys(sender, hotkeys).listen();
 		});
@@ -53,6 +68,9 @@ impl<T: 'static + Send + Clone + Debug> Listener<T> {
 	}
 }
 
+/// Registers the given hotkeys with a new [`hotkey::Listener`] and returns it.
+///
+/// If a hotkey cannot be registered, logs a warning and skips it.
 fn init_hotkeys<T: 'static + Clone + Debug>(sender: Sender<T>, hotkeys: Vec<Hotkey<T>>) -> hotkey::Listener {
 	let mut hk = hotkey::Listener::new();
 

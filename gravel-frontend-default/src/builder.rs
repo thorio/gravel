@@ -1,6 +1,7 @@
 use crate::{constants::*, scrollbar::Scrollbar, structs::*};
 use fltk::{app, app::Sender, enums::*, frame::Frame, group::Group, input::Input, prelude::*, window::Window};
 
+/// Get the target windows size given the number of hits displayed.
 pub fn get_window_size(hit_count: i32) -> i32 {
 	// when there are no results, we don't need padding between the input and the result list
 	let padding = PADDING * if hit_count == 0 { 2 } else { 3 };
@@ -8,6 +9,7 @@ pub fn get_window_size(hit_count: i32) -> i32 {
 	HIT_HEIGHT * hit_count + QUERY_HEIGHT + padding
 }
 
+/// Constructs the UI.
 pub fn build() -> Ui {
 	let app = app::App::default().with_scheme(app::Scheme::Gtk);
 	app::set_visible_focus(false);
@@ -114,6 +116,7 @@ fn build_hit(i: i32) -> HitUi {
 	}
 }
 
+/// Handles events on the window.
 fn window_event(event: Event, sender: &Sender<Message>) -> bool {
 	match event {
 		Event::Unfocus => window_unfocus(sender),
@@ -127,6 +130,7 @@ fn window_unfocus(sender: &Sender<Message>) -> bool {
 	true
 }
 
+/// Handles events on the input.
 fn input_event(event: Event, sender: &Sender<Message>) -> bool {
 	match event {
 		Event::KeyDown => input_keydown(app::event_key(), sender),

@@ -1,5 +1,6 @@
 use crate::provider::Provider;
 
+/// Holds a selection of plugins.
 pub struct PluginRegistry {
 	pub providers: Vec<Box<dyn Provider>>,
 }

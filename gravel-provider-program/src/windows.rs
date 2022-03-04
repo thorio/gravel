@@ -9,6 +9,8 @@ static PATHS: &[&str] = &[
 	"$APPDATA\\Microsoft\\Windows\\Start Menu\\Programs\\**\\*.lnk",
 ];
 
+/// Expands the [`PATH`] globs and returns hit representations of all
+/// links it finds.
 pub fn get_programs() -> Vec<Box<dyn Hit>> {
 	let mut hits = Vec::new() as Vec<Box<dyn Hit>>;
 
@@ -27,6 +29,8 @@ pub fn get_programs() -> Vec<Box<dyn Hit>> {
 	hits
 }
 
+/// Extracts an application's name from the filename of the link and
+/// returns a [`SimpleHit`] that represents it.
 fn get_program(path: PathBuf) -> SimpleHit<ExtraData> {
 	let name = path.file_stem().unwrap().to_str().unwrap();
 	let path_str = path.to_str().unwrap();
@@ -47,6 +51,7 @@ impl ExtraData {
 	}
 }
 
+/// Passes the link's path to explorer, which then launches the application.
 fn run_program(hit: &SimpleHit<ExtraData>, sender: &Sender<FrontendMessage>) {
 	Command::new("explorer")
 		.arg(&hit.get_extra_data().link_file)

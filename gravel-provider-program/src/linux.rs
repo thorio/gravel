@@ -12,6 +12,8 @@ static PATHS: &[&str] = &[
 	"${XDG_DATA_HOME:-$HOME/.local/share}/applications/*.desktop",
 ];
 
+/// Expands the [`PATH`] globs and returns hit representations of all
+/// desktop entries it finds.
 pub fn get_programs() -> Vec<Box<dyn Hit>> {
 	let mut hits = Vec::new() as Vec<Box<dyn Hit>>;
 
@@ -34,6 +36,7 @@ pub fn get_programs() -> Vec<Box<dyn Hit>> {
 	hits
 }
 
+/// Parses a desktop entry and returns a [`SimpleHit`] that represents it.
 fn get_program(path: PathBuf) -> Result<SimpleHit<ExtraData>, Box<dyn Error>> {
 	let filename = path.file_name().unwrap().to_str().unwrap();
 
@@ -59,6 +62,7 @@ impl ExtraData {
 	}
 }
 
+/// Runs the given entry using gtk-launch, explicitly detaching all streams.
 fn run_program(hit: &SimpleHit<ExtraData>, sender: &Sender<FrontendMessage>) {
 	Command::new("gtk-launch")
 		.arg(&hit.get_extra_data().desktop_file)

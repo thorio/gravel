@@ -2,9 +2,11 @@
 ### WIP application launcher
 
 ## Current Features
-- Basic fltk UI
+- Basic FLTK UI
+- Hotkey support
 - Desktop entry (Linux) and Start Menu (Windows) Application launching
 - Calculator
+- Web searches
 
 ## Goals
 - Cross-platform support for Linux and Windows

@@ -1,5 +1,8 @@
 use fltk::{enums::*, frame::Frame, prelude::*};
 
+/// Custom Scrollbar implementation.
+///
+/// For display only, it is not interactive.
 pub struct Scrollbar {
 	frame: Frame,
 	slider: Frame,
@@ -11,6 +14,7 @@ pub struct Scrollbar {
 }
 
 impl Scrollbar {
+	/// Constructs a default instance.
 	pub fn default() -> Self {
 		let mut frame = Frame::default();
 		frame.set_frame(FrameType::FlatBox);

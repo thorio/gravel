@@ -1,3 +1,5 @@
+//! Defines constants for the UI sizing and layout.
+
 use fltk::enums::Color;
 use std::*;
 

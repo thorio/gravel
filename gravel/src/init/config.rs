@@ -8,9 +8,16 @@ static CONFIG_PATH: &str = "${XDG_CONFIG_HOME:-$HOME/.config}/gravel";
 #[cfg(windows)]
 static CONFIG_PATH: &str = "${XDG_CONFIG_HOME:-$USERPROFILE/.config}/gravel";
 
+/// Reads and deserializes the configuration from multiple sources:
+/// - baked-in default config (config.yml in crate root)
+/// - user config file in `$XDG_CONFIG_HOME/gravel/user.yml`
+/// - dev config file in `$XDG_CONFIG_HOME/gravel/dev.yml`
+///
+/// Each layer can override the values of the previous layers.
 pub fn config() -> RootConfig {
 	let user_config_path = format!("{}/user.yml", shellexpand::env(CONFIG_PATH).unwrap());
 
+	#[allow(unused_mut)]
 	let mut config = Config::builder()
 		.add_source(File::from_str(DEFAULT_CONFIG, FileFormat::Yaml))
 		.add_source(File::with_name(&user_config_path).required(false));

@@ -1,3 +1,8 @@
+//! Web search provider.
+//!
+//! Always returns a hit with the minimum score that, when selected,
+//! opens the user's default browser and searches for the query.
+
 use gravel_core::{scoring::MIN_SCORE, *};
 use std::sync::mpsc::Sender;
 
