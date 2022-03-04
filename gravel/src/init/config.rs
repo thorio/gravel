@@ -1,7 +1,7 @@
 use config::{Config, File, FileFormat};
 use serde::Deserialize;
 
-static DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config/default.yml"));
+static DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
 #[cfg(target_os = "linux")]
 static CONFIG_PATH: &str = "${XDG_CONFIG_HOME:-$HOME/.config}/gravel";
@@ -28,6 +28,7 @@ pub fn config() -> RootConfig {
 
 #[derive(Debug, Deserialize)]
 pub struct RootConfig {
+	pub single_instance: Option<String>,
 	pub hotkeys: Vec<Hotkey>,
 }
 

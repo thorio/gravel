@@ -1,0 +1,28 @@
+## Default configuration for gravel
+
+## Configures the key for single-instance functionality.
+## Set to null to disable.
+single_instance: gravel
+
+## Binds global hotkeys to actions.
+## The hotkey is configured as an emacs-like binding, though note that some
+## features, such as cords, are not supported.
+##
+## Binding examples:
+##   `A-<Space>` => Alt + Space
+##   `C-M-s` => Control + Super/Windows + S
+##   `a` => A
+##
+## A complete list of supported modifiers and keys can be found here:
+## https://github.com/thorio/gravel/blob/master/gravel-core/src/hotkeys/structs.rs
+hotkeys:
+
+  ## Shows or hides the frontend. These actions are also available seperately,
+  ## as `Show` and `Hide`
+  - binding: A-<Space>
+    action: ShowHide
+
+  ## Shows the frontend and pre-populates with the given query.
+  # - binding: M-r
+  #   action: ShowWith
+  #   query: example

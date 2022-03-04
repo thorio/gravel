@@ -17,6 +17,7 @@ fn main() {
 	let engine = create_engine(sender.clone());
 	let mut frontend = create_frontend(engine);
 
+	init::single_instance(&config.single_instance);
 	init::hotkeys(&config.hotkeys, sender);
 
 	frontend.run(receiver);

@@ -11,5 +11,7 @@ gravel-provider-calculator = { path = "../gravel-provider-calculator" }
 gravel-provider-websearch = { path = "../gravel-provider-websearch" }
 
 config = "0.12.0"
+lazy_static = "1.4.0"
 serde = "1.0.136"
 shellexpand = "2.1.0"
+single-instance = "0.3.3"
