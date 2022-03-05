@@ -3,39 +3,102 @@ use crate::provider::*;
 use crate::scoring::*;
 use std::sync::mpsc::Sender;
 
+/// Holds a [`Provider`] and some additional metadata.
+struct ProviderInfo {
+	pub provider: Box<dyn Provider>,
+	pub keyword: Option<String>,
+}
+
 pub struct QueryEngine {
-	providers: Vec<Box<dyn Provider>>,
+	providers: Vec<ProviderInfo>,
 	sender: Sender<FrontendMessage>,
 }
 
 /// Aggregates and scores hits from the given [`Provider`]s.
 impl QueryEngine {
-	pub fn new(providers: Vec<Box<dyn Provider>>, sender: Sender<FrontendMessage>) -> Self {
+	pub fn new(sender: Sender<FrontendMessage>) -> Self {
 		QueryEngine {
-			providers: providers,
+			providers: vec![],
 			sender: sender,
 		}
 	}
 
+	/// Adds the provider to the engine's collection.
+	pub fn register(&mut self, provider: Box<dyn Provider>, keyword: &Option<String>) -> &mut Self {
+		let info = ProviderInfo {
+			provider: provider,
+			keyword: keyword.clone(),
+		};
+
+		self.providers.push(info);
+		self
+	}
+
 	/// Queries all providers with the given query.
 	pub fn query(&self, query: &str) -> QueryResult {
-		if !query.trim().is_empty() {
-			self.inner_query(query)
-		} else {
-			QueryResult::empty()
+		if query.trim().is_empty() {
+			return QueryResult::empty();
 		}
+
+		if let Some(result) = self.try_keyword_query(query) {
+			return result;
+		}
+
+		self.full_query(query)
 	}
 
 	pub fn run_hit_action(&self, hit: &Box<dyn Hit>) {
 		hit.action(&self.sender);
 	}
 
+	/// Runs the query against all available providers.
+	fn full_query(&self, query: &str) -> QueryResult {
+		let providers = self
+			.providers
+			.iter()
+			.filter(|provider| provider.keyword.is_none())
+			.collect::<Vec<&ProviderInfo>>();
+
+		self.inner_query(providers.iter(), query)
+	}
+
+	/// Tries to find a provider with the a keyword that matches the query's.
+	/// If one is found, the keyword is stripped from the query and the
+	/// resulting new query is run against that provider only.
+	fn try_keyword_query(&self, query: &str) -> Option<QueryResult> {
+		let words = query.split(' ').collect::<Vec<&str>>();
+		let first_word: &str = words.first().unwrap();
+
+		if let Some(provider) = self.check_keywords(first_word) {
+			let providers = vec![provider];
+
+			// remove the keyword from the query
+			let new_query = &query[first_word.len()..query.len()].trim_start();
+
+			return Some(self.inner_query(providers.iter(), new_query));
+		}
+
+		None
+	}
+
+	/// Tries to find a provider with the a keyword that matches the given string.
+	fn check_keywords(&self, first_word: &str) -> Option<&ProviderInfo> {
+		for provider in self.providers.iter() {
+			match provider.keyword.as_ref() {
+				Some(keyword) if keyword == first_word => return Some(provider),
+				_ => (),
+			};
+		}
+
+		None
+	}
+
 	/// Queries providers; aggregates, scores and orders [`Hit`]s.
-	fn inner_query(&self, query: &str) -> QueryResult {
+	fn inner_query(&self, providers: std::slice::Iter<&ProviderInfo>, query: &str) -> QueryResult {
 		let mut results = Vec::new();
 
-		for provider in &self.providers {
-			let result = provider.query(query);
+		for provider in providers {
+			let result = provider.provider.query(query);
 			results.push(result);
 		}
 

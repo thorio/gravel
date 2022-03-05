@@ -70,7 +70,7 @@ impl<T: 'static + Send + Clone + Debug> Listener<T> {
 
 /// Registers the given hotkeys with a new [`hotkey::Listener`] and returns it.
 ///
-/// If a hotkey cannot be registered, logs a warning and skips it.
+/// If a hotkey cannot be registered, a warning is logged and the hotkey is skipped.
 fn init_hotkeys<T: 'static + Clone + Debug>(sender: Sender<T>, hotkeys: Vec<Hotkey<T>>) -> hotkey::Listener {
 	let mut hk = hotkey::Listener::new();
 

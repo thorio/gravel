@@ -27,7 +27,8 @@ hotkeys:
   #   action: ShowWith
   #   query: example
 
-## Frontend, or UI, to use. This is responsible for the elements you interact with.
+## Frontend, or UI, to use. This is responsible for the elements you
+## interact with.
 frontend:
 
   ## The default FLTK-based frontend.
@@ -56,3 +57,8 @@ providers:
   ## Default web searcher. It will always insert a result at the very bottom of
   ## the list that, when selected, will search the web for your query.
   - name: websearch
+
+    ## This option disables the provider for any query that is not prefixed
+    ## with this keyword, then shows only this providers results for any
+    ## query that is.
+    keyword: search

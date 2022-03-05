@@ -51,10 +51,9 @@ pub enum ParseError {
 	InvalidKey,
 }
 
-#[allow(dead_code)]
 /// Parse an emacs-like keybinding. Does not support cords.
 pub fn parse_binding(binding: &str) -> Result<ParsedBinding, ParseError> {
-	let parts = binding.split("-").collect::<Vec<&str>>();
+	let parts = binding.split('-').collect::<Vec<&str>>();
 
 	let key = convert_key(parts.last().unwrap())?;
 	let mut modifiers = BitFlags::empty();

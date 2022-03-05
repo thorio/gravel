@@ -33,4 +33,5 @@ pub struct FrontendConfig {
 #[derive(Debug, Deserialize)]
 pub struct ProviderConfig {
 	pub name: String,
+	pub keyword: Option<String>,
 }

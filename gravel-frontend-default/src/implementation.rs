@@ -115,11 +115,9 @@ impl DefaultFrontend {
 
 	/// Queries the [`QueryEngine`] if the input has changed.
 	fn query(&mut self) {
-		if !self.ui.input.changed() {
-			return;
+		if self.ui.input.changed() {
+			self.query_force();
 		}
-
-		self.query_force();
 	}
 
 	/// Queries the [`QueryEngine`].
