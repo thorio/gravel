@@ -1,5 +1,5 @@
-use config::{Config, File, FileFormat};
-use serde::Deserialize;
+use crate::config::*;
+use ::config::{Config, File, FileFormat};
 
 static DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
@@ -11,7 +11,8 @@ static CONFIG_PATH: &str = "${XDG_CONFIG_HOME:-$USERPROFILE/.config}/gravel";
 /// Reads and deserializes the configuration from multiple sources:
 /// - baked-in default config (config.yml in crate root)
 /// - user config file in `$XDG_CONFIG_HOME/gravel/user.yml`
-/// - dev config file in `$XDG_CONFIG_HOME/gravel/dev.yml`
+/// - dev config file in `$XDG_CONFIG_HOME/gravel/dev.yml` when compiling
+///   in debug mode.
 ///
 /// Each layer can override the values of the previous layers.
 pub fn config() -> RootConfig {
@@ -31,25 +32,4 @@ pub fn config() -> RootConfig {
 	}
 
 	config.build().unwrap().try_deserialize().unwrap()
-}
-
-#[derive(Debug, Deserialize)]
-pub struct RootConfig {
-	pub single_instance: Option<String>,
-	pub hotkeys: Vec<Hotkey>,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct Hotkey {
-	pub binding: String,
-	pub action: HotkeyAction,
-	pub query: Option<String>,
-}
-
-#[derive(Clone, Debug, PartialEq, Deserialize)]
-pub enum HotkeyAction {
-	ShowHide,
-	Show,
-	Hide,
-	ShowWith,
 }

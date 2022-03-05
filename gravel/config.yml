@@ -26,3 +26,33 @@ hotkeys:
   # - binding: M-r
   #   action: ShowWith
   #   query: example
+
+## Frontend, or UI, to use. This is responsible for the elements you interact with.
+frontend:
+
+  ## The default FLTK-based frontend.
+  name: default
+
+## Providers to use. These are responsible for the results you get.
+## Providers each yield different sets of results, so if you need more or
+## less functionality, you can configure this here.
+providers:
+
+  ## Default calculator. If it detects a mathematical expression, such as
+  ## `1 + 2` or `5 * sin(3)`, it will display its result at the very top of
+  ## the list and allow you to copy the value to your clipboard.
+  ##
+  ## A complete list of supported expressions and constants can be found here:
+  ## https://docs.rs/meval/latest/meval/#supported-expressions
+  - name: calculator
+
+  ## Default application finder. It will search the applications installed on
+  ## your system and allow you to launch them.
+  ##
+  ## On Linux this will search your desktop entries,
+  ## on Windows it will search the Start menu.
+  - name: program
+
+  ## Default web searcher. It will always insert a result at the very bottom of
+  ## the list that, when selected, will search the web for your query.
+  - name: websearch

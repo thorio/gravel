@@ -1,10 +1,10 @@
-use crate::init::config::*;
+use crate::config::*;
 use gravel_core::{hotkeys::*, *};
 use std::sync::mpsc::Sender;
 
 /// Initializes a hotkey listener on a different thread.
 /// See [`Listener`].
-pub fn hotkeys(hotkeys: &Vec<Hotkey>, sender: Sender<FrontendMessage>) {
+pub fn hotkeys(hotkeys: &Vec<HotkeyConfig>, sender: Sender<FrontendMessage>) {
 	let mut listener = Listener::<FrontendMessage>::new();
 
 	for hotkey in hotkeys {
@@ -17,7 +17,7 @@ pub fn hotkeys(hotkeys: &Vec<Hotkey>, sender: Sender<FrontendMessage>) {
 	listener.spawn_listener(sender);
 }
 
-fn get_control_message(hotkey: &Hotkey) -> FrontendMessage {
+fn get_control_message(hotkey: &HotkeyConfig) -> FrontendMessage {
 	match &hotkey.action {
 		HotkeyAction::ShowHide => FrontendMessage::ShowOrHide,
 		HotkeyAction::Show => FrontendMessage::Show,

@@ -59,7 +59,7 @@ impl<T: 'static + Send + Clone + Debug> Listener<T> {
 	pub fn spawn_listener(&mut self, sender: Sender<T>) -> &mut Self {
 		let hotkeys = self.hotkeys.clone();
 
-		// Run the listener on another thread to avoid blocking the current one
+		// run the listener on another thread to avoid blocking the current one
 		std::thread::spawn(move || {
 			init_hotkeys(sender, hotkeys).listen();
 		});

@@ -5,38 +5,22 @@
 // This also disables console output, that's why it isn't enabled in debug mode.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use gravel_core::{plugin::*, *};
+use gravel_core::*;
 use std::sync::mpsc;
-use std::sync::mpsc::{Receiver, Sender};
 
+mod config;
 mod init;
 
 fn main() {
 	let config = init::config();
-	let (sender, receiver): (Sender<FrontendMessage>, Receiver<FrontendMessage>) = mpsc::channel();
+	let (sender, receiver) = mpsc::channel::<FrontendMessage>();
 
 	let registry = init::plugins();
-	let engine = create_engine(sender.clone(), &registry);
-	let mut frontend = get_frontend(&registry, engine);
+	let engine = init::engine(sender.clone(), &registry, &config);
+	let mut frontend = init::frontend(&registry, engine, &config);
 
 	init::single_instance(&config.single_instance);
 	init::hotkeys(&config.hotkeys, sender);
 
 	frontend.run(receiver);
-}
-
-/// placeholder
-fn create_engine(sender: Sender<FrontendMessage>, registry: &PluginRegistry) -> QueryEngine {
-	let providers = vec![
-		registry.get_provider("calculator").unwrap().get_provider().unwrap(),
-		registry.get_provider("program").unwrap().get_provider().unwrap(),
-		registry.get_provider("websearch").unwrap().get_provider().unwrap(),
-	];
-
-	QueryEngine::new(providers, sender)
-}
-
-/// placeholder
-fn get_frontend(registry: &PluginRegistry, engine: QueryEngine) -> Box<dyn Frontend> {
-	registry.get_frontend("default").unwrap().get_frontend(engine).unwrap()
 }

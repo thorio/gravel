@@ -1,7 +1,7 @@
 use crate::{constants::*, scrollbar::Scrollbar, structs::*};
 use fltk::{app, app::Sender, enums::*, frame::Frame, group::Group, input::Input, prelude::*, window::Window};
 
-/// Get the target windows size given the number of hits displayed.
+/// Get the target window's size given the number of hits displayed.
 pub fn get_window_size(hit_count: i32) -> i32 {
 	// when there are no results, we don't need padding between the input and the result list
 	let padding = PADDING * if hit_count == 0 { 2 } else { 3 };
