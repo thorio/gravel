@@ -1,13 +1,11 @@
 //! gravel's bin crate.
 //! Reads the config, loads plugins and initializes features.
 
+// When compiling in release mode, disable the cmd window that pops up on windows.
+// This also disables console output, that's why it isn't enabled in debug mode.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use gravel_core::{plugin::*, *};
-use gravel_frontend_default::DefaultFrontend;
-use gravel_provider_calculator::CalculatorProvider;
-use gravel_provider_program::ProgramProvider;
-use gravel_provider_websearch::WebsearchProvider;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 
@@ -17,8 +15,9 @@ fn main() {
 	let config = init::config();
 	let (sender, receiver): (Sender<FrontendMessage>, Receiver<FrontendMessage>) = mpsc::channel();
 
-	let engine = create_engine(sender.clone());
-	let mut frontend = create_frontend(engine);
+	let registry = init::plugins();
+	let engine = create_engine(sender.clone(), &registry);
+	let mut frontend = get_frontend(&registry, engine);
 
 	init::single_instance(&config.single_instance);
 	init::hotkeys(&config.hotkeys, sender);
@@ -27,24 +26,17 @@ fn main() {
 }
 
 /// placeholder
-fn create_engine(sender: Sender<FrontendMessage>) -> QueryEngine {
-	let registry = get_registry();
+fn create_engine(sender: Sender<FrontendMessage>, registry: &PluginRegistry) -> QueryEngine {
+	let providers = vec![
+		registry.get_provider("calculator").unwrap().get_provider().unwrap(),
+		registry.get_provider("program").unwrap().get_provider().unwrap(),
+		registry.get_provider("websearch").unwrap().get_provider().unwrap(),
+	];
 
-	QueryEngine::new(registry.providers, sender)
+	QueryEngine::new(providers, sender)
 }
 
 /// placeholder
-fn get_registry() -> PluginRegistry {
-	let mut registry = load_plugins();
-	registry
-		.provider(Box::new(ProgramProvider::new()))
-		.provider(Box::new(CalculatorProvider::new()))
-		.provider(Box::new(WebsearchProvider::new()));
-
-	registry
-}
-
-/// placeholder
-fn create_frontend(engine: QueryEngine) -> Box<dyn Frontend> {
-	Box::new(DefaultFrontend::new(engine))
+fn get_frontend(registry: &PluginRegistry, engine: QueryEngine) -> Box<dyn Frontend> {
+	registry.get_frontend("default").unwrap().get_frontend(engine).unwrap()
 }

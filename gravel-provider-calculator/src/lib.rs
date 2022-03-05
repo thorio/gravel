@@ -6,11 +6,17 @@
 //! Selecting the hit copies the calculated value to the system's clipboard.
 
 use clipboard::{ClipboardContext, ClipboardProvider};
-use gravel_core::{scoring::MAX_SCORE, *};
+use gravel_core::{plugin::*, scoring::MAX_SCORE, *};
 use meval::eval_str;
 use std::sync::mpsc::Sender;
 
-pub struct CalculatorProvider {}
+pub fn register_plugins(registry: &mut PluginRegistry) {
+	let definition = PluginDefinition::new("calculator").with_provider(|| Box::new(CalculatorProvider::new()));
+
+	registry.register(definition);
+}
+
+struct CalculatorProvider {}
 
 impl CalculatorProvider {
 	pub fn new() -> Self {

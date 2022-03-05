@@ -16,13 +16,19 @@
 //!
 //! Launches applications using explorer.
 
-use gravel_core::*;
+use gravel_core::{plugin::*, *};
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
 #[cfg_attr(windows, path = "windows.rs")]
 mod implementation;
 
-pub struct ProgramProvider {}
+pub fn register_plugins(registry: &mut PluginRegistry) {
+	let definition = PluginDefinition::new("program").with_provider(|| Box::new(ProgramProvider::new()));
+
+	registry.register(definition);
+}
+
+struct ProgramProvider {}
 
 impl ProgramProvider {
 	pub fn new() -> Self {
