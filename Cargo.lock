@@ -307,7 +307,6 @@ dependencies = [
  "gravel-provider-program",
  "gravel-provider-websearch",
  "lazy_static",
- "serde",
  "shellexpand",
  "single-instance",
 ]
@@ -316,9 +315,12 @@ dependencies = [
 name = "gravel-core"
 version = "0.1.0"
 dependencies = [
+ "config",
  "enumflags2",
  "fuzzy-matcher",
  "hotkey",
+ "serde",
+ "shellexpand",
 ]
 
 [[package]]
@@ -355,6 +357,7 @@ name = "gravel-provider-websearch"
 version = "0.1.0"
 dependencies = [
  "gravel-core",
+ "serde",
  "urlencoding",
 ]
 

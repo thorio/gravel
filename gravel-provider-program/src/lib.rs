@@ -23,7 +23,7 @@ use gravel_core::{plugin::*, *};
 mod implementation;
 
 pub fn register_plugins(registry: &mut PluginRegistry) {
-	let definition = PluginDefinition::new("program").with_provider(|| Box::new(ProgramProvider::new()));
+	let definition = PluginDefinition::new("program").with_provider(|_config| Box::new(ProgramProvider::new()));
 
 	registry.register(definition);
 }

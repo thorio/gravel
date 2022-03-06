@@ -1,5 +1,4 @@
-use crate::config::*;
-use gravel_core::{hotkeys::*, *};
+use gravel_core::{config::*, hotkeys::*, *};
 use std::sync::mpsc::Sender;
 
 /// Initializes a hotkey listener on a different thread.

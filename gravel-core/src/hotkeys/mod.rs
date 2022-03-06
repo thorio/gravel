@@ -29,11 +29,7 @@ impl<T: 'static + Send + Clone + Debug> Listener<T> {
 
 	/// Registers a hotkey given the modifiers and key.
 	pub fn register(&mut self, modifiers: BitFlags<Modifier>, key: Key, value: T) -> &mut Self {
-		let hotkey = Hotkey {
-			modifiers: modifiers,
-			key: key,
-			value: value,
-		};
+		let hotkey = Hotkey { modifiers, key, value };
 
 		self.hotkeys.push(hotkey);
 

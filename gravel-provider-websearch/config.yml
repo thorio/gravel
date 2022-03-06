@@ -1,0 +1,16 @@
+## Config for the web search provider.
+## Remember to duplicate changes here in gravel's main config.
+
+## Determines which URL is opened. The default is Google Search.
+## The placeholder `{}` is replaced with the URL-encoded query.
+##
+## For example, you could use:
+## - `https://duckduckgo.com/?q={}`
+## - `https://www.ecosia.org/search?q={}`
+## - `https://www.bing.com/search?q={}`
+## - `https://search.yahoo.com/search?p={}`
+##
+url_pattern: "https://www.google.com/search?q={}"
+
+## Changes the subtitle of the hit. Visual difference only.
+subtitle: Web Search

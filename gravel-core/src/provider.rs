@@ -30,7 +30,7 @@ pub struct QueryResult {
 
 impl QueryResult {
 	pub fn new(hits: Vec<Box<dyn Hit>>) -> Self {
-		QueryResult { hits: hits }
+		QueryResult { hits }
 	}
 
 	pub fn empty() -> Self {

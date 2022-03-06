@@ -11,7 +11,7 @@ use meval::eval_str;
 use std::sync::mpsc::Sender;
 
 pub fn register_plugins(registry: &mut PluginRegistry) {
-	let definition = PluginDefinition::new("calculator").with_provider(|| Box::new(CalculatorProvider::new()));
+	let definition = PluginDefinition::new("calculator").with_provider(|_config| Box::new(CalculatorProvider::new()));
 
 	registry.register(definition);
 }

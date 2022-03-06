@@ -32,7 +32,11 @@ hotkeys:
 frontend:
 
   ## The default FLTK-based frontend.
-  name: default
+  plugin: default
+
+  ## Optional configuration alias. See the `plugin_config` section below.
+  ## Defaults to the plugin's name.
+  alias: frontend
 
 ## Providers to use. These are responsible for the results you get.
 ## Providers each yield different sets of results, so if you need more or
@@ -45,20 +49,65 @@ providers:
   ##
   ## A complete list of supported expressions and constants can be found here:
   ## https://docs.rs/meval/latest/meval/#supported-expressions
-  - name: calculator
+  - plugin: calculator
 
   ## Default application finder. It will search the applications installed on
   ## your system and allow you to launch them.
   ##
   ## On Linux this will search your desktop entries,
   ## on Windows it will search the Start menu.
-  - name: program
+  - plugin: program
 
   ## Default web searcher. It will always insert a result at the very bottom of
   ## the list that, when selected, will search the web for your query.
-  - name: websearch
+  - plugin: websearch
+
+  ## This is a second instance of the previous web search provider.
+  ## It's set up to open the query in Google Translate instead.
+  ##
+  ## See `plugin_config > my_translate` below for this provider's configuration.
+  - plugin: websearch
+
+    ## Optional configuration alias. See the `plugin_config` section below.
+    ## Defaults to the plugin's name.
+    alias: my_translate
 
     ## This option disables the provider for any query that is not prefixed
     ## with this keyword, then shows only this providers results for any
     ## query that is.
-    keyword: search
+    keyword: tr
+
+## This is where plugins (providers / frontends) read their configuration from.
+##
+## By default plugins read from `plugin_config > {my_plugin}`, but you can use
+## an alias to changes this. With aliases, you can have multiple instances of
+## the same provider, each with a different configuration.
+##
+## See the second `websearch` plugin above for a practical example.
+plugin_config:
+
+  ## Configuration for the websearch plugin, repurposing it for opening the
+  ## query in Google Translate.
+  my_translate:
+    url_pattern: "https://translate.google.com/?text={}"
+    subtitle: Translate
+
+  ## All further plugin configuration is commented out, since the defaults
+  ## are actually set by the respective plugin.
+  ## Simply uncomment anything you want to change.
+
+  #websearch:
+
+    ## Determines which URL is opened. The default is Google Search.
+    ## The placeholder `{}` is replaced with the URL-encoded query.
+    ##
+    ## For example, you could use:
+    ## - `https://duckduckgo.com/?q={}`
+    ## - `https://www.ecosia.org/search?q={}`
+    ## - `https://www.bing.com/search?q={}`
+    ## - `https://search.yahoo.com/search?p={}`
+    ##
+    #url_pattern: "https://www.google.com/search?q={}"
+
+    ## Changes the subtitle of the hit. Visual difference only.
+    #subtitle: Web Search
