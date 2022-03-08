@@ -113,6 +113,12 @@ plugin_config:
     ## Changes the subtitle of the hit. Visual difference only.
     #subtitle: Web Search
 
+  ## https://github.com/thorio/gravel/tree/master/gravel-provider-calculator
+  #calculator:
+
+    ## Changes the subtitle of the hit. Visual difference only.
+    #subtitle: Copy to Clipboard
+
   ## https://github.com/thorio/gravel/tree/master/gravel-frontend-default
   #frontend:
     ## Layout and sizing configuration.

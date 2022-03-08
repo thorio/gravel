@@ -341,6 +341,7 @@ dependencies = [
  "clipboard",
  "gravel-core",
  "meval",
+ "serde",
 ]
 
 [[package]]

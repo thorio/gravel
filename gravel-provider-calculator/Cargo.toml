@@ -5,5 +5,7 @@ edition = "2021"
 
 [dependencies]
 gravel-core = { path = "../gravel-core" }
-meval = "0.2"
+
 clipboard = "0.5.0"
+meval = "0.2"
+serde = "1.0.136"

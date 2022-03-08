@@ -1,0 +1,5 @@
+## Config for gravel's calculator provider.
+## Remember to duplicate changes here in gravel's main config.
+
+## Changes the subtitle of the hit. Visual difference only.
+subtitle: Copy to Clipboard
