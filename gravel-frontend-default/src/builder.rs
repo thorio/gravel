@@ -1,23 +1,25 @@
-use crate::{constants::*, scrollbar::Scrollbar, structs::*};
+use crate::{config::*, scrollbar::Scrollbar, structs::*};
 use fltk::{app, app::Sender, enums::*, frame::Frame, group::Group, input::Input, prelude::*, window::Window};
 
 /// Get the target window's size given the number of hits displayed.
-pub fn get_window_size(hit_count: i32) -> i32 {
-	// when there are no results, we don't need padding between the input and the result list
-	let padding = PADDING * if hit_count == 0 { 2 } else { 3 };
+pub fn get_window_size(config: &Config, hit_count: i32) -> i32 {
+	let padding = match hit_count {
+		0 => 0,
+		_ => config.layout.padding,
+	};
 
-	HIT_HEIGHT * hit_count + QUERY_HEIGHT + padding
+	config.layout.window_min_height + config.layout.hit_height * hit_count + padding
 }
 
 /// Constructs the UI.
-pub fn build() -> Ui {
+pub fn build(config: &Config) -> Ui {
 	let app = app::App::default().with_scheme(app::Scheme::Gtk);
 	app::set_visible_focus(false);
 
 	let (sender, receiver) = app::channel::<Message>();
 
-	let mut window = build_window();
-	let mut input = build_input();
+	let mut window = build_window(&config);
+	let mut input = build_input(&config);
 
 	let mut sender_clone = sender.clone();
 	window.handle(move |_window, event| window_event(event, &sender_clone));
@@ -26,11 +28,11 @@ pub fn build() -> Ui {
 	input.handle(move |_input, event| input_event(event, &sender_clone));
 
 	let mut hits = Vec::new();
-	for i in 0..HIT_COUNT {
-		hits.push(build_hit(i));
+	for i in 0..config.layout.max_hits {
+		hits.push(build_hit(i, &config));
 	}
 
-	let scollbar = build_scrollbar();
+	let scollbar = build_scrollbar(&config);
 
 	window.end();
 	window.show();
@@ -47,64 +49,68 @@ pub fn build() -> Ui {
 	}
 }
 
-fn build_window() -> Window {
+fn build_window(config: &Config) -> Window {
 	let mut window = Window::default()
-		.with_size(WINDOW_WIDTH, get_window_size(HIT_COUNT))
+		.with_size(
+			config.layout.window_width,
+			get_window_size(config, config.layout.max_hits),
+		)
 		.center_screen()
 		.with_label("Gravel");
-	window.set_color(COLOR_BACKGROUND);
+	window.set_color(config.colors.background);
 	window.set_border(false);
 
 	// change the height after the window has been centered
-	window.set_size(WINDOW_WIDTH, get_window_size(0));
+	window.set_size(config.layout.window_width, get_window_size(config, 0));
 
 	window
 }
 
-fn build_input() -> Input {
+fn build_input(config: &Config) -> Input {
 	let mut input = Input::default()
-		.with_pos(PADDING, PADDING)
-		.with_size(QUERY_WIDTH, QUERY_HEIGHT);
-	input.set_text_size(QUERY_FONT_SIZE);
+		.with_pos(config.layout.padding, config.layout.padding)
+		.with_size(config.layout.query_width, config.layout.query_height);
+	input.set_text_size(config.layout.query_font_size);
 	input.set_frame(FrameType::FlatBox);
-	input.set_color(COLOR_BACKGROUND);
-	input.set_text_color(COLOR_TEXT);
-	input.set_selection_color(COLOR_ACCENT);
+	input.set_color(config.colors.background);
+	input.set_text_color(config.colors.text);
+	input.set_selection_color(config.colors.accent);
 	// TODO fix cursor color
 	// input.set_cursor_color(COLOR_TEXT);
 
 	input
 }
 
-fn build_scrollbar() -> Scrollbar {
+fn build_scrollbar(config: &Config) -> Scrollbar {
 	Scrollbar::default()
-		.with_pos(WINDOW_WIDTH - PADDING - SCROLLBAR_WIDTH, PADDING * 2 + QUERY_HEIGHT)
-		.with_size(SCROLLBAR_WIDTH, HIT_HEIGHT * HIT_COUNT)
-		.with_padding(SCROLLBAR_PADDING)
-		.with_colors(COLOR_BACKGROUND, COLOR_ACCENT)
+		.with_pos(config.layout.scrollbar_x, config.layout.scrollbar_y)
+		.with_size(config.layout.scrollbar_width, config.layout.scrollbar_height)
+		.with_padding(config.layout.scrollbar_padding)
+		.with_colors(config.colors.background, config.colors.accent)
 }
 
-fn build_hit(i: i32) -> HitUi {
-	let x = PADDING;
-	let y = PADDING * 2 + QUERY_HEIGHT + HIT_HEIGHT * i;
+fn build_hit(i: i32, config: &Config) -> HitUi {
+	let y = config.layout.hit_start_y + config.layout.hit_height * i;
 
-	let mut group = Group::default().with_pos(x, y).with_size(HIT_WIDTH, HIT_HEIGHT);
-	group.set_color(COLOR_ACCENT);
+	let mut group = Group::default()
+		.with_pos(config.layout.padding, y)
+		.with_size(config.layout.hit_width, config.layout.hit_height);
+	group.set_color(config.colors.accent);
 	group.set_frame(FrameType::FlatBox);
 
 	let mut title = Frame::default()
-		.with_pos(x, y)
-		.with_size(HIT_WIDTH - HIT_HEIGHT, HIT_TITLE_HEIGHT)
-		.with_align(Align::BottomLeft | Align::Inside | Align::Wrap);
-	title.set_label_size(HIT_TITLE_FONT_SIZE);
-	title.set_label_color(COLOR_TEXT);
+		.with_pos(config.layout.padding, y)
+		.with_size(config.layout.hit_width, config.layout.hit_title_height)
+		.with_align(Align::BottomLeft | Align::Inside | Align::Clip);
+	title.set_label_size(config.layout.hit_title_font_size);
+	title.set_label_color(config.colors.text);
 
 	let mut subtitle = Frame::default()
-		.with_pos(x, y + HIT_TITLE_HEIGHT)
-		.with_size(HIT_WIDTH - HIT_HEIGHT, HIT_SUBTITLE_HEIGHT)
-		.with_align(Align::TopLeft | Align::Inside | Align::Wrap);
-	subtitle.set_label_size(HIT_SUBTITLE_FONT_SIZE);
-	subtitle.set_label_color(COLOR_TEXT);
+		.with_pos(config.layout.padding, y + config.layout.hit_title_height)
+		.with_size(config.layout.hit_width, config.layout.hit_subtitle_height)
+		.with_align(Align::TopLeft | Align::Inside | Align::Clip);
+	subtitle.set_label_size(config.layout.hit_subtitle_font_size);
+	subtitle.set_label_color(config.colors.text);
 
 	group.show();
 	group.end();

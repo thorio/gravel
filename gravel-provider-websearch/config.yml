@@ -1,4 +1,4 @@
-## Config for the web search provider.
+## Config for gravel's web search provider.
 ## Remember to duplicate changes here in gravel's main config.
 
 ## Determines which URL is opened. The default is Google Search.

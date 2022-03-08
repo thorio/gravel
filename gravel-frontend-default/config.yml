@@ -1,0 +1,38 @@
+## Config for gravel's FLTK frontend.
+## Remember to duplicate changes here in gravel's main config.
+
+## Layout and sizing configuration.
+layout:
+
+  ## Scales all sizes by this factor. Useful for high DPI monitors.
+  scale: 1.0
+
+  ## Then maximum number of hits shown on screen. Any less and the window
+  ## will shrink, any more and you will be able to scroll down the list.
+  max_hits: 6
+
+  ## Total window width. All other widths are calculated relative to this.
+  window_width: 800
+
+  ## These are some more specific values you usually don't need to change.
+  hit_title_height: 30
+  hit_title_font_size: 20
+  hit_subtitle_height: 20
+  hit_subtitle_font_size: 12
+  query_font_size: 25
+  scrollbar_width: 10
+  scrollbar_padding: 3
+  padding: 8
+
+## Color configuration. Use the hex color: `0xRRGGBB`.
+## Google has a color picker if you search for, well, "color picker".
+colors:
+
+  ## Background color of the window.
+  background: 0x202020
+
+  ## Text/hit selection and scrollbar color.
+  accent: 0xbf6c0d
+
+  ## Color of all text.
+  text: 0xffffff

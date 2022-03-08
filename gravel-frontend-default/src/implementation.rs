@@ -1,4 +1,4 @@
-use crate::{builder, constants::*, native, scroll::Scroll, structs::*};
+use crate::{builder, config::*, native, scroll::Scroll, structs::*};
 use fltk::{enums::*, prelude::*};
 use gravel_core::*;
 use lazy_static::*;
@@ -9,6 +9,7 @@ lazy_static! {
 }
 
 pub struct DefaultFrontend {
+	config: Config,
 	ui: Ui,
 	engine: QueryEngine,
 	result: QueryResult,
@@ -24,14 +25,16 @@ impl Frontend for DefaultFrontend {
 }
 
 impl DefaultFrontend {
-	pub fn new(engine: QueryEngine) -> Self {
-		let ui = builder::build();
+	pub fn new(engine: QueryEngine, config: Config) -> Self {
+		let ui = builder::build(&config);
+		let max_view_size = config.layout.max_hits;
 
 		DefaultFrontend {
+			config: config,
 			engine: engine,
 			ui: ui,
 			result: QueryResult::empty(),
-			scroll: Scroll::new(0, HIT_COUNT),
+			scroll: Scroll::new(0, max_view_size),
 			visible: false,
 		}
 	}
@@ -125,10 +128,7 @@ impl DefaultFrontend {
 		self.result = self.engine.query(&self.ui.input.value());
 		self.ui.input.clear_changed();
 
-		self.scroll.set_length(self.result.hits.len() as i32);
-		let height = builder::get_window_size(self.scroll.view_size());
-		self.ui.window.set_size(WINDOW_WIDTH, height);
-
+		self.update_window_height();
 		self.update_hits();
 	}
 
@@ -173,7 +173,7 @@ impl DefaultFrontend {
 
 	/// Writes the hit data to the UI elements.
 	fn update_hits(&mut self) {
-		for i in 0..HIT_COUNT {
+		for i in 0..self.config.layout.max_hits {
 			let position = self.scroll.scroll() + i;
 			let selected = position == self.scroll.cursor();
 
@@ -204,6 +204,13 @@ impl DefaultFrontend {
 		let size = self.scroll.view_size() as f32 / self.scroll.length() as f32;
 		self.ui.scrollbar.set_slider_position(pos);
 		self.ui.scrollbar.set_slider_size(size);
+	}
+
+	/// Sets the new size on its [`Scroll`] and updates the window's height.
+	fn update_window_height(&mut self) {
+		self.scroll.set_length(self.result.hits.len() as i32);
+		let height = builder::get_window_size(&self.config, self.scroll.view_size());
+		self.ui.window.set_size(self.config.layout.window_width, height);
 	}
 }
 
