@@ -26,7 +26,7 @@ fn get_provider(config: &PluginConfigAdapter) -> Box<dyn Provider> {
 }
 
 struct CalculatorProvider {
-	pub config: Config,
+	config: Config,
 }
 
 impl Provider for CalculatorProvider {

@@ -1,3 +1,4 @@
+use crate::Config;
 use glob::glob;
 use gravel_core::*;
 use std::error::Error;
@@ -6,18 +7,12 @@ use std::path::PathBuf;
 use std::process::{Child, Command, Stdio};
 use std::sync::mpsc::Sender;
 
-static PATHS: &[&str] = &[
-	"/usr/share/applications/*.desktop",
-	"/usr/local/share/applications/*.desktop",
-	"${XDG_DATA_HOME:-$HOME/.local/share}/applications/*.desktop",
-];
-
-/// Expands the [`PATH`] globs and returns hit representations of all
+/// Expands the path globs and returns hit representations of all
 /// desktop entries it finds.
-pub fn get_programs() -> Vec<Box<dyn Hit>> {
+pub(crate) fn get_programs(config: Config) -> Vec<Box<dyn Hit>> {
 	let mut hits = Vec::new() as Vec<Box<dyn Hit>>;
 
-	for path in PATHS {
+	for path in config.paths_linux.iter() {
 		let expanded_path = shellexpand::env(path).unwrap();
 		for result in glob(&expanded_path).expect("Failed to read glob pattern") {
 			if !result.is_ok() {
