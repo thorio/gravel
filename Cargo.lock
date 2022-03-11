@@ -305,6 +305,7 @@ dependencies = [
  "gravel-frontend-default",
  "gravel-provider-calculator",
  "gravel-provider-program",
+ "gravel-provider-system",
  "gravel-provider-websearch",
  "lazy_static",
  "shellexpand",
@@ -353,6 +354,16 @@ dependencies = [
  "gravel-core",
  "serde",
  "shellexpand",
+]
+
+[[package]]
+name = "gravel-provider-system"
+version = "0.1.0"
+dependencies = [
+ "gravel-core",
+ "serde",
+ "system_shutdown",
+ "winapi",
 ]
 
 [[package]]
@@ -789,6 +800,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-xid",
+]
+
+[[package]]
+name = "system_shutdown"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "035e081d603551d8d78db27d2232913269c749ea67648c369100049820406a14"
+dependencies = [
+ "winapi",
 ]
 
 [[package]]

@@ -62,6 +62,10 @@ providers:
   ## the list that, when selected, will search the web for your query.
   - plugin: websearch
 
+  ## System provider.
+  ## Provides system commands such as shutdown, log out or exiting gravel.
+  - plugin: system
+
   ## This is a second instance of the previous web search provider.
   ## It's set up to open the query in Google Translate instead.
   ##
@@ -134,6 +138,43 @@ plugin_config:
     # paths_windows:
     #   - "$ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\**\\*.lnk"
     #   - "$APPDATA\\Microsoft\\Windows\\Start Menu\\Programs\\**\\*.lnk"
+
+  ## https://github.com/thorio/gravel/tree/master/gravel-provider-system
+  #system:
+    ## Below are configurable titles and subtitles for each command.
+    ## Linux systems can additionally configure a bash commmand to be run.
+    ## On Windows systems, the native API is used instead.
+
+    # exit:
+    #   title: exit
+    #   subtitle: Exit gravel
+
+    # lock:
+    #   title: lock
+    #   subtitle: Lock the System
+
+    #   ## Specifies the to bash command to run on linux systems.
+    #   command_linux: loginctl lock-session
+
+    # logout:
+    #   title: log out
+    #   subtitle: Close the current session
+    #   command_linux: loginctl terminate-session $(loginctl session-status | awk 'NR==1{print $1}')
+
+    # restart:
+    #   title: restart
+    #   subtitle: Restart the System
+    #   command_linux: shutdown -r now
+
+    # shutdown:
+    #   title: shutdown
+    #   subtitle: Shut the System down
+    #   command_linux: shutdown now
+
+    # sleep:
+    #   title: sleep
+    #   subtitle: Put the System to sleep
+    #   command_linux: systemctl suspend
 
 
   ## https://github.com/thorio/gravel/tree/master/gravel-frontend-default

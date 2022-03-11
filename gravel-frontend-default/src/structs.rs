@@ -35,4 +35,5 @@ pub enum Message {
 	ShowOrHideWindow,
 	ShowWithQuery(String),
 	Cancel,
+	Exit,
 }

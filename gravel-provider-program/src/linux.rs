@@ -2,14 +2,13 @@ use crate::Config;
 use glob::glob;
 use gravel_core::*;
 use std::error::Error;
-use std::io;
 use std::path::PathBuf;
-use std::process::{Child, Command, Stdio};
+use std::process::{Command, Stdio};
 use std::sync::mpsc::Sender;
 
 /// Expands the path globs and returns hit representations of all
 /// desktop entries it finds.
-pub(crate) fn get_programs(config: Config) -> Vec<Box<dyn Hit>> {
+pub(crate) fn get_programs(config: &Config) -> Vec<Box<dyn Hit>> {
 	let mut hits = Vec::new() as Vec<Box<dyn Hit>>;
 
 	for path in config.paths_linux.iter() {

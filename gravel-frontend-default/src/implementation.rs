@@ -57,6 +57,7 @@ impl DefaultFrontend {
 					Message::HideWindow => self.hide(),
 					Message::ShowOrHideWindow => self.show_or_hide(),
 					Message::ShowWithQuery(query) => self.show_with(&query),
+					Message::Exit => break,
 				}
 			}
 		}
@@ -220,6 +221,7 @@ fn convert_message(message: FrontendMessage) -> Message {
 		FrontendMessage::Show => Message::ShowWindow,
 		FrontendMessage::Hide => Message::HideWindow,
 		FrontendMessage::ShowWithQuery(query) => Message::ShowWithQuery(query),
+		FrontendMessage::Exit => Message::Exit,
 	}
 }
 
