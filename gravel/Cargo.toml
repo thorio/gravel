@@ -7,6 +7,7 @@ edition = "2021"
 gravel-core = { path = "../gravel-core" }
 gravel-frontend-default = { path = "../gravel-frontend-default" }
 gravel-provider-calculator = { path = "../gravel-provider-calculator" }
+gravel-provider-kill = { path = "../gravel-provider-kill" }
 gravel-provider-program = { path = "../gravel-provider-program" }
 gravel-provider-system = { path = "../gravel-provider-system" }
 gravel-provider-websearch = { path = "../gravel-provider-websearch" }
