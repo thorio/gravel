@@ -1,0 +1,10 @@
+[package]
+name = "gravel-provider-kill"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+gravel-core = { path = "../gravel-core" }
+
+serde = "1.0.136"
+sysinfo = "0.23.5"

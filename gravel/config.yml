@@ -50,6 +50,7 @@ providers:
   ## A complete list of supported expressions and constants can be found here:
   ## https://docs.rs/meval/latest/meval/#supported-expressions
   - plugin: calculator
+    keyword: calc
 
   ## Default application finder. It will search the applications installed on
   ## your system and allow you to launch them.
@@ -65,6 +66,11 @@ providers:
   ## System provider.
   ## Provides system commands such as shutdown, log out or exiting gravel.
   - plugin: system
+
+  ## Process killer.
+  ## TODO!
+  - plugin: kill
+    keyword: kill
 
   ## This is a second instance of the previous web search provider.
   ## It's set up to open the query in Google Translate instead.
