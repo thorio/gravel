@@ -18,8 +18,8 @@ pub fn build(config: &Config) -> Ui {
 
 	let (sender, receiver) = app::channel::<Message>();
 
-	let mut window = build_window(&config);
-	let mut input = build_input(&config);
+	let mut window = build_window(config);
+	let mut input = build_input(config);
 
 	let mut sender_clone = sender.clone();
 	window.handle(move |_window, event| window_event(event, &sender_clone));
@@ -29,23 +29,23 @@ pub fn build(config: &Config) -> Ui {
 
 	let mut hits = Vec::new();
 	for i in 0..config.layout.max_hits {
-		hits.push(build_hit(i, &config));
+		hits.push(build_hit(i, config));
 	}
 
-	let scollbar = build_scrollbar(&config);
+	let scollbar = build_scrollbar(config);
 
 	window.end();
 	window.show();
 	window.platform_hide();
 
 	Ui {
-		window: window,
-		app: app,
-		input: input,
+		window,
+		app,
+		input,
 		scrollbar: scollbar,
-		hits: hits,
-		receiver: receiver,
-		sender: sender,
+		hits,
+		receiver,
+		sender,
 	}
 }
 
@@ -115,11 +115,7 @@ fn build_hit(i: i32, config: &Config) -> HitUi {
 	group.show();
 	group.end();
 
-	HitUi {
-		group: group,
-		title: title,
-		subtitle: subtitle,
-	}
+	HitUi { group, title, subtitle }
 }
 
 /// Handles events on the window.

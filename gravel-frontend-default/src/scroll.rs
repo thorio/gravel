@@ -17,8 +17,8 @@ impl Scroll {
 	/// - max_view_size: number of items that can be displayed at once
 	pub fn new(length: i32, max_view_size: i32) -> Self {
 		Scroll {
-			length: length,
-			max_view_size: max_view_size,
+			length,
+			max_view_size,
 			cursor: 0,
 			scroll: 0,
 		}
@@ -29,7 +29,7 @@ impl Scroll {
 		if self.cursor <= 0 {
 			self.bottom();
 		} else {
-			self.cursor = self.cursor - 1;
+			self.cursor -= 1;
 			self.scroll = cmp::min(self.scroll, self.cursor);
 		}
 	}
@@ -39,7 +39,7 @@ impl Scroll {
 		if self.cursor >= self.length - 1 {
 			self.top();
 		} else {
-			self.cursor = self.cursor + 1;
+			self.cursor += 1;
 			self.scroll = cmp::max(self.scroll, self.cursor - self.view_size() + 1);
 		}
 	}

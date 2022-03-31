@@ -29,10 +29,7 @@ mod tests {
 	}
 
 	fn check_binding(binding: &str, modifiers: BitFlags<Modifier>, key: Key) {
-		let expected = ParsedBinding {
-			modifiers: modifiers,
-			key: key,
-		};
+		let expected = ParsedBinding { modifiers, key };
 
 		let actual = parse_binding(binding).unwrap();
 		assert_eq!(actual, expected);
@@ -59,13 +56,10 @@ pub fn parse_binding(binding: &str) -> Result<ParsedBinding, ParseError> {
 	let mut modifiers = BitFlags::empty();
 
 	for part in &parts[0..parts.len() - 1] {
-		modifiers = modifiers | convert_modifier(part)?;
+		modifiers |= convert_modifier(part)?;
 	}
 
-	Ok(ParsedBinding {
-		modifiers: modifiers,
-		key: key,
-	})
+	Ok(ParsedBinding { modifiers, key })
 }
 
 fn convert_modifier(value: &str) -> Result<Modifier, ParseError> {

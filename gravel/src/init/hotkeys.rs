@@ -3,8 +3,8 @@ use std::sync::mpsc::Sender;
 
 /// Initializes a hotkey listener on a different thread.
 /// See [`Listener`].
-pub fn hotkeys(hotkeys: &Vec<HotkeyConfig>, sender: Sender<FrontendMessage>) {
-	let mut listener = Listener::<FrontendMessage>::new();
+pub fn hotkeys(hotkeys: &[HotkeyConfig], sender: Sender<FrontendMessage>) {
+	let mut listener = Listener::<FrontendMessage>::default();
 
 	for hotkey in hotkeys {
 		match listener.register_emacs(&hotkey.binding, get_control_message(hotkey)) {

@@ -17,9 +17,7 @@ pub fn score_hits(query: &str, result: &mut QueryResult) {
 			continue;
 		}
 
-		let score = matcher
-			.fuzzy_match(&data.title, query)
-			.unwrap_or(NULL_SCORE as i64);
+		let score = matcher.fuzzy_match(&data.title, query).unwrap_or(NULL_SCORE as i64);
 
 		hit.set_score(score as u32);
 	}
@@ -36,6 +34,7 @@ pub fn order_hits(result: &mut QueryResult) {
 	result.hits.sort_by(compare_hits);
 }
 
+#[allow(clippy::borrowed_box)]
 fn compare_hits(a: &Box<dyn Hit>, b: &Box<dyn Hit>) -> Ordering {
 	b.get_data().score.partial_cmp(&a.get_data().score).unwrap()
 }

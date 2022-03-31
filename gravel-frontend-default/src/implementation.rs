@@ -30,9 +30,9 @@ impl DefaultFrontend {
 		let max_view_size = config.layout.max_hits;
 
 		DefaultFrontend {
-			config: config,
-			engine: engine,
-			ui: ui,
+			config,
+			engine,
+			ui,
 			result: QueryResult::empty(),
 			scroll: Scroll::new(0, max_view_size),
 			visible: false,
@@ -135,10 +135,10 @@ impl DefaultFrontend {
 
 	/// Runs the action of the selected hit.
 	fn confirm(&self) {
-		if self.result.hits.len() >= 1 {
+		if !self.result.hits.is_empty() {
 			let cursor = self.scroll.cursor();
 			let hit = &self.result.hits[cursor as usize];
-			self.engine.run_hit_action(&hit);
+			self.engine.run_hit_action(&**hit);
 		}
 	}
 

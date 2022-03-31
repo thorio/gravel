@@ -85,7 +85,7 @@ impl SimpleHit<()> {
 	/// Creates a new instance without extra data.
 	pub fn new(data: HitData, func: impl Fn(&Self, &Sender<FrontendMessage>) + 'static) -> Self {
 		SimpleHit {
-			data: data,
+			data,
 			extra_data: (),
 			action_func: Box::new(func),
 		}
@@ -96,8 +96,8 @@ impl<T> SimpleHit<T> {
 	/// Creates a new instance with extra data.
 	pub fn new_extra(data: HitData, extra_data: T, func: impl Fn(&Self, &Sender<FrontendMessage>) + 'static) -> Self {
 		SimpleHit {
-			data: data,
-			extra_data: extra_data,
+			data,
+			extra_data,
 			action_func: Box::new(func),
 		}
 	}

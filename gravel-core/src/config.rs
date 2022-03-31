@@ -20,7 +20,7 @@ impl ConfigManager {
 	pub fn get_plugin_adapter(&self, alias: &str) -> PluginConfigAdapter {
 		PluginConfigAdapter {
 			alias: alias.to_owned(),
-			config: &self,
+			config: self,
 		}
 	}
 
@@ -71,7 +71,7 @@ fn preprocess_plugin_config(config: &str, alias: &str) -> String {
 
 	// then prepend this to place it in the same config section as in the
 	// user's config for this plugin
-	let mut new_config = format!("plugin_config:\n {}:\n", alias).to_owned();
+	let mut new_config = format!("plugin_config:\n {}:\n", alias);
 
 	new_config.push_str(&indented);
 

@@ -14,12 +14,12 @@ pub(crate) fn get_programs(config: &Config) -> Vec<Box<dyn Hit>> {
 	for path in config.paths_linux.iter() {
 		let expanded_path = shellexpand::env(path).unwrap();
 		for result in glob(&expanded_path).expect("Failed to read glob pattern") {
-			if !result.is_ok() {
+			if result.is_err() {
 				continue;
 			}
 
 			let hit = get_program(result.unwrap());
-			if !hit.is_ok() {
+			if hit.is_err() {
 				continue;
 			}
 

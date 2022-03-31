@@ -6,13 +6,16 @@ pub enum PluginType {
 	Frontend,
 }
 
+type ProviderFactory = dyn Fn(&PluginConfigAdapter) -> Box<dyn Provider>;
+type FrontendFactory = dyn Fn(QueryEngine, &PluginConfigAdapter) -> Box<dyn Frontend>;
+
 /// Holds metadata about a frontend or provider, as well as
 /// a way to instantiate them.
 pub struct PluginDefinition {
 	pub name: String,
 	pub plugin_type: PluginType,
-	provider: Option<Box<dyn Fn(&PluginConfigAdapter) -> Box<dyn Provider>>>,
-	frontend: Option<Box<dyn Fn(QueryEngine, &PluginConfigAdapter) -> Box<dyn Frontend>>>,
+	provider: Option<Box<ProviderFactory>>,
+	frontend: Option<Box<FrontendFactory>>,
 	has_plugin: bool,
 }
 
@@ -86,7 +89,7 @@ pub struct PluginRegistry {
 }
 
 impl PluginRegistry {
-	pub fn new() -> Self {
+	pub fn default() -> Self {
 		PluginRegistry { plugins: vec![] }
 	}
 
@@ -101,7 +104,7 @@ impl PluginRegistry {
 			return self;
 		}
 
-		if let Some(_) = self.find_plugin(&plugin.name, plugin.plugin_type) {
+		if self.find_plugin(&plugin.name, plugin.plugin_type).is_some() {
 			println!("duplicate {:?} \"{}\", skipping", plugin.plugin_type, plugin.name);
 			return self;
 		}

@@ -19,14 +19,14 @@ impl QueryEngine {
 	pub fn new(sender: Sender<FrontendMessage>) -> Self {
 		QueryEngine {
 			providers: vec![],
-			sender: sender,
+			sender,
 		}
 	}
 
 	/// Adds the provider to the engine's collection.
 	pub fn register(&mut self, provider: Box<dyn Provider>, keyword: &Option<String>) -> &mut Self {
 		let info = ProviderInfo {
-			provider: provider,
+			provider,
 			keyword: keyword.clone(),
 		};
 
@@ -47,7 +47,7 @@ impl QueryEngine {
 		self.full_query(query)
 	}
 
-	pub fn run_hit_action(&self, hit: &Box<dyn Hit>) {
+	pub fn run_hit_action(&self, hit: &dyn Hit) {
 		hit.action(&self.sender);
 	}
 

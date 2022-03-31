@@ -49,7 +49,7 @@ fn get_hit(config: &Config, result: f64) -> Box<dyn Hit> {
 }
 
 fn round(number: f64, precision: u32) -> f64 {
-	let factor = (10 as u64).pow(precision) as f64;
+	let factor = 10_u64.pow(precision) as f64;
 	(number * factor).round() / factor
 }
 

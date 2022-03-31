@@ -25,8 +25,8 @@ impl Scrollbar {
 		slider.set_color(Color::from_hex(0xd77b0f));
 
 		Scrollbar {
-			frame: frame,
-			slider: slider,
+			frame,
+			slider,
 			slider_position: 0.0,
 			slider_size: 0.5,
 			pos: (0, 0),

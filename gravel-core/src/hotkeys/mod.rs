@@ -23,7 +23,7 @@ pub struct Listener<T: 'static + Send + Clone + Debug> {
 }
 
 impl<T: 'static + Send + Clone + Debug> Listener<T> {
-	pub fn new() -> Self {
+	pub fn default() -> Self {
 		Self { hotkeys: vec![] }
 	}
 
@@ -92,7 +92,7 @@ fn convert_modifiers(modifiers: BitFlags<Modifier>) -> u32 {
 	let mut result = 0;
 
 	for modifier in modifiers.iter() {
-		result = result | convert_modifier(modifier);
+		result |= convert_modifier(modifier);
 	}
 
 	result
