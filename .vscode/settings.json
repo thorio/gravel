@@ -1,9 +1,22 @@
 {
+	"editor.defaultFormatter": "vscode.git", // disable formatting
+
+	"editor.insertSpaces": false,
+	"editor.tabSize": 4,
+	"files.insertFinalNewline": true,
+
 	"[rust]": {
-		"editor.defaultFormatter": "rust-lang.rust"
+		"editor.defaultFormatter": "matklad.rust-analyzer",
+	},
+
+	"[yaml]": {
+		"editor.insertSpaces": true,
+		"editor.tabSize": 2,
 	},
 
 	"files.exclude": {
 		"target": true,
-	}
+	},
+
+	"rust-analyzer.checkOnSave.command": "clippy",
 }
