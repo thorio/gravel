@@ -12,6 +12,7 @@ pub fn get_config(config: &PluginConfigAdapter) -> Config {
 	Config {
 		layout: get_layout_config(base.layout),
 		colors: get_color_config(base.colors),
+		behaviour: base.behaviour,
 	}
 }
 
@@ -77,6 +78,7 @@ fn get_color_config(colors: DeserializedColorConfig) -> ColorConfig {
 pub struct Config {
 	pub layout: LayoutConfig,
 	pub colors: ColorConfig,
+	pub behaviour: BehaviourConfig,
 }
 
 #[derive(Debug)]
@@ -110,9 +112,15 @@ pub struct LayoutConfig {
 }
 
 #[derive(Deserialize, Debug)]
+pub struct BehaviourConfig {
+	pub auto_hide: bool,
+}
+
+#[derive(Deserialize, Debug)]
 pub struct DeserializedConfig {
 	pub layout: DeserializedLayoutConfig,
 	pub colors: DeserializedColorConfig,
+	pub behaviour: BehaviourConfig,
 }
 
 #[derive(Deserialize, Debug)]

@@ -6,7 +6,7 @@
 	"files.insertFinalNewline": true,
 
 	"[rust]": {
-		"editor.defaultFormatter": "matklad.rust-analyzer",
+		"editor.defaultFormatter": "rust-lang.rust-analyzer",
 	},
 
 	"[yaml]": {

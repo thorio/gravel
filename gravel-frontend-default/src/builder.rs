@@ -21,8 +21,9 @@ pub fn build(config: &Config) -> Ui {
 	let mut window = build_window(config);
 	let mut input = build_input(config);
 
+	let do_auto_hide = config.behaviour.auto_hide;
 	let mut sender_clone = sender.clone();
-	window.handle(move |_window, event| window_event(event, &sender_clone));
+	window.handle(move |_window, event| window_event(event, &sender_clone, do_auto_hide));
 
 	sender_clone = sender.clone();
 	input.handle(move |_input, event| input_event(event, &sender_clone));
@@ -119,9 +120,9 @@ fn build_hit(i: i32, config: &Config) -> HitUi {
 }
 
 /// Handles events on the window.
-fn window_event(event: Event, sender: &Sender<Message>) -> bool {
+fn window_event(event: Event, sender: &Sender<Message>, do_auto_hide: bool) -> bool {
 	match event {
-		Event::Unfocus => window_unfocus(sender),
+		Event::Unfocus if do_auto_hide => window_unfocus(sender),
 		_ => false,
 	}
 }

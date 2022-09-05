@@ -36,3 +36,8 @@ colors:
 
   ## Color of all text.
   text: 0xffffff
+
+behaviour:
+  # Automatically hides the windows when it loses focus.
+  # This is currently broken on Linux due to XGrabKey weirdness.
+  auto_hide: true
