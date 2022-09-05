@@ -4,9 +4,10 @@
 ## Current Features
 - Basic FLTK UI
 - Hotkey support
-- Desktop entry (Linux) and Start Menu (Windows) Application launching
+- Desktop entry (Linux) and start menu (Windows) application launching
 - Calculator
 - Web searches
+- Shutdown, reboot etc.
 
 ## Goals
 - Cross-platform support for Linux and Windows
