@@ -186,7 +186,7 @@ impl DefaultFrontend {
 			};
 
 			let hit = &mut self.ui.hits[i as usize];
-			update_hit(hit, hitdata, selected);
+			update_hit(hit, hitdata, selected, self.config.behaviour.show_scores);
 		}
 
 		self.update_scrollbar();
@@ -228,13 +228,20 @@ fn convert_message(message: FrontendMessage) -> Message {
 /// Writes the given [`HitData`] to the given [`HitUi`].
 ///
 /// `selected` highlights the hit.
-fn update_hit(hit: &mut HitUi, data: &HitData, selected: bool) {
+fn update_hit(hit: &mut HitUi, data: &HitData, selected: bool, show_score: bool) {
 	hit.title.set_label(&data.title);
-	hit.subtitle.set_label(&data.subtitle);
+
+	match show_score {
+		true => hit.subtitle.set_label(&format_subtitle_with_score(data)),
+		false => hit.subtitle.set_label(&data.subtitle),
+	}
 
 	match selected {
 		true => hit.group.set_frame(FrameType::FlatBox),
 		false => hit.group.set_frame(FrameType::NoBox),
 	}
-	hit.group.set_damage(true);
+}
+
+fn format_subtitle_with_score(data: &HitData) -> String {
+	format!("[{}] {}", &data.score, &data.subtitle)
 }

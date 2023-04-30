@@ -38,6 +38,10 @@ colors:
   text: 0xffffff
 
 behaviour:
-  # Automatically hides the windows when it loses focus.
-  # This is currently broken on Linux due to XGrabKey weirdness.
+  ## Automatically hides the window when it loses focus.
+  ## This is currently broken on Linux due to XGrabKey weirdness.
   auto_hide: true
+
+  ## Shows the internal score assigned to each hit,
+  ## useful for debugging purposes.
+  show_scores: false

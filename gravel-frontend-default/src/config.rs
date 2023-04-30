@@ -114,6 +114,7 @@ pub struct LayoutConfig {
 #[derive(Deserialize, Debug)]
 pub struct BehaviourConfig {
 	pub auto_hide: bool,
+	pub show_scores: bool,
 }
 
 #[derive(Deserialize, Debug)]
