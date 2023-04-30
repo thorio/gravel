@@ -78,6 +78,9 @@ impl HitData {
 pub struct SimpleHit<T> {
 	data: HitData,
 	extra_data: T,
+
+	// I think inlining it is easier to read in this case, due to T.
+	#[allow(clippy::type_complexity)]
 	action_func: Box<dyn Fn(&Self, &Sender<FrontendMessage>)>,
 }
 

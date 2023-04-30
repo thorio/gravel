@@ -1,6 +1,6 @@
 use crate::{config::PluginConfigAdapter, Frontend, Provider, QueryEngine};
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum PluginType {
 	Provider,
 	Frontend,

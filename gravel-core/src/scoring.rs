@@ -41,10 +41,8 @@ fn compare_hits(a: &Box<dyn Hit>, b: &Box<dyn Hit>) -> Ordering {
 	let data_a = a.get_data();
 	let data_b = b.get_data();
 
-	let ordering = match data_a.score == data_b.score {
-		true => data_a.title.partial_cmp(&data_b.title),
-		false => data_b.score.partial_cmp(&data_a.score),
-	};
-
-	ordering.unwrap_or(Ordering::Equal)
+	match data_a.score == data_b.score {
+		true => data_a.title.cmp(&data_b.title),
+		false => data_b.score.cmp(&data_a.score),
+	}
 }

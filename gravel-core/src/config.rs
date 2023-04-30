@@ -100,7 +100,7 @@ pub struct HotkeyConfig {
 	pub query: Option<String>,
 }
 
-#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
 pub enum HotkeyAction {
 	ShowHide,
 	Show,

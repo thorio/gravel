@@ -49,9 +49,10 @@ impl Provider for ProgramProvider {
 	}
 }
 
-#[allow(unused)]
 #[derive(Deserialize, Debug)]
 struct Config {
+	#[cfg(target_os = "linux")]
 	pub paths_linux: Vec<String>,
+	#[cfg(windows)]
 	pub paths_windows: Vec<String>,
 }

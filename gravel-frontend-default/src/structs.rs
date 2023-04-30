@@ -20,7 +20,7 @@ pub struct HitUi {
 }
 
 /// Represents Actions the UI should carry out.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Message {
 	Query,
 	Confirm,

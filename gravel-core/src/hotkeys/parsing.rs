@@ -36,13 +36,13 @@ mod tests {
 	}
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct ParsedBinding {
 	pub modifiers: BitFlags<Modifier>,
 	pub key: Key,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ParseError {
 	InvalidModifier,
 	InvalidKey,

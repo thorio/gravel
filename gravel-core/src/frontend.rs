@@ -10,7 +10,7 @@ pub trait Frontend {
 ///
 /// These values are to be received by the frontend via a provided
 /// [`Receiver`] and must be handled.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum FrontendMessage {
 	ShowOrHide,
 	Show,
