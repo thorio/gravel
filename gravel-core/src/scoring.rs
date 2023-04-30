@@ -30,11 +30,21 @@ pub fn trim_hits(result: &mut QueryResult) {
 }
 
 /// Orders the hits by their scores, highest to lowest.
+/// Hits with equal scores are ordered by their title, alphabetically.
 pub fn order_hits(result: &mut QueryResult) {
 	result.hits.sort_by(compare_hits);
 }
 
+// Passing the box directly is easier since we're using sort_by
 #[allow(clippy::borrowed_box)]
 fn compare_hits(a: &Box<dyn Hit>, b: &Box<dyn Hit>) -> Ordering {
-	b.get_data().score.partial_cmp(&a.get_data().score).unwrap()
+	let data_a = a.get_data();
+	let data_b = b.get_data();
+
+	let ordering = match data_a.score == data_b.score {
+		true => data_a.title.partial_cmp(&data_b.title),
+		false => data_b.score.partial_cmp(&data_a.score),
+	};
+
+	ordering.unwrap_or(Ordering::Equal)
 }
