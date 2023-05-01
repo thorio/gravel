@@ -390,6 +390,7 @@ dependencies = [
  "gravel-core",
  "serde",
  "sysinfo",
+ "winapi",
 ]
 
 [[package]]

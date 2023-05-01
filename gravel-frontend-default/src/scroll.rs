@@ -79,8 +79,7 @@ impl Scroll {
 	/// Set the number of items in the list.
 	pub fn set_length(&mut self, length: i32) {
 		self.length = length;
-		self.cursor = 0;
-		self.scroll = 0;
+		self.top();
 	}
 
 	/// Gets the number of items that fit inside the view.
