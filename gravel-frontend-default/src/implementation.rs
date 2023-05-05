@@ -29,7 +29,7 @@ impl DefaultFrontend {
 		let ui = builder::build(&config);
 		let max_view_size = config.layout.max_hits;
 
-		DefaultFrontend {
+		Self {
 			config,
 			engine,
 			ui,
@@ -52,9 +52,8 @@ impl DefaultFrontend {
 					Message::CursorPageDown => self.cursor_page_down(),
 					Message::CursorTop => self.cursor_top(),
 					Message::CursorBottom => self.cursor_bottom(),
-					Message::Cancel => self.hide(),
 					Message::ShowWindow => self.show(),
-					Message::HideWindow => self.hide(),
+					Message::Cancel | Message::HideWindow => self.hide(),
 					Message::ShowOrHideWindow => self.show_or_hide(),
 					Message::ShowWithQuery(query) => self.show_with(&query),
 					Message::Exit => break,

@@ -8,15 +8,15 @@ pub(crate) fn lock(_config: &SubcommandConfig) {
 }
 
 pub(crate) fn logout(_config: &SubcommandConfig) {
-	let _ = system_shutdown::logout();
+	system_shutdown::logout().ok();
 }
 
 pub(crate) fn restart(_config: &SubcommandConfig) {
-	let _ = system_shutdown::reboot();
+	system_shutdown::reboot().ok();
 }
 
 pub(crate) fn shutdown(_config: &SubcommandConfig) {
-	let _ = system_shutdown::shutdown();
+	system_shutdown::shutdown().ok();
 }
 
 pub(crate) fn sleep(_config: &SubcommandConfig) {

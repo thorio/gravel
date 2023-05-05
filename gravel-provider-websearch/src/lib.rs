@@ -35,7 +35,7 @@ impl Provider for WebsearchProvider {
 	fn query(&self, query: &str) -> QueryResult {
 		let data = HitData::new(query, &self.config.subtitle).with_score(MIN_SCORE);
 		let extra = ExtraData {
-			url_pattern: self.config.url_pattern.to_owned(),
+			url_pattern: self.config.url_pattern.clone(),
 		};
 
 		let hit = Box::new(SimpleHit::new_extra(data, extra, do_search));
@@ -49,11 +49,13 @@ struct ExtraData {
 
 fn do_search(hit: &SimpleHit<ExtraData>, sender: &Sender<FrontendMessage>) {
 	let encoded = urlencoding::encode(&hit.get_data().title);
-	let url = hit.get_extra_data().url_pattern.replace("{}", encoded.as_ref());
+	let url = hit.get_extra_data().url_pattern.replace("{}", &encoded);
 
 	implementation::open_url(&url).expect("failed to open url");
 
-	sender.send(FrontendMessage::Hide).unwrap();
+	sender
+		.send(FrontendMessage::Hide)
+		.expect("failed to send frontend message");
 }
 
 #[derive(Deserialize, Debug)]

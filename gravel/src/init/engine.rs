@@ -8,7 +8,7 @@ use std::sync::mpsc::Sender;
 pub fn engine(sender: Sender<FrontendMessage>, registry: &PluginRegistry, config: &ConfigManager) -> QueryEngine {
 	let mut engine = QueryEngine::new(sender);
 
-	for provider_config in config.root.providers.iter() {
+	for provider_config in &config.root.providers {
 		// fall back to the plugin name if no explicit name is configured
 		let provider_name = provider_config.alias.as_ref().unwrap_or(&provider_config.plugin);
 

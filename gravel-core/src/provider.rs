@@ -30,7 +30,7 @@ pub struct QueryResult {
 
 impl QueryResult {
 	pub fn new(hits: Vec<Box<dyn Hit>>) -> Self {
-		QueryResult { hits }
+		Self { hits }
 	}
 
 	pub fn empty() -> Self {
@@ -56,7 +56,7 @@ impl HitData {
 	}
 
 	pub fn new(title: &str, subtitle: &str) -> Self {
-		HitData {
+		Self {
 			title: title.to_owned(),
 			subtitle: subtitle.to_owned(),
 			score: 0,
@@ -87,7 +87,7 @@ pub struct SimpleHit<T> {
 impl SimpleHit<()> {
 	/// Creates a new instance without extra data.
 	pub fn new(data: HitData, func: impl Fn(&Self, &Sender<FrontendMessage>) + 'static) -> Self {
-		SimpleHit {
+		Self {
 			data,
 			extra_data: (),
 			action_func: Box::new(func),
@@ -98,7 +98,7 @@ impl SimpleHit<()> {
 impl<T> SimpleHit<T> {
 	/// Creates a new instance with extra data.
 	pub fn new_extra(data: HitData, extra_data: T, func: impl Fn(&Self, &Sender<FrontendMessage>) + 'static) -> Self {
-		SimpleHit {
+		Self {
 			data,
 			extra_data,
 			action_func: Box::new(func),
@@ -116,7 +116,7 @@ impl<T> Hit for SimpleHit<T> {
 	}
 
 	fn action(&self, sender: &Sender<FrontendMessage>) {
-		(self.action_func)(self, sender)
+		(self.action_func)(self, sender);
 	}
 
 	fn set_score(&mut self, score: u32) {

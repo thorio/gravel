@@ -33,7 +33,7 @@ pub struct KillProvider {
 
 impl KillProvider {
 	fn new(config: Config) -> Self {
-		KillProvider { config }
+		Self { config }
 	}
 }
 
@@ -80,7 +80,7 @@ fn do_kill(hit: &SimpleHit<ExtraData>, sender: &Sender<FrontendMessage>) {
 
 	sender
 		.send(FrontendMessage::Hide)
-		.expect("unable to send frontend message");
+		.expect("receiver should live for the lifetime of the program");
 }
 
 #[derive(Deserialize, Debug)]

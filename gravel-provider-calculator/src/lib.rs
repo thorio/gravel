@@ -9,7 +9,7 @@ use clipboard::{ClipboardContext, ClipboardProvider};
 use gravel_core::{config::PluginConfigAdapter, plugin::*, scoring::MAX_SCORE, *};
 use meval::eval_str;
 use serde::Deserialize;
-use std::sync::mpsc::Sender;
+use std::error::Error;
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
@@ -45,7 +45,13 @@ fn get_hit(config: &Config, result: f64) -> Box<dyn Hit> {
 
 	let hitdata = HitData::new(&title, &config.subtitle).with_score(MAX_SCORE);
 
-	Box::new(SimpleHit::new(hitdata, set_clipboard))
+	Box::new(SimpleHit::new(hitdata, |hit, sender| {
+		set_clipboard(hit.get_data().title.clone()).ok();
+
+		sender
+			.send(FrontendMessage::Hide)
+			.expect("receiver should live for the lifetime of the program");
+	}))
 }
 
 fn round(number: f64, precision: u32) -> f64 {
@@ -53,11 +59,9 @@ fn round(number: f64, precision: u32) -> f64 {
 	(number * factor).round() / factor
 }
 
-fn set_clipboard(hit: &SimpleHit<()>, sender: &Sender<FrontendMessage>) {
-	let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
-	ctx.set_contents(hit.get_data().title.clone()).unwrap();
-
-	sender.send(FrontendMessage::Hide).unwrap();
+fn set_clipboard(str: String) -> Result<(), Box<dyn Error>> {
+	let mut ctx: ClipboardContext = ClipboardProvider::new()?;
+	ctx.set_contents(str)
 }
 
 #[derive(Deserialize, Debug)]

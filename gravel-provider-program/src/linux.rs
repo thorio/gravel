@@ -56,7 +56,7 @@ impl ExtraData {
 	}
 }
 
-/// Runs the given entry using gtk-launch, explicitly detaching all streams.
+/// Runs the given entry using gtk-launch.
 fn run_program(hit: &SimpleHit<ExtraData>, sender: &Sender<FrontendMessage>) {
 	Command::new("gtk-launch")
 		.arg(&hit.get_extra_data().desktop_file)
@@ -65,7 +65,9 @@ fn run_program(hit: &SimpleHit<ExtraData>, sender: &Sender<FrontendMessage>) {
 		.stdout(Stdio::null())
 		.stderr(Stdio::null())
 		.spawn()
-		.expect("failed to run application");
+		.expect("gtk-launch should be present");
 
-	sender.send(FrontendMessage::Hide).unwrap();
+	sender
+		.send(FrontendMessage::Hide)
+		.expect("receiver should live for the lifetime of the program");
 }

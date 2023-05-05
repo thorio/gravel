@@ -14,7 +14,7 @@ impl ConfigManager {
 		// TODO: error handling
 		let root = config.clone().try_deserialize().unwrap();
 
-		ConfigManager { config, root }
+		Self { config, root }
 	}
 
 	pub fn get_plugin_adapter(&self, alias: &str) -> PluginConfigAdapter {
@@ -51,7 +51,7 @@ impl<'a> PluginConfigAdapter<'a> {
 		self.config.get_plugin_config(&self.alias, default_config)
 	}
 
-	/// Borrow the gravel's main config.
+	/// Borrow gravel's main config.
 	pub fn get_root(&self) -> &RootConfig {
 		&self.config.root
 	}

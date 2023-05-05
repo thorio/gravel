@@ -24,7 +24,8 @@ pub fn config() -> ConfigManager {
 
 /// Initializes up the [`ConfigBuilder`] with all sources.
 fn get_builder() -> ConfigBuilder<DefaultState> {
-	let user_config_path = format!("{}/user.yml", shellexpand::env(CONFIG_PATH).unwrap());
+	let config_path = shellexpand::env(CONFIG_PATH).expect("used variables should always be present on all system");
+	let user_config_path = format!("{}/user.yml", config_path);
 
 	#[allow(unused_mut)]
 	let mut builder = Config::builder()
@@ -34,7 +35,7 @@ fn get_builder() -> ConfigBuilder<DefaultState> {
 	// dev-only config layer, for example to use a different hotkey for the dev instance
 	#[cfg(debug_assertions)]
 	{
-		let dev_config_path = format!("{}/dev.yml", shellexpand::env(CONFIG_PATH).unwrap());
+		let dev_config_path = format!("{}/dev.yml", config_path);
 
 		builder = builder.add_source(File::with_name(&dev_config_path).required(false));
 	}

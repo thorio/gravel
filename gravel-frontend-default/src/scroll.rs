@@ -13,10 +13,10 @@ pub struct Scroll {
 
 impl Scroll {
 	/// Creates a new instance.
-	/// - length: number of items in the list
-	/// - max_view_size: number of items that can be displayed at once
+	/// - `length`: number of items in the list
+	/// - `max_view_size`: number of items that can be displayed at once
 	pub fn new(length: i32, max_view_size: i32) -> Self {
-		Scroll {
+		Self {
 			length,
 			max_view_size,
 			cursor: 0,

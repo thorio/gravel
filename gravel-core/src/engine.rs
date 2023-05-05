@@ -17,7 +17,7 @@ pub struct QueryEngine {
 /// Aggregates and scores hits from the given [`Provider`]s.
 impl QueryEngine {
 	pub fn new(sender: Sender<FrontendMessage>) -> Self {
-		QueryEngine {
+		Self {
 			providers: vec![],
 			sender,
 		}
@@ -59,7 +59,7 @@ impl QueryEngine {
 			.filter(|provider| provider.keyword.is_none())
 			.collect::<Vec<&ProviderInfo>>();
 
-		self.inner_query(providers.iter(), query)
+		inner_query(&providers, query)
 	}
 
 	/// Tries to find a provider with the a keyword that matches the query's.
@@ -75,7 +75,7 @@ impl QueryEngine {
 			// remove the keyword from the query
 			let new_query = &query[first_word.len()..query.len()].trim_start();
 
-			return Some(self.inner_query(providers.iter(), new_query));
+			return Some(inner_query(&providers, new_query));
 		}
 
 		None
@@ -83,7 +83,7 @@ impl QueryEngine {
 
 	/// Tries to find a provider with the a keyword that matches the given string.
 	fn check_keywords(&self, first_word: &str) -> Option<&ProviderInfo> {
-		for provider in self.providers.iter() {
+		for provider in &self.providers {
 			match provider.keyword.as_ref() {
 				Some(keyword) if keyword == first_word => return Some(provider),
 				_ => (),
@@ -92,23 +92,23 @@ impl QueryEngine {
 
 		None
 	}
+}
 
-	/// Queries providers; aggregates, scores and orders [`Hit`]s.
-	fn inner_query(&self, providers: std::slice::Iter<&ProviderInfo>, query: &str) -> QueryResult {
-		let mut results = Vec::new();
+/// Queries providers; aggregates, scores and orders [`Hit`]s.
+fn inner_query(providers: &Vec<&ProviderInfo>, query: &str) -> QueryResult {
+	let mut results = Vec::new();
 
-		for provider in providers {
-			let result = provider.provider.query(query);
-			results.push(result);
-		}
-
-		let mut aggregate = aggregate_results(results);
-		score_hits(query, &mut aggregate);
-		trim_hits(&mut aggregate);
-		order_hits(&mut aggregate);
-
-		aggregate
+	for provider in providers {
+		let result = provider.provider.query(query);
+		results.push(result);
 	}
+
+	let mut aggregate = aggregate_results(results);
+	score_hits(query, &mut aggregate);
+	trim_hits(&mut aggregate);
+	order_hits(&mut aggregate);
+
+	aggregate
 }
 
 /// Combines the hits from all given [`QueryResult`]s into a single, new result.

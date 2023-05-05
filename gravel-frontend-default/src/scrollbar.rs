@@ -24,7 +24,7 @@ impl Scrollbar {
 		slider.set_frame(FrameType::FlatBox);
 		slider.set_color(Color::from_hex(0xd77b0f));
 
-		Scrollbar {
+		Self {
 			frame,
 			slider,
 			slider_position: 0.0,

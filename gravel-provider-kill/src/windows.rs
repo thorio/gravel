@@ -8,8 +8,8 @@ struct HandleWrapper {
 }
 
 impl HandleWrapper {
-	pub fn from(handle: HANDLE) -> HandleWrapper {
-		HandleWrapper { handle }
+	pub fn from(handle: HANDLE) -> Self {
+		Self { handle }
 	}
 }
 

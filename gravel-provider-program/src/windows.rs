@@ -1,6 +1,7 @@
 use crate::Config;
 use glob::glob;
 use gravel_core::*;
+use std::borrow::Cow;
 use std::path::PathBuf;
 use std::process::Command;
 use std::sync::mpsc::Sender;
@@ -10,19 +11,23 @@ use std::sync::mpsc::Sender;
 pub(crate) fn get_programs(config: &Config) -> Vec<Box<dyn Hit>> {
 	let mut hits = Vec::new() as Vec<Box<dyn Hit>>;
 
-	for path in config.paths_windows.iter() {
+	for path in &config.paths_windows {
 		let expanded_path = shellexpand::env(path).unwrap();
-		for result in glob(&expanded_path).expect("Failed to read glob pattern") {
-			if result.is_err() {
-				continue;
-			}
-
-			let hit = get_program(result.unwrap());
-			hits.push(Box::new(hit));
-		}
+		fun_name(expanded_path, &mut hits);
 	}
 
 	hits
+}
+
+fn fun_name(expanded_path: Cow<str>, hits: &mut Vec<Box<dyn Hit>>) {
+	for result in glob(&expanded_path).expect("Failed to read glob pattern") {
+		if result.is_err() {
+			continue;
+		}
+
+		let hit = get_program(result.unwrap());
+		hits.push(Box::new(hit));
+	}
 }
 
 /// Extracts an application's name from the filename of the link and
@@ -41,7 +46,7 @@ struct ExtraData {
 
 impl ExtraData {
 	pub fn new(link_file: &str) -> Self {
-		ExtraData {
+		Self {
 			link_file: link_file.to_owned(),
 		}
 	}
@@ -54,5 +59,7 @@ fn run_program(hit: &SimpleHit<ExtraData>, sender: &Sender<FrontendMessage>) {
 		.spawn()
 		.expect("failed to run application");
 
-	sender.send(FrontendMessage::Hide).unwrap();
+	sender
+		.send(FrontendMessage::Hide)
+		.expect("failed to send frontend message");
 }

@@ -11,15 +11,15 @@ pub const NULL_SCORE: u32 = u32::MIN;
 pub fn score_hits(query: &str, result: &mut QueryResult) {
 	let matcher = SkimMatcherV2::default();
 
-	for hit in result.hits.iter_mut() {
+	for hit in &mut result.hits {
 		let data = hit.get_data();
 		if data.scored {
 			continue;
 		}
 
-		let score = matcher.fuzzy_match(&data.title, query).unwrap_or(NULL_SCORE as i64);
+		let score = matcher.fuzzy_match(&data.title, query).map_or(NULL_SCORE, |s| s as u32);
 
-		hit.set_score(score as u32);
+		hit.set_score(score);
 	}
 }
 

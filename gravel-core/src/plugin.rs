@@ -25,7 +25,7 @@ impl PluginDefinition {
 	/// The plugin *must* be further defined using the `with_` functions,
 	/// otherwise the definition is invalid.
 	pub fn new(name: &str) -> Self {
-		PluginDefinition {
+		Self {
 			name: String::from(name),
 			plugin_type: PluginType::Provider,
 			provider: None,
@@ -38,9 +38,7 @@ impl PluginDefinition {
 	///
 	/// Panics the definition has already been assigned a plugin.
 	pub fn with_provider(mut self, get_fn: impl Fn(&PluginConfigAdapter) -> Box<dyn Provider> + 'static) -> Self {
-		if self.has_plugin {
-			panic!("cannot assign multiple plugin types");
-		}
+		assert!(!self.has_plugin, "cannot assign multiple plugin types");
 
 		self.provider = Some(Box::new(get_fn));
 		self.plugin_type = PluginType::Provider;
@@ -55,9 +53,7 @@ impl PluginDefinition {
 		mut self,
 		get_fn: impl Fn(QueryEngine, &PluginConfigAdapter) -> Box<dyn Frontend> + 'static,
 	) -> Self {
-		if self.has_plugin {
-			panic!("cannot assign multiple plugin types");
-		}
+		assert!(!self.has_plugin, "cannot assign multiple plugin types");
 
 		self.frontend = Some(Box::new(get_fn));
 		self.plugin_type = PluginType::Frontend;
@@ -84,15 +80,12 @@ impl PluginDefinition {
 }
 
 /// Facilitates registering and finding plugins.
+#[derive(Default)]
 pub struct PluginRegistry {
 	plugins: Vec<PluginDefinition>,
 }
 
 impl PluginRegistry {
-	pub fn default() -> Self {
-		PluginRegistry { plugins: vec![] }
-	}
-
 	/// Registers the plugin.
 	///
 	/// If the plugin is incorrectly defined or another plugin with indentical

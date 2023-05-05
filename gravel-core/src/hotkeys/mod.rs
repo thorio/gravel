@@ -14,7 +14,7 @@ struct Hotkey<T> {
 	pub value: T,
 }
 
-/// Listens for system-wide hotkeys and sends an arbitrary value through
+/// Listens for system-wide hotkeys and sends an arbitrary signal through
 /// the given [`Sender`].
 ///
 /// The listener runs in a separate thread to avoid blocking.
@@ -23,10 +23,6 @@ pub struct Listener<T: 'static + Send + Clone + Debug> {
 }
 
 impl<T: 'static + Send + Clone + Debug> Listener<T> {
-	pub fn default() -> Self {
-		Self { hotkeys: vec![] }
-	}
-
 	/// Registers a hotkey given the modifiers and key.
 	pub fn register(&mut self, modifiers: BitFlags<Modifier>, key: Key, value: T) -> &mut Self {
 		let hotkey = Hotkey { modifiers, key, value };
@@ -64,6 +60,12 @@ impl<T: 'static + Send + Clone + Debug> Listener<T> {
 	}
 }
 
+impl<T: 'static + Send + Clone + Debug> Default for Listener<T> {
+	fn default() -> Self {
+		Self { hotkeys: vec![] }
+	}
+}
+
 /// Registers the given hotkeys with a new [`hotkey::Listener`] and returns it.
 ///
 /// If a hotkey cannot be registered, a warning is logged and the hotkey is skipped.
@@ -77,7 +79,9 @@ fn init_hotkeys<T: 'static + Clone + Debug>(sender: Sender<T>, hotkeys: Vec<Hotk
 		let key = convert_key(hotkey.key);
 
 		let result = hk.register_hotkey(modifiers, key, move || {
-			sender_clone.send(value_clone.clone()).unwrap();
+			sender_clone
+				.send(value_clone.clone())
+				.expect("receiver should live for the lifetime of the program");
 		});
 
 		if let Err(_error) = result {
