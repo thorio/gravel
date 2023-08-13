@@ -6,8 +6,9 @@ edition = "2021"
 [dependencies]
 gravel-core = { path = "../gravel-core" }
 
-serde = "1.0.136"
-sysinfo = "0.23.5"
+serde = "1.0.183"
+sysinfo = "0.29.7"
+thiserror = "1.0.44"
 
 [target.'cfg(windows)'.dependencies]
 winapi = "0.3.9"

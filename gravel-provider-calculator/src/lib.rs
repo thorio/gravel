@@ -5,7 +5,7 @@
 //!
 //! Selecting the hit copies the calculated value to the system's clipboard.
 
-use clipboard::{ClipboardContext, ClipboardProvider};
+use arboard::Clipboard;
 use gravel_core::{config::PluginConfigAdapter, plugin::*, scoring::MAX_SCORE, *};
 use meval::eval_str;
 use serde::Deserialize;
@@ -60,8 +60,8 @@ fn round(number: f64, precision: u32) -> f64 {
 }
 
 fn set_clipboard(str: String) -> Result<(), Box<dyn Error>> {
-	let mut ctx: ClipboardContext = ClipboardProvider::new()?;
-	ctx.set_contents(str)
+	Clipboard::new()?.set_text(str)?;
+	Ok(())
 }
 
 #[derive(Deserialize, Debug)]
