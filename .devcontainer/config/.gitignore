@@ -1,0 +1,4 @@
+# Place gravel configs for use inside the container in this directory
+
+*
+!.gitignore

@@ -12,7 +12,8 @@
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/gravel,type=bind",
 	"remoteEnv": {
 		"XAUTHORITY": "/tmp/.Xauthority",
-		"DISPLAY": "${localEnv:DISPLAY:}"
+		"DISPLAY": "${localEnv:DISPLAY:}",
+		"GRAVEL_CONFIG_PATH": "/workspaces/gravel/.devcontainer/config"
 	},
 	"runArgs": [
 		"--net", "host",
