@@ -1,0 +1,21 @@
+{
+	"name": "gravel",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": ["shardulm94.trailing-spaces"]
+		}
+	},
+	"workspaceFolder": "/workspaces/gravel",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/gravel,type=bind",
+	"remoteEnv": {
+		"XAUTHORITY": "/tmp/.Xauthority",
+		"DISPLAY": "${localEnv:DISPLAY:}"
+	},
+	"runArgs": [
+		"--net", "host",
+		"-v", "${localEnv:XAUTHORITY:$HOME/.Xauthority}:/tmp/.Xauthority:ro"
+	]
+}
