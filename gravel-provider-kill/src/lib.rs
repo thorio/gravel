@@ -39,6 +39,7 @@ impl KillProvider {
 
 impl Provider for KillProvider {
 	fn query(&self, _query: &str) -> QueryResult {
+		// TODO: sysinfo crate loads a lot of unnecessary data in memory, replace with native calls
 		let mut sys = System::new();
 		sys.refresh_processes();
 
@@ -49,13 +50,6 @@ impl Provider for KillProvider {
 			hits.push(get_hit(process));
 		}
 
-		// let data =
-		// 	HitData::new(&format!("killall {}", query), "kills all processes listed below").with_score(MAX_SCORE);
-		// let extra = ExtraData { pid: Pid::from(1) };
-
-		// let hit = Box::new(SimpleHit::new_extra(data, extra, do_kill));
-
-		// hits.push(hit);
 		QueryResult::new(hits)
 	}
 }
