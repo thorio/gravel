@@ -6,6 +6,6 @@ edition = "2021"
 [dependencies]
 gravel-core = { path = "../gravel-core" }
 
-arboard = "3.2.0"
+arboard = "3.2.1"
 meval = "0.2"
-serde = "1.0.183"
+serde = "1.0.188"

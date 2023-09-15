@@ -6,5 +6,5 @@ edition = "2021"
 [dependencies]
 gravel-core = { path = "../gravel-core" }
 
-serde = "1.0.183"
+serde = "1.0.188"
 urlencoding = "2.1.3"
