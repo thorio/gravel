@@ -6,7 +6,6 @@ use gravel_core::{config::PluginConfigAdapter, plugin::*, *};
 use implementation::Pid;
 use serde::Deserialize;
 use std::sync::mpsc::Sender;
-use sysinfo::{PidExt, Process, ProcessExt, System, SystemExt};
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
 #[cfg_attr(windows, path = "windows.rs")]
@@ -39,27 +38,14 @@ impl KillProvider {
 
 impl Provider for KillProvider {
 	fn query(&self, _query: &str) -> QueryResult {
-		// TODO: sysinfo crate loads a lot of unnecessary data in memory, replace with native calls
-		let mut sys = System::new();
-		sys.refresh_processes();
-
-		let processes = sys.processes();
-
-		let mut hits = vec![];
-		for process in processes.values() {
-			hits.push(get_hit(process));
-		}
-
-		QueryResult::new(hits)
+		QueryResult::new(implementation::query())
 	}
 }
 
-fn get_hit(process: &Process) -> Box<dyn Hit> {
-	let title = format!("{} - {}", process.name(), process.pid());
-	let data = HitData::new(&title, process.exe().to_str().unwrap());
-	let extra = ExtraData {
-		pid: process.pid().as_u32(),
-	};
+pub(crate) fn get_hit(name: &str, pid: Pid, cmdline: &str) -> Box<dyn Hit> {
+	let title = format!("{} - {}", name, pid);
+	let data = HitData::new(&title, cmdline);
+	let extra = ExtraData { pid };
 
 	Box::new(SimpleHit::new_extra(data, extra, do_kill))
 }

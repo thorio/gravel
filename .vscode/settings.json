@@ -18,5 +18,7 @@
 		"target": true,
 	},
 
+	// Add these to your workspace config
 	"rust-analyzer.check.command": "clippy",
+	"rust-analyzer.check.targets": ["x86_64-pc-windows-gnu", "x86_64-unknown-linux-gnu"],
 }
