@@ -8,7 +8,7 @@ lazy_static! {
 
 /// Checks for duplicate instances with the given name.
 /// If `name` is [`None`], does nothing.
-pub fn single_instance(name: &Option<String>) {
+pub fn single_instance(name: Option<&String>) {
 	if name.is_none() {
 		// single-instance is disabled, do nothing
 		return;

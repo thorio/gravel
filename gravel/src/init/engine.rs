@@ -20,7 +20,7 @@ pub fn engine(sender: Sender<FrontendMessage>, registry: &PluginRegistry, config
 			continue;
 		}
 
-		engine.register(provider.unwrap(), &provider_config.keyword);
+		engine.register(provider.unwrap(), provider_config.keyword.clone());
 	}
 
 	engine

@@ -24,11 +24,8 @@ impl QueryEngine {
 	}
 
 	/// Adds the provider to the engine's collection.
-	pub fn register(&mut self, provider: Box<dyn Provider>, keyword: &Option<String>) -> &mut Self {
-		let info = ProviderInfo {
-			provider,
-			keyword: keyword.clone(),
-		};
+	pub fn register(&mut self, provider: Box<dyn Provider>, keyword: Option<String>) -> &mut Self {
+		let info = ProviderInfo { provider, keyword };
 
 		self.providers.push(info);
 		self
