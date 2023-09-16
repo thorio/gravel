@@ -1,34 +1,48 @@
 use anyhow::Result;
 use gravel_core::Hit;
+use itertools::Itertools;
 use nix::sys::signal::{kill, Signal};
-use sysinfo::{PidExt, Process, ProcessExt, System, SystemExt};
+use procfs::process::Process;
 
-pub type Pid = u32;
+pub type Pid = i32;
 
 pub fn kill_process(pid: Pid) -> Result<()> {
-	let pid = nix::unistd::Pid::from_raw(pid as i32);
+	let pid = nix::unistd::Pid::from_raw(pid);
 
 	kill(pid, Signal::SIGKILL)?;
 	Ok(())
 }
 
-pub fn query() -> Vec<Box<dyn Hit>> {
-	// TODO: sysinfo crate loads a lot of unnecessary data into memory, replace with native calls
-	let mut sys = System::new();
-	sys.refresh_processes();
+pub fn query() -> Result<Vec<Box<dyn Hit>>> {
+	let hits = procfs::process::all_processes()?
+		.filter_map(Result::ok)
+		.filter_map(|p| get_hit(&p).ok())
+		.collect_vec();
 
-	let processes = sys.processes();
-
-	let mut hits = vec![];
-	for process in processes.values() {
-		hits.push(get_hit(process));
-	}
-
-	hits
+	Ok(hits)
 }
 
-fn get_hit(process: &Process) -> Box<dyn Hit> {
-	let cmdline = process.cmd().join(" ");
+fn get_hit(process: &Process) -> Result<Box<dyn Hit>> {
+	let args = process.cmdline()?;
+	let cmdline = args.join(" ");
+	let name = get_cmdline_binary(&args)
+		.or_else(|| get_exe_binary(process))
+		.or_else(|| get_command_name(process))
+		.unwrap_or(String::from("unknown process"));
 
-	super::get_hit(process.name(), process.pid().as_u32(), &cmdline)
+	Ok(super::get_hit(&name, process.pid, &cmdline))
+}
+
+fn get_cmdline_binary(args: &[String]) -> Option<String> {
+	args.first()?.split(' ').next()?.split('/').last().map(|s| s.to_owned())
+}
+
+fn get_exe_binary(process: &Process) -> Option<String> {
+	let exe = process.exe().ok()?;
+
+	exe.file_name().map(|s| s.to_string_lossy().into_owned())
+}
+
+fn get_command_name(process: &Process) -> Option<String> {
+	process.stat().ok().map(|s| format!("[{}]", s.comm))
 }

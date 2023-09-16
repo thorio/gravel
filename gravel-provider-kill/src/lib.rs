@@ -38,7 +38,7 @@ impl KillProvider {
 
 impl Provider for KillProvider {
 	fn query(&self, _query: &str) -> QueryResult {
-		QueryResult::new(implementation::query())
+		QueryResult::new(implementation::query().unwrap())
 	}
 }
 

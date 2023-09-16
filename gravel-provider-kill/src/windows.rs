@@ -1,4 +1,6 @@
+use anyhow::Result;
 use gravel_core::Hit;
+use itertools::Itertools;
 use sysinfo::{PidExt, Process, ProcessExt, System, SystemExt};
 use winapi::shared::minwindef::DWORD;
 use winapi::um::{handleapi, processthreadsapi, winnt, winnt::HANDLE};
@@ -23,25 +25,24 @@ impl Drop for HandleWrapper {
 
 pub struct CannotKillProcess;
 
-pub fn query() -> Vec<Box<dyn Hit>> {
+pub fn query() -> Result<Vec<Box<dyn Hit>>> {
 	// TODO: sysinfo crate loads a lot of unnecessary data into memory, replace with native calls
 	let mut sys = System::new();
 	sys.refresh_processes();
 
-	let processes = sys.processes();
+	let hits = sys
+		.processes()
+		.iter()
+		.map(|(pid, process)| get_hit(pid, process))
+		.collect_vec();
 
-	let mut hits = vec![];
-	for process in processes.values() {
-		hits.push(get_hit(process));
-	}
-
-	hits
+	Ok(hits)
 }
 
-fn get_hit(process: &Process) -> Box<dyn Hit> {
+fn get_hit(pid: &sysinfo::Pid, process: &Process) -> Box<dyn Hit> {
 	let cmdline = process.cmd().join(" ");
 
-	super::get_hit(process.name(), process.pid().as_u32(), &cmdline)
+	super::get_hit(process.name(), pid.as_u32(), &cmdline)
 }
 
 fn open_process(desired_access: DWORD, pid: Pid) -> Option<HandleWrapper> {
