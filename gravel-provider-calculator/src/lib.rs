@@ -6,10 +6,10 @@
 //! Selecting the hit copies the calculated value to the system's clipboard.
 
 use arboard::Clipboard;
+use evalexpr::Value;
 use gravel_core::{config::PluginConfigAdapter, plugin::*, scoring::MAX_SCORE, *};
-use meval::eval_str;
 use serde::Deserialize;
-use std::error::Error;
+use std::{error::Error, sync::mpsc::Sender};
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
@@ -31,27 +31,37 @@ struct CalculatorProvider {
 
 impl Provider for CalculatorProvider {
 	fn query(&self, query: &str) -> QueryResult {
-		let result = eval_str(query);
-
-		match result {
-			Ok(result) => QueryResult::single(get_hit(&self.config, result)),
-			Err(_err) => QueryResult::empty(),
+		match evalexpr::eval(query) {
+			Ok(Value::Float(result)) => self.get_result(query, result),
+			Ok(Value::Int(result)) => self.get_result(query, result as f64),
+			_ => QueryResult::empty(),
 		}
 	}
 }
 
-fn get_hit(config: &Config, result: f64) -> Box<dyn Hit> {
-	let title = round(result, 15).to_string();
+impl CalculatorProvider {
+	fn get_result(&self, query: &str, result: f64) -> QueryResult {
+		let title = round(result, 15).to_string();
 
-	let hitdata = HitData::new(&title, &config.subtitle).with_score(MAX_SCORE);
+		// If the result is the same as the query, e.g. just a single number,
+		// then don't return a result.
+		if query.trim() == title {
+			return QueryResult::empty();
+		}
 
-	Box::new(SimpleHit::new(hitdata, |hit, sender| {
-		set_clipboard(hit.get_data().title.clone()).ok();
+		let hitdata = HitData::new(&title, &self.config.subtitle).with_score(MAX_SCORE);
+		let hit = SimpleHit::new(hitdata, do_copy);
 
-		sender
-			.send(FrontendMessage::Hide)
-			.expect("receiver should live for the lifetime of the program");
-	}))
+		QueryResult::single(Box::new(hit))
+	}
+}
+
+fn do_copy(hit: &SimpleHit<()>, sender: &Sender<FrontendMessage>) {
+	set_clipboard(hit.get_data().title.clone()).ok();
+
+	sender
+		.send(FrontendMessage::Hide)
+		.expect("receiver should live for the lifetime of the program");
 }
 
 fn round(number: f64, precision: u32) -> f64 {
