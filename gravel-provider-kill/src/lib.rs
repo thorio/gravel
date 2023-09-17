@@ -1,17 +1,13 @@
 //! gravel's process killer
-//!
-//! TODO!
+//! Lists running processes on your system and will allow you to kill them.
 
 use gravel_core::{config::PluginConfigAdapter, plugin::*, *};
 use implementation::Pid;
-use serde::Deserialize;
 use std::sync::mpsc::Sender;
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
 #[cfg_attr(windows, path = "windows.rs")]
 mod implementation;
-
-const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
 pub fn register_plugins(registry: &mut PluginRegistry) {
 	let definition = PluginDefinition::new("kill").with_provider(get_provider);
@@ -19,22 +15,11 @@ pub fn register_plugins(registry: &mut PluginRegistry) {
 	registry.register(definition);
 }
 
-fn get_provider(config: &PluginConfigAdapter) -> Box<dyn Provider> {
-	let plugin_config = config.get::<Config>(DEFAULT_CONFIG);
-
-	Box::new(KillProvider::new(plugin_config))
+fn get_provider(_config: &PluginConfigAdapter) -> Box<dyn Provider> {
+	Box::new(KillProvider {})
 }
 
-#[allow(unused)]
-pub struct KillProvider {
-	config: Config,
-}
-
-impl KillProvider {
-	fn new(config: Config) -> Self {
-		Self { config }
-	}
-}
+pub struct KillProvider {}
 
 impl Provider for KillProvider {
 	fn query(&self, _query: &str) -> QueryResult {
@@ -61,9 +46,4 @@ fn do_kill(hit: &SimpleHit<ExtraData>, sender: &Sender<FrontendMessage>) {
 	sender
 		.send(FrontendMessage::Hide)
 		.expect("receiver should live for the lifetime of the program");
-}
-
-#[derive(Deserialize, Debug)]
-struct Config {
-	//
 }

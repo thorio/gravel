@@ -6,7 +6,7 @@ single_instance: gravel
 
 ## Binds global hotkeys to actions.
 ## The hotkey is configured as an emacs-like binding, though note that some
-## features, such as cords, are not supported.
+## features, such as chords, are not supported.
 ##
 ## Binding examples:
 ##   `A-<Space>` => Alt + Space
@@ -67,7 +67,8 @@ providers:
   - plugin: system
 
   ## Process killer.
-  ## TODO!
+  ## Lists running processes on your system and will allow you to kill them.
+  ## There is currently no further configuration for this plugin.
   - plugin: kill
     keyword: kill
 
