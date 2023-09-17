@@ -8,6 +8,7 @@
 - Calculator
 - Web searches
 - Shutdown, reboot etc.
+- Process killing
 
 ## Goals
 - Cross-platform support for Linux and Windows
