@@ -1,0 +1,101 @@
+name: publish
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+jobs:
+  ubuntu:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v3
+
+      - name: install tools
+        run: |
+          sudo apt-get install libx11-dev libxext-dev libxft-dev libxinerama-dev libxcursor-dev libxrender-dev libxfixes-dev libpango1.0-dev libgl1-mesa-dev libglu1-mesa-dev -y
+          cargo install cargo-deb
+
+      - name: patch project version
+        run: |
+          tag=$(echo ${{ github.ref }} | grep -Po '(?<=^refs/tags/v).*')
+          version=$tag+${GITHUB_SHA:0:8}
+          sed -i "0,/version/{s/0.0.0/$version/}" gravel/Cargo.toml
+
+      - name: package deb
+        run: cargo deb -p gravel && cp target/debian/gravel*.deb ./gravel-x86_64.deb
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: gravel-x86_64.deb
+
+  arch:
+    runs-on: ubuntu-22.04
+    container:
+      image: archlinux
+    permissions:
+      contents: write
+    steps:
+      - name: install packages
+        run: pacman -Syu base-devel rustup git sudo libx11 libxext libxft libxinerama libxcursor libxrender libxfixes pango cairo libgl mesa --noconfirm
+
+      - name: checkout repository
+        uses: actions/checkout@v3
+
+      - name: setup build user
+        run: |
+          useradd builder -m
+          chown -R builder:builder .
+
+      - name: install rust tools
+        shell: sudo -u builder bash {0}
+        run: |
+          rustup default stable
+          cargo install cargo-arch
+
+      - name: patch project version
+        run: |
+          tag=$(echo ${{ github.ref }} | grep -Po '(?<=^refs/tags/v).*')
+          version=$tag+${GITHUB_SHA:0:8}
+          sed -i "0,/version/{s/0.0.0/$version/}" gravel/Cargo.toml
+
+      - name: package for arch
+        working-directory: gravel
+        run: |
+          sudo -u builder cargo arch
+          mv *.pkg.tar.zst ../gravel-x86_64.pkg.tar.zst
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: gravel-x86_64.pkg.tar.zst
+
+  windows:
+    runs-on: windows-2022
+    permissions:
+      contents: write
+    env:
+      # because grep 3.0 from 2017 refuses to do anything otherwise
+      LC_ALL: en_US.utf8
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v3
+
+      - name: patch project version
+        shell: bash
+        run: |
+          tag=$(echo ${{ github.ref }} | grep -Po '(?<=^refs/tags/v).*')
+          version=$tag+${GITHUB_SHA:0:8}
+          sed -i "0,/version/{s/0.0.0/$version/}" gravel/Cargo.toml
+          echo $version
+
+      - name: compile binary
+        run: cargo build --release && cp target/release/gravel.exe ./gravel-x86_64.exe
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: gravel-x86_64.exe

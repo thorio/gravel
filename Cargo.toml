@@ -1,4 +1,5 @@
 [workspace]
+resolver = "2"
 
 members = [
 	"gravel",
@@ -10,3 +11,7 @@ members = [
 	"gravel-provider-system",
 	"gravel-provider-websearch",
 ]
+
+[profile.release]
+strip = true
+lto = true

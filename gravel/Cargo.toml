@@ -1,7 +1,22 @@
 [package]
 name = "gravel"
-version = "0.1.0"
+version = "0.0.0" # patched by github actions
 edition = "2021"
+description = "cross-platform run launcher"
+readme = "README.md"
+license = "GPL-3.0"
+authors = ["thorou"]
+repository = "https://github.com/thorio/gravel"
+
+[package.metadata.deb]
+maintainer = "thorou <thorio.git@gmail.com>"
+section = "x11"
+priority = "extra"
+depends = ["libx11-6", "libxinerama1", "libxft2", "libxext6", "libxcursor1", "libxrender1", "libxfixes3", "libcairo2", "libpango-1.0-0", "libpangocairo-1.0-0", "libpangoxft-1.0-0", "libglib2.0-0", "libfontconfig1", "libglu1-mesa", "libgl1"]
+
+[package.metadata.arch]
+maintainer = "thorou <thorio.git@gmail.com>"
+depends = ["libx11", "libxext", "libxft", "libxinerama", "libxcursor", "libxrender", "libxfixes", "pango", "cairo", "libgl", "mesa"]
 
 [dependencies]
 gravel-core = { path = "../gravel-core" }

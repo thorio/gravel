@@ -13,7 +13,7 @@ lock:
   title: lock
   subtitle: Lock the System
 
-  ## Specifies the to bash command to run on linux systems.
+  ## Specifies the bash command to run on linux systems.
   command_linux: loginctl lock-session
 
 logout:
