@@ -6,6 +6,7 @@ pub mod config;
 mod engine;
 mod frontend;
 pub mod hotkeys;
+pub mod paths;
 pub mod plugin;
 mod provider;
 pub mod scoring;

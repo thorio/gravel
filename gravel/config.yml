@@ -48,7 +48,7 @@ providers:
   ## the list and allow you to copy the value to your clipboard.
   ##
   ## A complete list of supported expressions and constants can be found here:
-  ## https://docs.rs/meval/latest/meval/#supported-expressions
+  ## https://docs.rs/evalexpr/latest/evalexpr/#operators
   - plugin: calculator
 
   ## Default application finder. It will search the applications installed on
@@ -90,7 +90,7 @@ providers:
 ## This is where plugins (providers / frontends) read their configuration from.
 ##
 ## By default plugins read from `plugin_config > {my_plugin}`, but you can use
-## an alias to changes this. With aliases, you can have multiple instances of
+## an alias to change this. With aliases, you can have multiple instances of
 ## the same provider, each with a different configuration.
 ##
 ## See the second `websearch` plugin above for a practical example.

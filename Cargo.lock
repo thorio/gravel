@@ -792,7 +792,6 @@ dependencies = [
  "fuzzy-matcher",
  "hotkey",
  "serde",
- "shellexpand",
 ]
 
 [[package]]
