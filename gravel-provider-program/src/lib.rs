@@ -2,10 +2,7 @@
 //! Searches for applications and allows you to launch them.
 //!
 //! ### Linux
-//! Searches for .desktop files in
-//! - `/usr/share/applications`
-//! - `/usr/local/share/applications`
-//! - `$XDG_DATA_HOME/applications`
+//! Searches for .desktop files in `$XDG_DATA_DIRS` and `$XDG_DATA_HOME`
 //!
 //! Launches applications using gtk-launch.
 //!
@@ -51,8 +48,12 @@ impl Provider for ProgramProvider {
 
 #[derive(Deserialize, Debug)]
 struct Config {
-	#[cfg(target_os = "linux")]
-	pub paths_linux: Vec<String>,
 	#[cfg(windows)]
-	pub paths_windows: Vec<String>,
+	pub windows: WindowsConfig,
+}
+
+#[cfg(windows)]
+#[derive(Deserialize, Debug)]
+struct WindowsConfig {
+	shortcut_paths: Vec<String>,
 }

@@ -11,7 +11,7 @@ use std::sync::mpsc::Sender;
 pub(crate) fn get_programs(config: &Config) -> Vec<Box<dyn Hit>> {
 	let mut hits = Vec::new() as Vec<Box<dyn Hit>>;
 
-	for path in &config.paths_windows {
+	for path in &config.windows.shortcut_paths {
 		let expanded_path = shellexpand::env(path).unwrap();
 		fun_name(expanded_path, &mut hits);
 	}

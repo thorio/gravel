@@ -27,3 +27,19 @@ fn get_xdg_config_home() -> PathBuf {
 
 	get_home().join(".config")
 }
+
+pub fn get_xdg_data_dirs() -> Vec<PathBuf> {
+	if let Ok(path) = env::var("XDG_DATA_DIRS") {
+		return path.split(':').map(PathBuf::from).collect();
+	}
+
+	vec![PathBuf::from("/usr/local/share/"), PathBuf::from("/usr/share/")]
+}
+
+pub fn get_xdg_data_home() -> PathBuf {
+	if let Ok(path) = env::var("XDG_DATA_HOME") {
+		return path.into();
+	}
+
+	get_home().join(".local/share")
+}

@@ -1,12 +1,8 @@
 ## Config for gravel's program provider.
 ## Remember to duplicate changes here in gravel's main config.
 
-## Where to look for freedesktop files on Linux.
-## Paths should be specified as globs.
-paths_linux:
-  - "/usr/share/applications/*.desktop"
-  - "/usr/local/share/applications/*.desktop"
-  - "${XDG_DATA_HOME:-$HOME/.local/share}/applications/*.desktop"
+## On linux, paths can be configured by changing the
+## XDG_DATA_DIRS environment variable.
 
 ## Where to look for symlinks on Windows.
 ## Paths should be specified as globs.
