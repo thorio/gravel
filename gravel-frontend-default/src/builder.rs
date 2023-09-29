@@ -1,8 +1,8 @@
 use crate::{config::*, scrollbar::Scrollbar, structs::*};
 use fltk::{app, app::Sender, enums::*, frame::Frame, group::Group, input::Input, prelude::*, window::Window};
 
-/// Get the target window's size given the number of hits displayed.
-pub fn get_window_size(config: &Config, hit_count: i32) -> i32 {
+/// Get the window's target size given the number of hits displayed.
+pub fn get_window_height(config: &Config, hit_count: i32) -> i32 {
 	let padding = match hit_count {
 		0 => 0,
 		_ => config.layout.padding,
@@ -52,17 +52,10 @@ pub fn build(config: &Config) -> Ui {
 
 fn build_window(config: &Config) -> Window {
 	let mut window = Window::default()
-		.with_size(
-			config.layout.window_width,
-			get_window_size(config, config.layout.max_hits),
-		)
-		.center_screen()
+		.with_size(config.layout.window_width, get_window_height(config, 0))
 		.with_label("Gravel");
 	window.set_color(config.colors.background);
 	window.set_border(false);
-
-	// change the height after the window has been centered
-	window.set_size(config.layout.window_width, get_window_size(config, 0));
 
 	window
 }

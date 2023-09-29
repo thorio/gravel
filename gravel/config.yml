@@ -221,3 +221,6 @@ plugin_config:
   #     ## Shows the internal score assigned to each hit,
   #     ## useful for debugging purposes.
   #     show_scores: false
+  #
+  #     ## Automatically centers the window on the screen each time it is shown.
+  #     auto_center_window: true

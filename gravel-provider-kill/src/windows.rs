@@ -26,7 +26,8 @@ impl Drop for HandleWrapper {
 pub struct CannotKillProcess;
 
 pub fn query() -> Result<Vec<Box<dyn Hit>>> {
-	// TODO: sysinfo crate loads a lot of unnecessary data into memory, replace with native calls
+	// TODO: sysinfo crate loads a lot of unnecessary data into memory,
+	// replace with native calls (or a crate that does streaming)
 	let mut sys = System::new();
 	sys.refresh_processes();
 

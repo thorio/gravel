@@ -115,6 +115,7 @@ pub struct LayoutConfig {
 pub struct BehaviourConfig {
 	pub auto_hide: bool,
 	pub show_scores: bool,
+	pub auto_center_window: bool,
 }
 
 #[derive(Deserialize, Debug)]

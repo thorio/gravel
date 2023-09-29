@@ -20,6 +20,7 @@ pub struct DefaultFrontend {
 impl Frontend for DefaultFrontend {
 	fn run(&mut self, receiver: Receiver<FrontendMessage>) {
 		self.handle_frontend_messages(receiver);
+		self.update_window_position();
 		self.run_event_loop();
 	}
 }
@@ -42,22 +43,22 @@ impl DefaultFrontend {
 	/// Runs the FLTK event loop. Blocks until the app exits.
 	fn run_event_loop(&mut self) {
 		while self.ui.app.wait() {
-			if let Some(message) = self.ui.receiver.recv() {
-				match message {
-					Message::Query => self.query(),
-					Message::Confirm => self.confirm(),
-					Message::CursorUp => self.cursor_up(),
-					Message::CursorDown => self.cursor_down(),
-					Message::CursorPageUp => self.cursor_page_up(),
-					Message::CursorPageDown => self.cursor_page_down(),
-					Message::CursorTop => self.cursor_top(),
-					Message::CursorBottom => self.cursor_bottom(),
-					Message::ShowWindow => self.show(),
-					Message::Cancel | Message::HideWindow => self.hide(),
-					Message::ShowOrHideWindow => self.show_or_hide(),
-					Message::ShowWithQuery(query) => self.show_with(&query),
-					Message::Exit => break,
-				}
+			let Some(message) = self.ui.receiver.recv() else { continue };
+
+			match message {
+				Message::Query => self.query(),
+				Message::Confirm => self.confirm(),
+				Message::CursorUp => self.cursor_up(),
+				Message::CursorDown => self.cursor_down(),
+				Message::CursorPageUp => self.cursor_page_up(),
+				Message::CursorPageDown => self.cursor_page_down(),
+				Message::CursorTop => self.cursor_top(),
+				Message::CursorBottom => self.cursor_bottom(),
+				Message::ShowWindow => self.show(),
+				Message::Cancel | Message::HideWindow => self.hide(),
+				Message::ShowOrHideWindow => self.show_or_hide(),
+				Message::ShowWithQuery(query) => self.show_with(&query),
+				Message::Exit => self.ui.app.quit(),
 			}
 		}
 	}
@@ -95,6 +96,7 @@ impl DefaultFrontend {
 
 		self.ui.window.platform_show();
 		self.visible = true;
+		self.update_window_position();
 
 		// pull the window into the foreground so it isn't stuck behind other windows
 		native::activate_window(&self.ui.window);
@@ -209,8 +211,24 @@ impl DefaultFrontend {
 	/// Sets the new size on its [`Scroll`] and updates the window's height.
 	fn update_window_height(&mut self) {
 		self.scroll.set_length(self.result.hits.len() as i32);
-		let height = builder::get_window_size(&self.config, self.scroll.view_size());
+		let height = builder::get_window_height(&self.config, self.scroll.view_size());
 		self.ui.window.set_size(self.config.layout.window_width, height);
+	}
+
+	fn update_window_position(&mut self) {
+		if !self.config.behaviour.auto_center_window {
+			return;
+		}
+
+		let width = self.config.layout.window_width;
+		let max_height = builder::get_window_height(&self.config, self.config.layout.max_hits);
+
+		let (screen_width, screen_height) = fltk::app::screen_size();
+
+		let pos_x = (screen_width as i32 - width) / 2;
+		let pos_y = (screen_height as i32 - max_height) / 2;
+
+		self.ui.window.set_pos(pos_x, pos_y);
 	}
 }
 
