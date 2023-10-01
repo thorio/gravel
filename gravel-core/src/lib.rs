@@ -11,6 +11,6 @@ pub mod plugin;
 mod provider;
 pub mod scoring;
 
-pub use engine::QueryEngine;
+pub use engine::{QueryEngine, QueryResult};
 pub use frontend::{Frontend, FrontendMessage};
-pub use provider::{Hit, HitData, Provider, QueryResult, SimpleHit};
+pub use provider::{Hit, Provider, ProviderResult, SimpleHit};

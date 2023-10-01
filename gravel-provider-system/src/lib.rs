@@ -29,77 +29,41 @@ pub struct WebsearchProvider {
 }
 
 impl Provider for WebsearchProvider {
-	fn query(&self, _query: &str) -> QueryResult {
+	fn query(&self, _query: &str) -> ProviderResult {
 		let hits = vec![
 			get_exit(&self.config),
-			get_lock(&self.config),
-			get_logout(&self.config),
-			get_restart(&self.config),
-			get_shutdown(&self.config),
-			get_sleep(&self.config),
+			get_hit(&self.config.lock, implementation::lock),
+			get_hit(&self.config.logout, implementation::logout),
+			get_hit(&self.config.restart, implementation::restart),
+			get_hit(&self.config.shutdown, implementation::shutdown),
+			get_hit(&self.config.sleep, implementation::sleep),
 		];
 
-		QueryResult::new(hits)
+		ProviderResult::new(hits)
 	}
 }
 
 fn get_exit(config: &Config) -> Box<dyn Hit> {
-	let data = HitData::new(&config.exit.title, &config.exit.subtitle);
-	Box::new(SimpleHit::new(data, |_hit, sender| {
+	let hit = SimpleHit::new(&*config.exit.title, &*config.exit.subtitle, |_hit, sender| {
 		sender
 			.send(FrontendMessage::Exit)
 			.expect("failed to send frontend message");
-	}))
+	});
+
+	Box::new(hit)
 }
 
-fn get_lock(config: &Config) -> Box<dyn Hit> {
-	let data = HitData::new(&config.lock.title, &config.lock.subtitle);
-	Box::new(SimpleHit::new_extra(data, config.lock.clone(), |hit, sender| {
-		implementation::lock(hit.get_extra_data());
+fn get_hit(config: &SubcommandConfig, action: impl Fn(&SubcommandConfig) + 'static) -> Box<SimpleHit<()>> {
+	let cloned_config = config.to_owned();
+	let hit = SimpleHit::new(&*config.title, &*config.subtitle, move |_, sender| {
+		action(&cloned_config);
+
 		sender
 			.send(FrontendMessage::Hide)
 			.expect("failed to send frontend message");
-	}))
-}
+	});
 
-fn get_logout(config: &Config) -> Box<dyn Hit> {
-	let data = HitData::new(&config.logout.title, &config.logout.subtitle);
-	Box::new(SimpleHit::new_extra(data, config.logout.clone(), |hit, sender| {
-		implementation::logout(hit.get_extra_data());
-		sender
-			.send(FrontendMessage::Hide)
-			.expect("failed to send frontend message");
-	}))
-}
-
-fn get_restart(config: &Config) -> Box<dyn Hit> {
-	let data = HitData::new(&config.restart.title, &config.restart.subtitle);
-	Box::new(SimpleHit::new_extra(data, config.restart.clone(), |hit, sender| {
-		implementation::restart(hit.get_extra_data());
-		sender
-			.send(FrontendMessage::Hide)
-			.expect("failed to send frontend message");
-	}))
-}
-
-fn get_shutdown(config: &Config) -> Box<dyn Hit> {
-	let data = HitData::new(&config.shutdown.title, &config.shutdown.subtitle);
-	Box::new(SimpleHit::new_extra(data, config.shutdown.clone(), |hit, sender| {
-		implementation::shutdown(hit.get_extra_data());
-		sender
-			.send(FrontendMessage::Hide)
-			.expect("failed to send frontend message");
-	}))
-}
-
-fn get_sleep(config: &Config) -> Box<dyn Hit> {
-	let data = HitData::new(&config.sleep.title, &config.sleep.subtitle);
-	Box::new(SimpleHit::new_extra(data, config.sleep.clone(), |hit, sender| {
-		implementation::sleep(hit.get_extra_data());
-		sender
-			.send(FrontendMessage::Hide)
-			.expect("failed to send frontend message");
-	}))
+	Box::new(hit)
 }
 
 #[derive(Clone, Deserialize, Debug)]

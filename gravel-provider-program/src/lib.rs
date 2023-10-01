@@ -39,10 +39,10 @@ struct ProgramProvider {
 }
 
 impl Provider for ProgramProvider {
-	fn query(&self, _query: &str) -> QueryResult {
+	fn query(&self, _query: &str) -> ProviderResult {
 		let hits = implementation::get_programs(&self.config);
 
-		QueryResult::new(hits)
+		ProviderResult::new(hits)
 	}
 }
 

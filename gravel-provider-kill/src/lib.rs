@@ -22,26 +22,21 @@ fn get_provider(_config: &PluginConfigAdapter) -> Box<dyn Provider> {
 pub struct KillProvider {}
 
 impl Provider for KillProvider {
-	fn query(&self, _query: &str) -> QueryResult {
-		QueryResult::new(implementation::query().unwrap())
+	fn query(&self, _query: &str) -> ProviderResult {
+		ProviderResult::new(implementation::query().unwrap())
 	}
 }
 
 pub(crate) fn get_hit(name: &str, pid: Pid, cmdline: &str) -> Box<dyn Hit> {
 	let title = format!("{} - {}", name, pid);
-	let data = HitData::new(&title, cmdline);
-	let extra = ExtraData { pid };
 
-	Box::new(SimpleHit::new_extra(data, extra, do_kill))
+	let hit = SimpleHit::new(title, cmdline, move |_, s| do_kill(s, pid));
+	Box::new(hit)
 }
 
-struct ExtraData {
-	pub pid: Pid,
-}
-
-fn do_kill(hit: &SimpleHit<ExtraData>, sender: &Sender<FrontendMessage>) {
+fn do_kill(sender: &Sender<FrontendMessage>, pid: Pid) {
 	// We don't care if this fails
-	implementation::kill_process(hit.get_extra_data().pid).unwrap_or(());
+	implementation::kill_process(pid).unwrap_or(());
 
 	sender
 		.send(FrontendMessage::Hide)

@@ -32,14 +32,14 @@ pub struct WebsearchProvider {
 }
 
 impl Provider for WebsearchProvider {
-	fn query(&self, query: &str) -> QueryResult {
-		let data = HitData::new(query, &self.config.subtitle).with_score(MIN_SCORE);
+	fn query(&self, query: &str) -> ProviderResult {
 		let extra = ExtraData {
 			url_pattern: self.config.url_pattern.clone(),
 		};
 
-		let hit = Box::new(SimpleHit::new_extra(data, extra, do_search));
-		QueryResult::single(hit)
+		let hit = SimpleHit::new_with_data(query, &*self.config.subtitle, extra, do_search).with_score(MIN_SCORE);
+
+		ProviderResult::single(Box::new(hit))
 	}
 }
 
@@ -48,8 +48,8 @@ struct ExtraData {
 }
 
 fn do_search(hit: &SimpleHit<ExtraData>, sender: &Sender<FrontendMessage>) {
-	let encoded = urlencoding::encode(&hit.get_data().title);
-	let url = hit.get_extra_data().url_pattern.replace("{}", &encoded);
+	let encoded = urlencoding::encode(hit.get_title());
+	let url = hit.get_data().url_pattern.replace("{}", &encoded);
 
 	implementation::open_url(&url).expect("failed to open url");
 

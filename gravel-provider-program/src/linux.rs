@@ -4,6 +4,7 @@ use gravel_core::paths::{get_xdg_data_dirs, get_xdg_data_home};
 use gravel_core::*;
 use itertools::Itertools;
 use std::iter::once;
+use std::ops::Deref;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::sync::mpsc::Sender;
@@ -60,20 +61,20 @@ fn get_program(path: PathBuf) -> Option<SimpleHit<ExtraData>> {
 
 	let name = section.attr("Name").unwrap_or(filename);
 
-	let hit_data = HitData::new(name, path.to_str()?);
-	let hit = SimpleHit::new_extra(hit_data, ExtraData::new(filename), run_program);
+	let data = ExtraData::new(filename);
+	let hit = SimpleHit::new_with_data(name, path.to_str()?, data, run_program);
 
 	Some(hit)
 }
 
 struct ExtraData {
-	pub desktop_file: String,
+	pub desktop_file: Box<str>,
 }
 
 impl ExtraData {
-	pub fn new(desktop_file: &str) -> Self {
+	pub fn new(desktop_file: impl Into<Box<str>>) -> Self {
 		ExtraData {
-			desktop_file: desktop_file.to_owned(),
+			desktop_file: desktop_file.into(),
 		}
 	}
 }
@@ -81,7 +82,7 @@ impl ExtraData {
 /// Runs the given entry using gtk-launch.
 fn run_program(hit: &SimpleHit<ExtraData>, sender: &Sender<FrontendMessage>) {
 	Command::new("gtk-launch")
-		.arg(&hit.get_extra_data().desktop_file)
+		.arg(hit.get_data().desktop_file.deref())
 		// explicitly prevent stream inheritance
 		.stdin(Stdio::null())
 		.stdout(Stdio::null())

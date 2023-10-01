@@ -9,7 +9,7 @@ use std::sync::mpsc::Sender;
 /// Expands the path globs and returns hit representations of all
 /// symlinks it finds.
 pub(crate) fn get_programs(config: &Config) -> Vec<Box<dyn Hit>> {
-	let mut hits = Vec::new() as Vec<Box<dyn Hit>>;
+	let mut hits = vec![] as Vec<Box<dyn Hit>>;
 
 	for path in &config.windows.shortcut_paths {
 		let expanded_path = shellexpand::env(path).unwrap();
@@ -35,9 +35,7 @@ fn fun_name(expanded_path: Cow<str>, hits: &mut Vec<Box<dyn Hit>>) {
 fn get_program(path: PathBuf) -> SimpleHit<ExtraData> {
 	let name = path.file_stem().unwrap().to_str().unwrap();
 	let path_str = path.to_str().unwrap();
-	let hit_data = HitData::new(name, path_str);
-
-	SimpleHit::new_extra(hit_data, ExtraData::new(path_str), run_program)
+	SimpleHit::new_with_data(name, path_str, ExtraData::new(path_str), run_program)
 }
 
 struct ExtraData {
@@ -55,7 +53,7 @@ impl ExtraData {
 /// Passes the link's path to explorer, which then launches the application.
 fn run_program(hit: &SimpleHit<ExtraData>, sender: &Sender<FrontendMessage>) {
 	Command::new("explorer")
-		.arg(&hit.get_extra_data().link_file)
+		.arg(&hit.get_data().link_file)
 		.spawn()
 		.expect("failed to run application");
 

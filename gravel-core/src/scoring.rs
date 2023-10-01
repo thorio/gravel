@@ -1,48 +1,45 @@
 use crate::provider::*;
 use fuzzy_matcher::skim::SkimMatcherV2;
 use fuzzy_matcher::FuzzyMatcher;
+use itertools::Itertools;
+use lazy_static::lazy_static;
 use std::cmp::Ordering;
+use std::ops::Deref;
 
 pub const MAX_SCORE: u32 = u32::MAX;
-pub const MIN_SCORE: u32 = u32::MIN + 1;
-pub const NULL_SCORE: u32 = u32::MIN;
+pub const MIN_SCORE: u32 = u32::MIN;
 
-/// Assigns each hit a score based on how closely its title matches the query.
-pub fn score_hits(query: &str, result: &mut QueryResult) {
-	let matcher = SkimMatcherV2::default();
-
-	for hit in &mut result.hits {
-		let data = hit.get_data();
-		if data.scored {
-			continue;
-		}
-
-		let score = matcher.fuzzy_match(&data.title, query).map_or(NULL_SCORE, |s| s as u32);
-
-		hit.set_score(score);
-	}
+lazy_static! {
+	static ref MATCHER: SkimMatcherV2 = SkimMatcherV2::default();
 }
 
-/// Discards any hits that were assigned a [`NULL_SCORE`].
-/// This happens when the title doesn't match the query at all.
-pub fn trim_hits(result: &mut QueryResult) {
-	result.hits.retain(|h| h.get_data().score != NULL_SCORE);
+pub struct ScoredHit {
+	pub hit: Box<dyn Hit>,
+	pub score: u32,
 }
 
-/// Orders the hits by their scores, highest to lowest.
-/// Hits with equal scores are ordered by their title, alphabetically.
-pub fn order_hits(result: &mut QueryResult) {
-	result.hits.sort_by(compare_hits);
+/// Assigns each hit a score based on how closely its title matches the query,
+/// discards non-matching hits and orders them highest to lowest.
+pub fn get_scored_hits(hits: Vec<Box<dyn Hit>>, query: &str) -> Vec<ScoredHit> {
+	hits.into_iter()
+		.filter_map(|h| get_scored_hit(h, query))
+		.sorted_by(compare_hits)
+		.collect()
 }
 
-// Passing the box directly is easier since we're using sort_by
-#[allow(clippy::borrowed_box)]
-fn compare_hits(a: &Box<dyn Hit>, b: &Box<dyn Hit>) -> Ordering {
-	let data_a = a.get_data();
-	let data_b = b.get_data();
+fn get_scored_hit(hit: Box<dyn Hit>, query: &str) -> Option<ScoredHit> {
+	let score = hit.get_override_score().or_else(|| get_score(hit.deref(), query))?;
 
-	match data_a.score == data_b.score {
-		true => data_a.title.cmp(&data_b.title),
-		false => data_b.score.cmp(&data_a.score),
+	Some(ScoredHit { hit, score })
+}
+
+fn get_score(hit: &dyn Hit, query: &str) -> Option<u32> {
+	MATCHER.fuzzy_match(hit.get_title(), query).map(|s| s as u32)
+}
+
+fn compare_hits(a: &ScoredHit, b: &ScoredHit) -> Ordering {
+	match b.score.cmp(&a.score) {
+		Ordering::Equal => a.hit.get_title().cmp(b.hit.get_title()),
+		ordering => ordering,
 	}
 }

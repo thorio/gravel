@@ -3,7 +3,26 @@ use std::sync::mpsc::Sender;
 
 /// A provider takes a query and provides some relevant results.
 pub trait Provider {
-	fn query(&self, query: &str) -> QueryResult;
+	fn query(&self, query: &str) -> ProviderResult;
+}
+
+/// A collection of hits.
+pub struct ProviderResult {
+	pub hits: Vec<Box<dyn Hit>>,
+}
+
+impl ProviderResult {
+	pub fn new(hits: Vec<Box<dyn Hit>>) -> Self {
+		Self { hits }
+	}
+
+	pub fn empty() -> Self {
+		Self::new(vec![])
+	}
+
+	pub fn single(hit: Box<dyn Hit>) -> Self {
+		Self::new(vec![hit])
+	}
 }
 
 /// A hit holds information about how to display a query result, as well
@@ -12,72 +31,20 @@ pub trait Provider {
 /// The hit can be given a score, in which case it will not be further
 /// scored and simply ordered as-is.
 pub trait Hit {
-	fn get_data(&self) -> &HitData;
+	fn get_title(&self) -> &str;
+	fn get_subtitle(&self) -> &str;
+	fn get_override_score(&self) -> Option<u32>;
 	fn action(&self, sender: &Sender<FrontendMessage>);
-
-	/// Assign a pre-determined score to influence the ordering of this hit.
-	///
-	/// Usually, this is only set to either [`MAX_SCORE`](`crate::scoring::MAX_SCORE`)
-	/// or [`MIN_SCORE`](`crate::scoring::MIN_SCORE`), to "pin" it to the top
-	/// or bottom of the results.
-	fn set_score(&mut self, score: u32);
-}
-
-/// A collection of hits.
-pub struct QueryResult {
-	pub hits: Vec<Box<dyn Hit>>,
-}
-
-impl QueryResult {
-	pub fn new(hits: Vec<Box<dyn Hit>>) -> Self {
-		Self { hits }
-	}
-
-	pub fn empty() -> Self {
-		Self::new(Vec::new())
-	}
-
-	pub fn single(hit: Box<dyn Hit>) -> Self {
-		Self::new(vec![hit])
-	}
-}
-
-/// Holds common data that must be present on all hits.
-pub struct HitData {
-	pub title: String,
-	pub subtitle: String,
-	pub score: u32,
-	pub scored: bool,
-}
-
-impl HitData {
-	pub fn empty() -> Self {
-		Self::new("", "")
-	}
-
-	pub fn new(title: &str, subtitle: &str) -> Self {
-		Self {
-			title: title.to_owned(),
-			subtitle: subtitle.to_owned(),
-			score: 0,
-			scored: false,
-		}
-	}
-
-	pub fn with_score(mut self, score: u32) -> Self {
-		self.score = score;
-		self.scored = true;
-
-		self
-	}
 }
 
 /// Reference implementation for [`Hit`].
 ///
 /// Takes a function for an action and can store extra data.
 pub struct SimpleHit<T> {
-	data: HitData,
-	extra_data: T,
+	title: Box<str>,
+	subtitle: Box<str>,
+	override_score: Option<u32>,
+	data: T,
 
 	// I think inlining it is easier to read in this case, due to T.
 	#[allow(clippy::type_complexity)]
@@ -86,40 +53,56 @@ pub struct SimpleHit<T> {
 
 impl SimpleHit<()> {
 	/// Creates a new instance without extra data.
-	pub fn new(data: HitData, func: impl Fn(&Self, &Sender<FrontendMessage>) + 'static) -> Self {
-		Self {
-			data,
-			extra_data: (),
-			action_func: Box::new(func),
-		}
+	pub fn new(
+		title: impl Into<Box<str>>,
+		subtitle: impl Into<Box<str>>,
+		func: impl Fn(&Self, &Sender<FrontendMessage>) + 'static,
+	) -> Self {
+		SimpleHit::new_with_data(title, subtitle, (), func)
 	}
 }
 
 impl<T> SimpleHit<T> {
 	/// Creates a new instance with extra data.
-	pub fn new_extra(data: HitData, extra_data: T, func: impl Fn(&Self, &Sender<FrontendMessage>) + 'static) -> Self {
+	pub fn new_with_data(
+		title: impl Into<Box<str>>,
+		subtitle: impl Into<Box<str>>,
+		data: T,
+		func: impl Fn(&Self, &Sender<FrontendMessage>) + 'static,
+	) -> Self {
 		Self {
+			title: title.into(),
+			subtitle: subtitle.into(),
+			override_score: None,
 			data,
-			extra_data,
 			action_func: Box::new(func),
 		}
 	}
 
-	pub fn get_extra_data(&self) -> &T {
-		&self.extra_data
+	pub fn get_data(&self) -> &T {
+		&self.data
+	}
+
+	pub fn with_score(mut self, score: u32) -> Self {
+		self.override_score = Some(score);
+		self
 	}
 }
 
 impl<T> Hit for SimpleHit<T> {
-	fn get_data(&self) -> &HitData {
-		&self.data
-	}
-
 	fn action(&self, sender: &Sender<FrontendMessage>) {
 		(self.action_func)(self, sender);
 	}
 
-	fn set_score(&mut self, score: u32) {
-		self.data.score = score;
+	fn get_title(&self) -> &str {
+		&self.title
+	}
+
+	fn get_subtitle(&self) -> &str {
+		&self.subtitle
+	}
+
+	fn get_override_score(&self) -> Option<u32> {
+		self.override_score
 	}
 }

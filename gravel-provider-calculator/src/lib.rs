@@ -30,34 +30,33 @@ struct CalculatorProvider {
 }
 
 impl Provider for CalculatorProvider {
-	fn query(&self, query: &str) -> QueryResult {
+	fn query(&self, query: &str) -> ProviderResult {
 		match evalexpr::eval(query) {
 			Ok(Value::Float(result)) => self.get_result(query, result),
 			Ok(Value::Int(result)) => self.get_result(query, result as f64),
-			_ => QueryResult::empty(),
+			_ => ProviderResult::empty(),
 		}
 	}
 }
 
 impl CalculatorProvider {
-	fn get_result(&self, query: &str, result: f64) -> QueryResult {
+	fn get_result(&self, query: &str, result: f64) -> ProviderResult {
 		let title = round(result, 15).to_string();
 
 		// If the result is the same as the query, e.g. just a single number,
 		// then don't return a result.
 		if query.trim() == title {
-			return QueryResult::empty();
+			return ProviderResult::empty();
 		}
 
-		let hitdata = HitData::new(&title, &self.config.subtitle).with_score(MAX_SCORE);
-		let hit = SimpleHit::new(hitdata, do_copy);
+		let hit = SimpleHit::new(title, self.config.subtitle.clone(), do_copy).with_score(MAX_SCORE);
 
-		QueryResult::single(Box::new(hit))
+		ProviderResult::single(Box::new(hit))
 	}
 }
 
 fn do_copy(hit: &SimpleHit<()>, sender: &Sender<FrontendMessage>) {
-	set_clipboard(hit.get_data().title.clone()).ok();
+	set_clipboard(hit.get_title()).ok();
 
 	sender
 		.send(FrontendMessage::Hide)
@@ -69,7 +68,7 @@ fn round(number: f64, precision: u32) -> f64 {
 	(number * factor).round() / factor
 }
 
-fn set_clipboard(str: String) -> Result<(), Box<dyn Error>> {
+fn set_clipboard(str: &str) -> Result<(), Box<dyn Error>> {
 	Clipboard::new()?.set_text(str)?;
 	Ok(())
 }

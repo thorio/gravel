@@ -1,12 +1,7 @@
 use crate::{builder, config::*, native, scroll::Scroll, structs::*};
 use fltk::{enums::*, prelude::*};
-use gravel_core::*;
-use lazy_static::*;
-use std::sync::mpsc::Receiver;
-
-lazy_static! {
-	static ref EMPTY_HIT: HitData = HitData::empty();
-}
+use gravel_core::{scoring::ScoredHit, *};
+use std::{ops::Deref, sync::mpsc::Receiver};
 
 pub struct DefaultFrontend {
 	config: Config,
@@ -70,7 +65,7 @@ impl DefaultFrontend {
 
 		fltk::app::add_timeout3(0.01, move |handle| {
 			if let Ok(message) = receiver.try_recv() {
-				own_sender.send(convert_message(message));
+				own_sender.send(message.into());
 			}
 
 			fltk::app::repeat_timeout3(0.01, handle);
@@ -139,7 +134,7 @@ impl DefaultFrontend {
 		if !self.result.hits.is_empty() {
 			let cursor = self.scroll.cursor();
 			let hit = &self.result.hits[cursor as usize];
-			self.engine.run_hit_action(&**hit);
+			self.engine.run_hit_action(hit.hit.deref());
 		}
 	}
 
@@ -179,15 +174,9 @@ impl DefaultFrontend {
 			let position = self.scroll.scroll() + i;
 			let selected = position == self.scroll.cursor();
 
-			let hitdata = if position < self.result.hits.len() as i32 {
-				self.result.hits[position as usize].get_data()
-			} else {
-				// hits offscreen must be set to empty, otherwise any residual data might still be visible.
-				&EMPTY_HIT
-			};
-
-			let hit = &mut self.ui.hits[i as usize];
-			update_hit(hit, hitdata, selected, self.config.behaviour.show_scores);
+			let hit_ui = self.ui.hits.get_mut(i as usize).unwrap();
+			let hit = self.result.hits.get(position as usize);
+			update_hit(hit_ui, hit, selected, self.config.behaviour.show_scores);
 		}
 
 		self.update_scrollbar();
@@ -232,33 +221,24 @@ impl DefaultFrontend {
 	}
 }
 
-fn convert_message(message: FrontendMessage) -> Message {
-	match message {
-		FrontendMessage::ShowOrHide => Message::ShowOrHideWindow,
-		FrontendMessage::Show => Message::ShowWindow,
-		FrontendMessage::Hide => Message::HideWindow,
-		FrontendMessage::ShowWithQuery(query) => Message::ShowWithQuery(query),
-		FrontendMessage::Exit => Message::Exit,
-	}
-}
-
 /// Writes the given [`HitData`] to the given [`HitUi`].
 ///
 /// `selected` highlights the hit.
-fn update_hit(hit: &mut HitUi, data: &HitData, selected: bool, show_score: bool) {
-	hit.title.set_label(&data.title);
+fn update_hit(hit_ui: &mut HitUi, hit: Option<&ScoredHit>, selected: bool, show_score: bool) {
+	let title = hit.map(|h| h.hit.get_title()).unwrap_or("");
+	let subtitle = hit.map(|h| h.hit.get_subtitle()).unwrap_or("");
 
-	match show_score {
-		true => hit.subtitle.set_label(&format_subtitle_with_score(data)),
-		false => hit.subtitle.set_label(&data.subtitle),
+	hit_ui.title.set_label(title);
+
+	if show_score {
+		let format = format!("[{}] {}", hit.map(|h| h.score).unwrap_or(0), subtitle);
+		hit_ui.subtitle.set_label(&format);
+	} else {
+		hit_ui.subtitle.set_label(subtitle)
 	}
 
-	match selected {
-		true => hit.group.set_frame(FrameType::FlatBox),
-		false => hit.group.set_frame(FrameType::NoBox),
-	}
-}
-
-fn format_subtitle_with_score(data: &HitData) -> String {
-	format!("[{}] {}", &data.score, &data.subtitle)
+	hit_ui.group.set_frame(match selected {
+		true => FrameType::FlatBox,
+		false => FrameType::NoBox,
+	});
 }

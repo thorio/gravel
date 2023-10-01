@@ -28,7 +28,7 @@ pub fn build(config: &Config) -> Ui {
 	sender_clone = sender.clone();
 	input.handle(move |_input, event| input_event(event, &sender_clone));
 
-	let mut hits = Vec::new();
+	let mut hits = vec![];
 	for i in 0..config.layout.max_hits {
 		hits.push(build_hit(i, config));
 	}
@@ -69,8 +69,9 @@ fn build_input(config: &Config) -> Input {
 	input.set_color(config.colors.background);
 	input.set_text_color(config.colors.text);
 	input.set_selection_color(config.colors.accent);
-	// TODO fix cursor color
-	// input.set_cursor_color(COLOR_TEXT);
+
+	// TODO fix cursor color on next fltk-rs release
+	//input.set_cursor_color(config.colors.accent);
 
 	input
 }

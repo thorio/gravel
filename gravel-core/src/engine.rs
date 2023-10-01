@@ -1,6 +1,8 @@
+use itertools::Itertools;
+
 use crate::frontend::FrontendMessage;
-use crate::provider::*;
-use crate::scoring::*;
+use crate::scoring::ScoredHit;
+use crate::{provider::*, scoring};
 use std::sync::mpsc::Sender;
 
 /// Holds a [`Provider`] and some additional metadata.
@@ -12,6 +14,20 @@ struct ProviderInfo {
 pub struct QueryEngine {
 	providers: Vec<ProviderInfo>,
 	sender: Sender<FrontendMessage>,
+}
+
+pub struct QueryResult {
+	pub hits: Vec<ScoredHit>,
+}
+
+impl QueryResult {
+	pub fn new(hits: Vec<ScoredHit>) -> Self {
+		Self { hits }
+	}
+
+	pub fn empty() -> Self {
+		Self::new(vec![])
+	}
 }
 
 /// Aggregates and scores hits from the given [`Provider`]s.
@@ -34,7 +50,7 @@ impl QueryEngine {
 	/// Queries all providers with the given query.
 	pub fn query(&self, query: &str) -> QueryResult {
 		if query.trim().is_empty() {
-			return QueryResult::empty();
+			return QueryResult { hits: vec![] };
 		}
 
 		if let Some(result) = self.try_keyword_query(query) {
@@ -56,7 +72,7 @@ impl QueryEngine {
 			.filter(|provider| provider.keyword.is_none())
 			.collect::<Vec<&ProviderInfo>>();
 
-		inner_query(&providers, query)
+		inner_query(providers, query)
 	}
 
 	/// Tries to find a provider with the a keyword that matches the query's.
@@ -66,16 +82,14 @@ impl QueryEngine {
 		let words = query.split(' ').collect::<Vec<&str>>();
 		let first_word: &str = words.first().unwrap();
 
-		if let Some(provider) = self.check_keywords(first_word) {
-			let providers = vec![provider];
+		let Some(provider) = self.check_keywords(first_word) else {
+			return None;
+		};
 
-			// remove the keyword from the query
-			let new_query = &query[first_word.len()..query.len()].trim_start();
+		// remove the keyword from the query
+		let new_query = &query[first_word.len()..query.len()].trim_start();
 
-			return Some(inner_query(&providers, new_query));
-		}
-
-		None
+		Some(inner_query(vec![provider], new_query))
 	}
 
 	/// Tries to find a provider with the a keyword that matches the given string.
@@ -92,29 +106,13 @@ impl QueryEngine {
 }
 
 /// Queries providers; aggregates, scores and orders [`Hit`]s.
-fn inner_query(providers: &Vec<&ProviderInfo>, query: &str) -> QueryResult {
-	let mut results = Vec::new();
+fn inner_query(providers: Vec<&ProviderInfo>, query: &str) -> QueryResult {
+	let hits = providers
+		.iter()
+		.flat_map(|p| p.provider.query(query).hits)
+		.collect_vec();
 
-	for provider in providers {
-		let result = provider.provider.query(query);
-		results.push(result);
-	}
+	let hits = scoring::get_scored_hits(hits, query);
 
-	let mut aggregate = aggregate_results(results);
-	score_hits(query, &mut aggregate);
-	trim_hits(&mut aggregate);
-	order_hits(&mut aggregate);
-
-	aggregate
-}
-
-/// Combines the hits from all given [`QueryResult`]s into a single, new result.
-fn aggregate_results(results: Vec<QueryResult>) -> QueryResult {
-	let mut hits = Vec::new();
-
-	for mut result in results {
-		hits.append(&mut result.hits);
-	}
-
-	QueryResult::new(hits)
+	QueryResult { hits }
 }

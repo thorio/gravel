@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 gravel-core = { path = "../gravel-core" }
 
-fltk = { version = "1.4.12", features = ["fltk-bundled"] }
+fltk = { version = "^1.4", features = ["fltk-bundled"] }
 lazy_static = "1.4.0"
 serde = "1.0.188"
 
