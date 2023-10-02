@@ -34,7 +34,12 @@ fn get_hit(process: &Process) -> Result<Box<dyn Hit>> {
 }
 
 fn get_cmdline_binary(args: &[String]) -> Option<String> {
-	args.first()?.split(' ').next()?.split('/').last().map(|s| s.to_owned())
+	args.first()?
+		.split(' ')
+		.next()?
+		.split('/')
+		.last()
+		.map(ToOwned::to_owned)
 }
 
 fn get_exe_binary(process: &Process) -> Option<String> {

@@ -1,7 +1,7 @@
 use crate::{builder, config::*, native, scroll::Scroll, structs::*};
 use fltk::{enums::*, prelude::*};
 use gravel_core::{scoring::ScoredHit, *};
-use std::{ops::Deref, sync::mpsc::Receiver};
+use std::sync::mpsc::Receiver;
 
 pub struct DefaultFrontend {
 	config: Config,
@@ -134,7 +134,7 @@ impl DefaultFrontend {
 		if !self.result.hits.is_empty() {
 			let cursor = self.scroll.cursor();
 			let hit = &self.result.hits[cursor as usize];
-			self.engine.run_hit_action(hit.hit.deref());
+			self.engine.run_hit_action(&*hit.hit);
 		}
 	}
 
@@ -225,20 +225,22 @@ impl DefaultFrontend {
 ///
 /// `selected` highlights the hit.
 fn update_hit(hit_ui: &mut HitUi, hit: Option<&ScoredHit>, selected: bool, show_score: bool) {
-	let title = hit.map(|h| h.hit.get_title()).unwrap_or("");
-	let subtitle = hit.map(|h| h.hit.get_subtitle()).unwrap_or("");
+	let title = hit.map_or("", |h| h.hit.get_title());
+	let subtitle = hit.map_or("", |h| h.hit.get_subtitle());
 
 	hit_ui.title.set_label(title);
 
 	if show_score {
-		let format = format!("[{}] {}", hit.map(|h| h.score).unwrap_or(0), subtitle);
+		let format = format!("[{}] {}", hit.map_or(0, |h| h.score), subtitle);
 		hit_ui.subtitle.set_label(&format);
 	} else {
-		hit_ui.subtitle.set_label(subtitle)
+		hit_ui.subtitle.set_label(subtitle);
 	}
 
-	hit_ui.group.set_frame(match selected {
+	let frame_type = match selected {
 		true => FrameType::FlatBox,
 		false => FrameType::NoBox,
-	});
+	};
+
+	hit_ui.group.set_frame(frame_type);
 }

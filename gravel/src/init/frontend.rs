@@ -12,7 +12,7 @@ pub fn frontend(registry: &PluginRegistry, engine: QueryEngine, config: &ConfigM
 	let frontend = try_get_frontend(registry, engine, frontend_plugin, &adapter);
 
 	if frontend.is_none() {
-		println!("frontend \"{}\" not found, exiting", frontend_plugin);
+		println!("frontend \"{frontend_plugin}\" not found, exiting");
 		std::process::exit(1);
 	}
 

@@ -37,6 +37,7 @@ impl PluginDefinition {
 	/// Assigns a [`Provider`] to the definition.
 	///
 	/// Panics the definition has already been assigned a plugin.
+	#[must_use]
 	pub fn with_provider(mut self, get_fn: impl Fn(&PluginConfigAdapter) -> Box<dyn Provider> + 'static) -> Self {
 		assert!(!self.has_plugin, "cannot assign multiple plugin types");
 
@@ -49,6 +50,7 @@ impl PluginDefinition {
 	/// Assigns a [`Frontend`] to the definition.
 	///
 	/// Panics the definition has already been assigned a plugin.
+	#[must_use]
 	pub fn with_frontend(
 		mut self,
 		get_fn: impl Fn(QueryEngine, &PluginConfigAdapter) -> Box<dyn Frontend> + 'static,

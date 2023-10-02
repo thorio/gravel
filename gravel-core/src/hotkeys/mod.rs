@@ -53,7 +53,7 @@ impl<T: 'static + Send + Clone + Debug> Listener<T> {
 
 		// run the listener on another thread to avoid blocking the current one
 		std::thread::spawn(move || {
-			init_hotkeys(sender, hotkeys).listen();
+			init_hotkeys(&sender, hotkeys).listen();
 		});
 
 		self
@@ -69,7 +69,7 @@ impl<T: 'static + Send + Clone + Debug> Default for Listener<T> {
 /// Registers the given hotkeys with a new [`hotkey::Listener`] and returns it.
 ///
 /// If a hotkey cannot be registered, a warning is logged and the hotkey is skipped.
-fn init_hotkeys<T: 'static + Clone + Debug>(sender: Sender<T>, hotkeys: Vec<Hotkey<T>>) -> hotkey::Listener {
+fn init_hotkeys<T: 'static + Clone + Debug>(sender: &Sender<T>, hotkeys: Vec<Hotkey<T>>) -> hotkey::Listener {
 	let mut hk = hotkey::Listener::new();
 
 	for hotkey in hotkeys {
@@ -85,7 +85,7 @@ fn init_hotkeys<T: 'static + Clone + Debug>(sender: Sender<T>, hotkeys: Vec<Hotk
 		});
 
 		if let Err(_error) = result {
-			println!("failed to register hotkey {:?}, skipping", hotkey);
+			println!("failed to register hotkey {hotkey:?}, skipping");
 		}
 	}
 

@@ -4,7 +4,6 @@ use fuzzy_matcher::FuzzyMatcher;
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use std::cmp::Ordering;
-use std::ops::Deref;
 
 pub const MAX_SCORE: u32 = u32::MAX;
 pub const MIN_SCORE: u32 = u32::MIN;
@@ -28,7 +27,7 @@ pub fn get_scored_hits(hits: Vec<Box<dyn Hit>>, query: &str) -> Vec<ScoredHit> {
 }
 
 fn get_scored_hit(hit: Box<dyn Hit>, query: &str) -> Option<ScoredHit> {
-	let score = hit.get_override_score().or_else(|| get_score(hit.deref(), query))?;
+	let score = hit.get_override_score().or_else(|| get_score(&*hit, query))?;
 
 	Some(ScoredHit { hit, score })
 }

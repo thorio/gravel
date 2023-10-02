@@ -4,8 +4,7 @@ use gravel_core::paths::{get_xdg_data_dirs, get_xdg_data_home};
 use gravel_core::*;
 use itertools::Itertools;
 use std::iter::once;
-use std::ops::Deref;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::mpsc::Sender;
 
@@ -15,14 +14,14 @@ pub(crate) fn get_programs(_config: &Config) -> Vec<Box<dyn Hit>> {
 	get_application_paths()
 		.into_iter()
 		.flat_map(get_desktop_entries)
-		.unique_by(|p| p.file_name().map(|p| p.to_owned()))
+		.unique_by(|p| p.file_name().map(ToOwned::to_owned))
 		.filter_map(get_hit)
 		.collect()
 }
 
 fn get_hit(result: PathBuf) -> Option<Box<dyn Hit>> {
 	let path = result;
-	let hit = get_program(path)?;
+	let hit = get_program(&path)?;
 
 	Some(Box::new(hit))
 }
@@ -49,10 +48,10 @@ fn get_application_paths() -> Vec<PathBuf> {
 }
 
 /// Parses a desktop entry and returns a [`SimpleHit`] that represents it.
-fn get_program(path: PathBuf) -> Option<SimpleHit<ExtraData>> {
+fn get_program(path: &Path) -> Option<SimpleHit<ExtraData>> {
 	let filename = path.file_name()?.to_str()?;
 
-	let entry = freedesktop_entry_parser::parse_entry(&path).ok()?;
+	let entry = freedesktop_entry_parser::parse_entry(path).ok()?;
 	let section = entry.section("Desktop Entry");
 
 	if let Some("true") = section.attr("NoDisplay") {
@@ -82,7 +81,7 @@ impl ExtraData {
 /// Runs the given entry using gtk-launch.
 fn run_program(hit: &SimpleHit<ExtraData>, sender: &Sender<FrontendMessage>) {
 	Command::new("gtk-launch")
-		.arg(hit.get_data().desktop_file.deref())
+		.arg(&*hit.get_data().desktop_file)
 		// explicitly prevent stream inheritance
 		.stdin(Stdio::null())
 		.stdout(Stdio::null())

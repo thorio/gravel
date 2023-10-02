@@ -54,7 +54,7 @@ fn get_exit(config: &Config) -> Box<dyn Hit> {
 }
 
 fn get_hit(config: &SubcommandConfig, action: impl Fn(&SubcommandConfig) + 'static) -> Box<SimpleHit<()>> {
-	let cloned_config = config.to_owned();
+	let cloned_config = config.clone();
 	let hit = SimpleHit::new(&*config.title, &*config.subtitle, move |_, sender| {
 		action(&cloned_config);
 

@@ -72,7 +72,7 @@ impl QueryEngine {
 			.filter(|provider| provider.keyword.is_none())
 			.collect::<Vec<&ProviderInfo>>();
 
-		inner_query(providers, query)
+		inner_query(&providers, query)
 	}
 
 	/// Tries to find a provider with the a keyword that matches the query's.
@@ -89,7 +89,7 @@ impl QueryEngine {
 		// remove the keyword from the query
 		let new_query = &query[first_word.len()..query.len()].trim_start();
 
-		Some(inner_query(vec![provider], new_query))
+		Some(inner_query(&[provider], new_query))
 	}
 
 	/// Tries to find a provider with the a keyword that matches the given string.
@@ -106,7 +106,7 @@ impl QueryEngine {
 }
 
 /// Queries providers; aggregates, scores and orders [`Hit`]s.
-fn inner_query(providers: Vec<&ProviderInfo>, query: &str) -> QueryResult {
+fn inner_query(providers: &[&ProviderInfo], query: &str) -> QueryResult {
 	let hits = providers
 		.iter()
 		.flat_map(|p| p.provider.query(query).hits)

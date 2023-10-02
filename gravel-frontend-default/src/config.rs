@@ -10,14 +10,14 @@ pub fn get_config(config: &PluginConfigAdapter) -> Config {
 	let base = config.get::<DeserializedConfig>(DEFAULT_CONFIG);
 
 	Config {
-		layout: get_layout_config(base.layout),
-		colors: get_color_config(base.colors),
+		layout: get_layout_config(&base.layout),
+		colors: get_color_config(&base.colors),
 		behaviour: base.behaviour,
 	}
 }
 
 /// Performs scaling and computes additional values.
-fn get_layout_config(layout: DeserializedLayoutConfig) -> LayoutConfig {
+fn get_layout_config(layout: &DeserializedLayoutConfig) -> LayoutConfig {
 	let hit_title_height = (layout.hit_title_height as f32 * layout.scale) as i32;
 	let hit_title_font_size = (layout.hit_title_font_size as f32 * layout.scale) as i32;
 	let hit_subtitle_height = (layout.hit_subtitle_height as f32 * layout.scale) as i32;
@@ -66,7 +66,7 @@ fn get_layout_config(layout: DeserializedLayoutConfig) -> LayoutConfig {
 }
 
 /// Converts the hex colors into the [`Color`] enum.
-fn get_color_config(colors: DeserializedColorConfig) -> ColorConfig {
+fn get_color_config(colors: &DeserializedColorConfig) -> ColorConfig {
 	ColorConfig {
 		background: Color::from_hex(colors.background),
 		accent: Color::from_hex(colors.accent),

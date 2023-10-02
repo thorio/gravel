@@ -12,14 +12,17 @@ pub struct ProviderResult {
 }
 
 impl ProviderResult {
+	#[must_use]
 	pub fn new(hits: Vec<Box<dyn Hit>>) -> Self {
 		Self { hits }
 	}
 
+	#[must_use]
 	pub fn empty() -> Self {
 		Self::new(vec![])
 	}
 
+	#[must_use]
 	pub fn single(hit: Box<dyn Hit>) -> Self {
 		Self::new(vec![hit])
 	}
@@ -83,6 +86,7 @@ impl<T> SimpleHit<T> {
 		&self.data
 	}
 
+	#[must_use]
 	pub fn with_score(mut self, score: u32) -> Self {
 		self.override_score = Some(score);
 		self

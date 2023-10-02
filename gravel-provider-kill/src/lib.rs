@@ -28,7 +28,7 @@ impl Provider for KillProvider {
 }
 
 pub(crate) fn get_hit(name: &str, pid: Pid, cmdline: &str) -> Box<dyn Hit> {
-	let title = format!("{} - {}", name, pid);
+	let title = format!("{name} - {pid}");
 
 	let hit = SimpleHit::new(title, cmdline, move |_, s| do_kill(s, pid));
 	Box::new(hit)

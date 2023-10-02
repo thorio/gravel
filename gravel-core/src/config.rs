@@ -34,7 +34,7 @@ impl ConfigManager {
 			.add_source(self.config.clone());
 
 		// TODO: error handling
-		let key = format!("plugin_config.{}", alias);
+		let key = format!("plugin_config.{alias}");
 		builder.build().unwrap().get(key.as_str()).unwrap()
 	}
 }
@@ -71,7 +71,7 @@ fn preprocess_plugin_config(config: &str, alias: &str) -> String {
 
 	// then prepend this to place it in the same config section as in the
 	// user's config for this plugin
-	let mut new_config = format!("plugin_config:\n {}:\n", alias);
+	let mut new_config = format!("plugin_config:\n {alias}:\n");
 
 	new_config.push_str(&indented);
 
