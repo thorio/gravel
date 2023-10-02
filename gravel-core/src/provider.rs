@@ -1,5 +1,5 @@
 use crate::frontend::FrontendMessage;
-use std::sync::mpsc::Sender;
+use std::sync::{mpsc::Sender, Arc};
 
 /// A provider takes a query and provides some relevant results.
 pub trait Provider {
@@ -8,12 +8,12 @@ pub trait Provider {
 
 /// A collection of hits.
 pub struct ProviderResult {
-	pub hits: Vec<Box<dyn Hit>>,
+	pub hits: Vec<Arc<dyn Hit>>,
 }
 
 impl ProviderResult {
 	#[must_use]
-	pub fn new(hits: Vec<Box<dyn Hit>>) -> Self {
+	pub fn new(hits: Vec<Arc<dyn Hit>>) -> Self {
 		Self { hits }
 	}
 
@@ -23,7 +23,7 @@ impl ProviderResult {
 	}
 
 	#[must_use]
-	pub fn single(hit: Box<dyn Hit>) -> Self {
+	pub fn single(hit: Arc<dyn Hit>) -> Self {
 		Self::new(vec![hit])
 	}
 }

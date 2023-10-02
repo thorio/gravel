@@ -3,7 +3,7 @@
 
 use gravel_core::{config::PluginConfigAdapter, plugin::*, *};
 use implementation::Pid;
-use std::sync::mpsc::Sender;
+use std::sync::{mpsc::Sender, Arc};
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
 #[cfg_attr(windows, path = "windows.rs")]
@@ -27,11 +27,11 @@ impl Provider for KillProvider {
 	}
 }
 
-pub(crate) fn get_hit(name: &str, pid: Pid, cmdline: &str) -> Box<dyn Hit> {
+pub(crate) fn get_hit(name: &str, pid: Pid, cmdline: &str) -> Arc<dyn Hit> {
 	let title = format!("{name} - {pid}");
 
 	let hit = SimpleHit::new(title, cmdline, move |_, s| do_kill(s, pid));
-	Box::new(hit)
+	Arc::new(hit)
 }
 
 fn do_kill(sender: &Sender<FrontendMessage>, pid: Pid) {

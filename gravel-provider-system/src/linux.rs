@@ -1,24 +1,23 @@
-use crate::SubcommandConfig;
 use std::process::Command;
 
-pub(crate) fn lock(config: &SubcommandConfig) {
-	shell_run(&config.command_linux);
+pub(crate) fn lock(command_linux: &str) {
+	shell_run(command_linux);
 }
 
-pub(crate) fn logout(config: &SubcommandConfig) {
-	shell_run(&config.command_linux);
+pub(crate) fn logout(command_linux: &str) {
+	shell_run(command_linux);
 }
 
-pub(crate) fn restart(config: &SubcommandConfig) {
-	shell_run(&config.command_linux);
+pub(crate) fn restart(command_linux: &str) {
+	shell_run(command_linux);
 }
 
-pub(crate) fn shutdown(config: &SubcommandConfig) {
-	shell_run(&config.command_linux);
+pub(crate) fn shutdown(command_linux: &str) {
+	shell_run(command_linux);
 }
 
-pub(crate) fn sleep(config: &SubcommandConfig) {
-	shell_run(&config.command_linux);
+pub(crate) fn sleep(command_linux: &str) {
+	shell_run(command_linux);
 }
 
 fn shell_run(cmd: &str) {

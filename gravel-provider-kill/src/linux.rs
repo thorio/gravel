@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use anyhow::Result;
 use gravel_core::Hit;
 use itertools::Itertools;
@@ -13,7 +15,7 @@ pub fn kill_process(pid: Pid) -> Result<()> {
 	Ok(())
 }
 
-pub fn query() -> Result<Vec<Box<dyn Hit>>> {
+pub fn query() -> Result<Vec<Arc<dyn Hit>>> {
 	let hits = procfs::process::all_processes()?
 		.filter_map(Result::ok)
 		.filter_map(|p| get_hit(&p).ok())
@@ -22,7 +24,7 @@ pub fn query() -> Result<Vec<Box<dyn Hit>>> {
 	Ok(hits)
 }
 
-fn get_hit(process: &Process) -> Result<Box<dyn Hit>> {
+fn get_hit(process: &Process) -> Result<Arc<dyn Hit>> {
 	let args = process.cmdline()?;
 	let cmdline = args.join(" ");
 	let name = get_cmdline_binary(&args)

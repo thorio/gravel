@@ -9,7 +9,10 @@ use arboard::Clipboard;
 use evalexpr::Value;
 use gravel_core::{config::PluginConfigAdapter, plugin::*, scoring::MAX_SCORE, *};
 use serde::Deserialize;
-use std::{error::Error, sync::mpsc::Sender};
+use std::{
+	error::Error,
+	sync::{mpsc::Sender, Arc},
+};
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
@@ -51,7 +54,7 @@ impl CalculatorProvider {
 
 		let hit = SimpleHit::new(title, self.config.subtitle.clone(), do_copy).with_score(MAX_SCORE);
 
-		ProviderResult::single(Box::new(hit))
+		ProviderResult::single(Arc::new(hit))
 	}
 }
 

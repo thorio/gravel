@@ -4,12 +4,12 @@ use gravel_core::*;
 use std::borrow::Cow;
 use std::path::PathBuf;
 use std::process::Command;
-use std::sync::mpsc::Sender;
+use std::sync::{mpsc::Sender, Arc};
 
 /// Expands the path globs and returns hit representations of all
 /// symlinks it finds.
-pub(crate) fn get_programs(config: &Config) -> Vec<Box<dyn Hit>> {
-	let mut hits = vec![] as Vec<Box<dyn Hit>>;
+pub(crate) fn get_programs(config: &Config) -> Vec<Arc<dyn Hit>> {
+	let mut hits = vec![] as Vec<Arc<dyn Hit>>;
 
 	for path in &config.windows.shortcut_paths {
 		let expanded_path = shellexpand::env(path).unwrap();
@@ -19,14 +19,14 @@ pub(crate) fn get_programs(config: &Config) -> Vec<Box<dyn Hit>> {
 	hits
 }
 
-fn fun_name(expanded_path: Cow<str>, hits: &mut Vec<Box<dyn Hit>>) {
+fn fun_name(expanded_path: Cow<str>, hits: &mut Vec<Arc<dyn Hit>>) {
 	for result in glob(&expanded_path).expect("Failed to read glob pattern") {
 		if result.is_err() {
 			continue;
 		}
 
 		let hit = get_program(result.unwrap());
-		hits.push(Box::new(hit));
+		hits.push(Arc::new(hit));
 	}
 }
 

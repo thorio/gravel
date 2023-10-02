@@ -3,6 +3,7 @@
 
 use gravel_core::{config::PluginConfigAdapter, plugin::*, *};
 use serde::Deserialize;
+use std::sync::Arc;
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
 #[cfg_attr(windows, path = "windows.rs")]
@@ -19,51 +20,56 @@ pub fn register_plugins(registry: &mut PluginRegistry) {
 fn get_provider(config: &PluginConfigAdapter) -> Box<dyn Provider> {
 	let plugin_config = config.get::<Config>(DEFAULT_CONFIG);
 
-	let provider = WebsearchProvider { config: plugin_config };
+	let provider = WebsearchProvider::new(plugin_config);
 
 	Box::new(provider)
 }
 
 pub struct WebsearchProvider {
-	config: Config,
+	hits: Box<[Arc<dyn Hit>]>,
+}
+
+impl WebsearchProvider {
+	fn new(config: Config) -> Self {
+		let hits = vec![
+			get_exit(config.exit),
+			get_hit(config.lock, implementation::lock),
+			get_hit(config.logout, implementation::logout),
+			get_hit(config.restart, implementation::restart),
+			get_hit(config.shutdown, implementation::shutdown),
+			get_hit(config.sleep, implementation::sleep),
+		];
+
+		Self { hits: hits.into() }
+	}
 }
 
 impl Provider for WebsearchProvider {
 	fn query(&self, _query: &str) -> ProviderResult {
-		let hits = vec![
-			get_exit(&self.config),
-			get_hit(&self.config.lock, implementation::lock),
-			get_hit(&self.config.logout, implementation::logout),
-			get_hit(&self.config.restart, implementation::restart),
-			get_hit(&self.config.shutdown, implementation::shutdown),
-			get_hit(&self.config.sleep, implementation::sleep),
-		];
-
-		ProviderResult::new(hits)
+		ProviderResult::new(self.hits.to_vec())
 	}
 }
 
-fn get_exit(config: &Config) -> Box<dyn Hit> {
-	let hit = SimpleHit::new(&*config.exit.title, &*config.exit.subtitle, |_hit, sender| {
+fn get_exit(config: ExitConfig) -> Arc<dyn Hit> {
+	let hit = SimpleHit::new(config.title, config.subtitle, |_hit, sender| {
 		sender
 			.send(FrontendMessage::Exit)
 			.expect("failed to send frontend message");
 	});
 
-	Box::new(hit)
+	Arc::new(hit)
 }
 
-fn get_hit(config: &SubcommandConfig, action: impl Fn(&SubcommandConfig) + 'static) -> Box<SimpleHit<()>> {
-	let cloned_config = config.clone();
-	let hit = SimpleHit::new(&*config.title, &*config.subtitle, move |_, sender| {
-		action(&cloned_config);
+fn get_hit(config: SubcommandConfig, action: impl Fn(&str) + 'static) -> Arc<SimpleHit<()>> {
+	let hit = SimpleHit::new(config.title, config.subtitle, move |_, sender| {
+		action(&config.command_linux);
 
 		sender
 			.send(FrontendMessage::Hide)
 			.expect("failed to send frontend message");
 	});
 
-	Box::new(hit)
+	Arc::new(hit)
 }
 
 #[derive(Clone, Deserialize, Debug)]

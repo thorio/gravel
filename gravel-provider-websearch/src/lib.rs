@@ -5,7 +5,7 @@
 
 use gravel_core::{config::PluginConfigAdapter, plugin::*, scoring::MIN_SCORE, *};
 use serde::Deserialize;
-use std::sync::mpsc::Sender;
+use std::sync::{mpsc::Sender, Arc};
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
 #[cfg_attr(windows, path = "windows.rs")]
@@ -39,7 +39,7 @@ impl Provider for WebsearchProvider {
 
 		let hit = SimpleHit::new_with_data(query, &*self.config.subtitle, extra, do_search).with_score(MIN_SCORE);
 
-		ProviderResult::single(Box::new(hit))
+		ProviderResult::single(Arc::new(hit))
 	}
 }
 

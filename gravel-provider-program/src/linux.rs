@@ -7,10 +7,11 @@ use std::iter::once;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::mpsc::Sender;
+use std::sync::Arc;
 
 /// Expands the path globs and returns hit representations of all
 /// desktop entries it finds.
-pub(crate) fn get_programs(_config: &Config) -> Vec<Box<dyn Hit>> {
+pub(crate) fn get_programs(_config: &Config) -> Vec<Arc<dyn Hit>> {
 	get_application_paths()
 		.into_iter()
 		.flat_map(get_desktop_entries)
@@ -19,11 +20,11 @@ pub(crate) fn get_programs(_config: &Config) -> Vec<Box<dyn Hit>> {
 		.collect()
 }
 
-fn get_hit(result: PathBuf) -> Option<Box<dyn Hit>> {
+fn get_hit(result: PathBuf) -> Option<Arc<dyn Hit>> {
 	let path = result;
 	let hit = get_program(&path)?;
 
-	Some(Box::new(hit))
+	Some(Arc::new(hit))
 }
 
 fn get_desktop_entries(mut path: PathBuf) -> impl Iterator<Item = PathBuf> {
