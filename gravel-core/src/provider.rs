@@ -33,7 +33,7 @@ impl ProviderResult {
 ///
 /// The hit can be given a score, in which case it will not be further
 /// scored and simply ordered as-is.
-pub trait Hit {
+pub trait Hit: Sync + Send {
 	fn get_title(&self) -> &str;
 	fn get_subtitle(&self) -> &str;
 	fn get_override_score(&self) -> Option<u32>;
@@ -51,7 +51,7 @@ pub struct SimpleHit<T> {
 
 	// I think inlining it is easier to read in this case, due to T.
 	#[allow(clippy::type_complexity)]
-	action_func: Box<dyn Fn(&Self, &Sender<FrontendMessage>)>,
+	action_func: Box<dyn Fn(&Self, &Sender<FrontendMessage>) + Send + Sync>,
 }
 
 impl SimpleHit<()> {
@@ -59,7 +59,7 @@ impl SimpleHit<()> {
 	pub fn new(
 		title: impl Into<Box<str>>,
 		subtitle: impl Into<Box<str>>,
-		func: impl Fn(&Self, &Sender<FrontendMessage>) + 'static,
+		func: impl Fn(&Self, &Sender<FrontendMessage>) + Send + Sync + 'static,
 	) -> Self {
 		SimpleHit::new_with_data(title, subtitle, (), func)
 	}
@@ -71,7 +71,7 @@ impl<T> SimpleHit<T> {
 		title: impl Into<Box<str>>,
 		subtitle: impl Into<Box<str>>,
 		data: T,
-		func: impl Fn(&Self, &Sender<FrontendMessage>) + 'static,
+		func: impl Fn(&Self, &Sender<FrontendMessage>) + Send + Sync + 'static,
 	) -> Self {
 		Self {
 			title: title.into(),
@@ -93,7 +93,10 @@ impl<T> SimpleHit<T> {
 	}
 }
 
-impl<T> Hit for SimpleHit<T> {
+impl<T> Hit for SimpleHit<T>
+where
+	T: Send + Sync,
+{
 	fn action(&self, sender: &Sender<FrontendMessage>) {
 		(self.action_func)(self, sender);
 	}

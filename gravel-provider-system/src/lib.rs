@@ -60,7 +60,7 @@ fn get_exit(config: ExitConfig) -> Arc<dyn Hit> {
 	Arc::new(hit)
 }
 
-fn get_hit(config: SubcommandConfig, action: impl Fn(&str) + 'static) -> Arc<SimpleHit<()>> {
+fn get_hit(config: SubcommandConfig, action: impl Fn(&str) + Send + Sync + 'static) -> Arc<SimpleHit<()>> {
 	let hit = SimpleHit::new(config.title, config.subtitle, move |_, sender| {
 		action(&config.command_linux);
 
