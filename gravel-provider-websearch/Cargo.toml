@@ -1,10 +1,10 @@
 [package]
 name = "gravel-provider-websearch"
-version = "0.1.0"
+version = "0.0.0"
 edition = "2021"
 
 [dependencies]
 gravel-core = { path = "../gravel-core" }
 
-serde = "1.0.188"
+serde.workspace = true
 urlencoding = "2.1.3"

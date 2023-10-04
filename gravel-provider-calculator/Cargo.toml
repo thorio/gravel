@@ -1,6 +1,6 @@
 [package]
 name = "gravel-provider-calculator"
-version = "0.1.0"
+version = "0.0.0"
 edition = "2021"
 
 [dependencies]
@@ -8,4 +8,4 @@ gravel-core = { path = "../gravel-core" }
 
 arboard = "3.2.1"
 evalexpr = "11.1.0"
-serde = "1.0.188"
+serde.workspace = true

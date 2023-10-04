@@ -9,13 +9,13 @@ authors = ["thorou"]
 repository = "https://github.com/thorio/gravel"
 
 [package.metadata.deb]
-maintainer = "thorou <thorio.git@gmail.com>"
+maintainer = "thorou <thorou@chirality.de>"
 section = "x11"
 priority = "extra"
 depends = ["libx11-6", "libxinerama1", "libxft2", "libxext6", "libxcursor1", "libxrender1", "libxfixes3", "libcairo2", "libpango-1.0-0", "libpangocairo-1.0-0", "libpangoxft-1.0-0", "libglib2.0-0", "libfontconfig1", "libglu1-mesa", "libgl1"]
 
 [package.metadata.arch]
-maintainer = "thorou <thorio.git@gmail.com>"
+maintainer = "thorou <thorou@chirality.de>"
 depends = ["libx11", "libxext", "libxft", "libxinerama", "libxcursor", "libxrender", "libxfixes", "pango", "cairo", "libgl", "mesa"]
 
 [dependencies]
@@ -28,6 +28,6 @@ gravel-provider-system = { path = "../gravel-provider-system" }
 gravel-provider-websearch = { path = "../gravel-provider-websearch" }
 
 config = "0.13.2"
-lazy_static = "1.4.0"
-shellexpand = "3.1.0"
+lazy_static.workspace = true
+shellexpand.workspace = true
 single-instance = "0.3.3"
