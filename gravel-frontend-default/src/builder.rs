@@ -69,9 +69,7 @@ fn build_input(config: &Config) -> Input {
 	input.set_color(config.colors.background);
 	input.set_text_color(config.colors.text);
 	input.set_selection_color(config.colors.accent);
-
-	// TODO fix cursor color on next fltk-rs release
-	//input.set_cursor_color(config.colors.accent);
+	input.set_cursor_color(config.colors.accent);
 
 	input
 }
