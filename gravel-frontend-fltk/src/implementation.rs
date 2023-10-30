@@ -3,7 +3,7 @@ use fltk::{enums::*, prelude::*};
 use gravel_core::{scoring::ScoredHit, *};
 use std::sync::mpsc::Receiver;
 
-pub struct DefaultFrontend {
+pub struct FltkFrontend {
 	config: Config,
 	ui: Ui,
 	engine: QueryEngine,
@@ -12,7 +12,7 @@ pub struct DefaultFrontend {
 	visible: bool,
 }
 
-impl Frontend for DefaultFrontend {
+impl Frontend for FltkFrontend {
 	fn run(&mut self, receiver: Receiver<FrontendMessage>) {
 		self.handle_frontend_messages(receiver);
 		self.update_window_position();
@@ -20,7 +20,7 @@ impl Frontend for DefaultFrontend {
 	}
 }
 
-impl DefaultFrontend {
+impl FltkFrontend {
 	pub fn new(engine: QueryEngine, config: Config) -> Self {
 		let ui = builder::build(&config);
 		let max_view_size = config.layout.max_hits;
@@ -89,9 +89,9 @@ impl DefaultFrontend {
 		// select the entire previous query so it is overwritten when the user starts typing
 		self.input_select_all();
 
+		self.update_window_position();
 		self.ui.window.platform_show();
 		self.visible = true;
-		self.update_window_position();
 
 		// pull the window into the foreground so it isn't stuck behind other windows
 		native::activate_window(&self.ui.window);

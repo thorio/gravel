@@ -2,7 +2,7 @@
 
 use crate::config::get_config;
 use gravel_core::{config::PluginConfigAdapter, plugin::*, *};
-use implementation::DefaultFrontend;
+use implementation::FltkFrontend;
 
 mod builder;
 mod config;
@@ -22,5 +22,5 @@ pub fn register_plugins(registry: &mut PluginRegistry) {
 }
 
 fn get_frontend(engine: QueryEngine, config: &PluginConfigAdapter) -> Box<dyn Frontend> {
-	Box::new(DefaultFrontend::new(engine, get_config(config)))
+	Box::new(FltkFrontend::new(engine, get_config(config)))
 }

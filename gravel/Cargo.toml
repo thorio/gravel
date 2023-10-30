@@ -20,7 +20,7 @@ depends = ["libx11", "libxext", "libxft", "libxinerama", "libxcursor", "libxrend
 
 [dependencies]
 gravel-core = { path = "../gravel-core" }
-gravel-frontend-default = { path = "../gravel-frontend-default" }
+gravel-frontend-fltk = { path = "../gravel-frontend-fltk" }
 gravel-provider-calculator = { path = "../gravel-provider-calculator" }
 gravel-provider-kill = { path = "../gravel-provider-kill" }
 gravel-provider-program = { path = "../gravel-provider-program" }

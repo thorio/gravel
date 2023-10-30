@@ -810,7 +810,7 @@ version = "0.0.0"
 dependencies = [
  "config",
  "gravel-core",
- "gravel-frontend-default",
+ "gravel-frontend-fltk",
  "gravel-provider-calculator",
  "gravel-provider-kill",
  "gravel-provider-program",
@@ -835,7 +835,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "gravel-frontend-default"
+name = "gravel-frontend-fltk"
 version = "0.0.0"
 dependencies = [
  "fltk",
