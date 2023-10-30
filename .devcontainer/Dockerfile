@@ -6,3 +6,4 @@ RUN apt-get update && \
 	rm -rf /var/lib/apt/lists/*
 
 RUN rustup target add x86_64-unknown-linux-gnu x86_64-pc-windows-gnu
+RUN rustup component add rustfmt

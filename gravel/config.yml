@@ -175,7 +175,7 @@ plugin_config:
   #     subtitle: Put the System to sleep
   #     command_linux: systemctl suspend
 
-  ## https://github.com/thorio/gravel/tree/master/gravel-frontend-default
+  ## https://github.com/thorio/gravel/tree/master/gravel-frontend-fltk
   # frontend:
   #   ## Layout and sizing configuration.
   #   layout:
@@ -215,7 +215,6 @@ plugin_config:
   #
   #   behaviour:
   #     ## Automatically hides the window when it loses focus.
-  #     ## This is currently broken on Linux due to XGrabKey weirdness.
   #     auto_hide: true
   #
   #     ## Shows the internal score assigned to each hit,
@@ -224,3 +223,6 @@ plugin_config:
   #
   #     ## Automatically centers the window on the screen each time it is shown.
   #     auto_center_window: true
+  #
+  #     ## Time in milliseconds after hiding in which show requests should be ignored.
+  #     window_hide_debounce: 500

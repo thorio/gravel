@@ -2,6 +2,7 @@ use crate::{builder, config::*, native, scroll::Scroll, structs::*};
 use fltk::{enums::*, prelude::*};
 use gravel_core::{scoring::ScoredHit, *};
 use std::sync::mpsc::Receiver;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 pub struct FltkFrontend {
 	config: Config,
@@ -10,6 +11,7 @@ pub struct FltkFrontend {
 	result: QueryResult,
 	scroll: Scroll,
 	visible: bool,
+	last_hide_time: SystemTime,
 }
 
 impl Frontend for FltkFrontend {
@@ -32,13 +34,16 @@ impl FltkFrontend {
 			result: QueryResult::empty(),
 			scroll: Scroll::new(0, max_view_size),
 			visible: false,
+			last_hide_time: UNIX_EPOCH,
 		}
 	}
 
 	/// Runs the FLTK event loop. Blocks until the app exits.
 	fn run_event_loop(&mut self) {
 		while self.ui.app.wait() {
-			let Some(message) = self.ui.receiver.recv() else { continue };
+			let Some(message) = self.ui.receiver.recv() else {
+				continue;
+			};
 
 			match message {
 				Message::Query => self.query(),
@@ -83,9 +88,14 @@ impl FltkFrontend {
 	fn hide(&mut self) {
 		self.ui.window.platform_hide();
 		self.visible = false;
+		self.last_hide_time = SystemTime::now();
 	}
 
 	fn show(&mut self) {
+		if self.should_ignore_show() {
+			return;
+		}
+
 		// select the entire previous query so it is overwritten when the user starts typing
 		self.input_select_all();
 
@@ -95,6 +105,23 @@ impl FltkFrontend {
 
 		// pull the window into the foreground so it isn't stuck behind other windows
 		native::activate_window(&self.ui.window);
+	}
+
+	/// XGrabKey takes focus from the window when a hotkey is pressed, so
+	/// when autohide is enabled, hiding the window with the hotkey just
+	/// immediately shows it again.
+	/// HACK ignore window show n milliseconds after window has been hidden.
+	fn should_ignore_show(&self) -> bool {
+		let Some(millis) = self.config.behaviour.window_hide_debounce else {
+			return false;
+		};
+
+		let block_duration = Duration::from_millis(millis);
+		let elapsed = SystemTime::now()
+			.duration_since(self.last_hide_time)
+			.unwrap_or(Duration::MAX);
+
+		elapsed <= block_duration
 	}
 
 	/// Shows the window and populates the input with the given query.

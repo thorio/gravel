@@ -116,6 +116,7 @@ pub struct BehaviourConfig {
 	pub auto_hide: bool,
 	pub show_scores: bool,
 	pub auto_center_window: bool,
+	pub window_hide_debounce: Option<u64>,
 }
 
 #[derive(Deserialize, Debug)]
