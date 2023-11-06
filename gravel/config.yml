@@ -134,9 +134,10 @@ plugin_config:
   #
   #   ## Where to look for symlinks on Windows.
   #   ## Paths should be specified as globs.
-  #   paths_windows:
-  #     - "$ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\**\\*.lnk"
-  #     - "$APPDATA\\Microsoft\\Windows\\Start Menu\\Programs\\**\\*.lnk"
+  #   windows:
+  #     shortcut_paths:
+  #       - "$ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\**\\*.lnk"
+  #       - "$APPDATA\\Microsoft\\Windows\\Start Menu\\Programs\\**\\*.lnk"
 
   ## https://github.com/thorio/gravel/tree/master/gravel-provider-system
   # system:
