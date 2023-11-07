@@ -6,13 +6,11 @@
 //! Selecting the hit copies the calculated value to the system's clipboard.
 
 use arboard::Clipboard;
-use evalexpr::Value;
 use gravel_core::{config::PluginConfigAdapter, plugin::*, scoring::MAX_SCORE, *};
+use mexprp::Answer;
 use serde::Deserialize;
-use std::{
-	error::Error,
-	sync::{mpsc::Sender, Arc},
-};
+use std::error::Error;
+use std::sync::{mpsc::Sender, Arc};
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
@@ -34,15 +32,16 @@ struct CalculatorProvider {
 
 impl Provider for CalculatorProvider {
 	fn query(&self, query: &str) -> ProviderResult {
+		let query = query.trim();
 		let result = eval(query);
 
 		let Some(result) = result else {
 			return ProviderResult::empty();
 		};
 
-		// If the result is the same as the query, e.g. just a single number,
+		// If the result is the same as the query or just the value of a constant,
 		// then don't return a result.
-		if query.trim() == result {
+		if query == result || matches!(query, "e" | "pi" | "i") {
 			return ProviderResult::empty();
 		}
 
@@ -53,12 +52,12 @@ impl Provider for CalculatorProvider {
 }
 
 fn eval(expression: &str) -> Option<String> {
-	match evalexpr::eval(expression) {
-		Ok(Value::Float(result)) => Some(result),
-		Ok(Value::Int(result)) => Some(result as f64),
+	match mexprp::eval(expression) {
+		Ok(Answer::Single(result)) => Some(result),
+		Ok(Answer::Multiple(results)) => results.into_iter().next(),
 		_ => None,
 	}
-	.map(|r| round(r, 15).to_string())
+	.map(|r| round(r, 10).to_string())
 }
 
 fn do_copy(hit: &SimpleHit<()>, sender: &Sender<FrontendMessage>) {
@@ -96,7 +95,14 @@ mod tests {
 	#[case("1 / 1", "1")]
 	#[case("1 * 1", "1")]
 	#[case("3 * 0.2", "0.6")]
+	#[case("1 / 20", "0.05")]
 	#[case("2 ^ 10", "1024")]
+	#[case("0.1 + 0.2", "0.3")]
+	#[case("(2 + 3) * (3 - 5)", "-10")]
+	#[case("-2 ^ 3", "-8")]
+	#[case("round(2pi)", "6")]
+	#[case("sqrt(2)", "1.4142135624")]
+	#[case("sin(asin(0.5))", "0.5")]
 	fn should_eval(#[case] expression: &str, #[case] expected: &str) {
 		let actual = eval(expression);
 		assert_eq!(Some(expected), actual.as_deref(), "{expression}");

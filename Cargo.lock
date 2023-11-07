@@ -600,12 +600,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "evalexpr"
-version = "11.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e757e796a66b54d19fa26de38e75c3351eb7a3755c85d7d181a8c61437ff60c"
-
-[[package]]
 name = "event-listener"
 version = "2.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -905,8 +899,8 @@ name = "gravel-provider-calculator"
 version = "0.0.0"
 dependencies = [
  "arboard",
- "evalexpr",
  "gravel-core",
+ "mexprp",
  "rstest",
  "serde",
 ]
@@ -1194,6 +1188,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5a634b1c61a95585bd15607c6ab0c4e5b226e695ff2800ba0cdccddf208c406c"
 dependencies = [
  "autocfg",
+]
+
+[[package]]
+name = "mexprp"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "50bb16f008075c96f108b693a7fc6b33bc3ad5d6db0b5dff46d887f9c26b1068"
+dependencies = [
+ "thiserror",
 ]
 
 [[package]]
