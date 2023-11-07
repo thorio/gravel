@@ -1,41 +1,6 @@
 use crate::hotkeys::{Key, Modifier};
 use enumflags2::BitFlags;
 
-#[cfg(test)]
-mod tests {
-	use super::*;
-	use crate::hotkeys::{Key, Modifier};
-	use enumflags2::BitFlags;
-
-	#[test]
-	fn should_parse_single_key() {
-		check_binding("q", BitFlags::empty(), Key::Q);
-	}
-
-	#[test]
-	fn should_parse_single_modifier() {
-		check_binding("C-a", (Modifier::Control).into(), Key::A);
-	}
-
-	#[test]
-	fn should_parse_multi_modifier() {
-		check_binding("C-A-S-s", Modifier::Control | Modifier::Alt | Modifier::Shift, Key::S);
-	}
-
-	#[test]
-	#[should_panic]
-	fn should_fail() {
-		check_binding("garbage in - garbage out", BitFlags::empty(), Key::A);
-	}
-
-	fn check_binding(binding: &str, modifiers: BitFlags<Modifier>, key: Key) {
-		let expected = ParsedBinding { modifiers, key };
-
-		let actual = parse_binding(binding).unwrap();
-		assert_eq!(actual, expected);
-	}
-}
-
 #[derive(Debug, PartialEq, Eq)]
 pub struct ParsedBinding {
 	pub modifiers: BitFlags<Modifier>,
@@ -118,5 +83,40 @@ fn convert_key(value: &str) -> Result<Key, ParseError> {
 		"<insert>" => Ok(Key::Insert),
 		"<delete>" => Ok(Key::Delete),
 		_ => Err(ParseError::InvalidKey),
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use crate::hotkeys::{Key, Modifier};
+	use enumflags2::BitFlags;
+
+	#[test]
+	fn should_parse_single_key() {
+		check_binding("q", BitFlags::empty(), Key::Q);
+	}
+
+	#[test]
+	fn should_parse_single_modifier() {
+		check_binding("C-a", (Modifier::Control).into(), Key::A);
+	}
+
+	#[test]
+	fn should_parse_multi_modifier() {
+		check_binding("C-A-S-s", Modifier::Control | Modifier::Alt | Modifier::Shift, Key::S);
+	}
+
+	#[test]
+	#[should_panic]
+	fn should_fail() {
+		check_binding("garbage in - garbage out", BitFlags::empty(), Key::A);
+	}
+
+	fn check_binding(binding: &str, modifiers: BitFlags<Modifier>, key: Key) {
+		let expected = ParsedBinding { modifiers, key };
+
+		let actual = parse_binding(binding).unwrap();
+		assert_eq!(actual, expected);
 	}
 }

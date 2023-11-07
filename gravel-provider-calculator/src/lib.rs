@@ -34,28 +34,31 @@ struct CalculatorProvider {
 
 impl Provider for CalculatorProvider {
 	fn query(&self, query: &str) -> ProviderResult {
-		match evalexpr::eval(query) {
-			Ok(Value::Float(result)) => self.get_result(query, result),
-			Ok(Value::Int(result)) => self.get_result(query, result as f64),
-			_ => ProviderResult::empty(),
-		}
-	}
-}
+		let result = eval(query);
 
-impl CalculatorProvider {
-	fn get_result(&self, query: &str, result: f64) -> ProviderResult {
-		let title = round(result, 15).to_string();
+		let Some(result) = result else {
+			return ProviderResult::empty();
+		};
 
 		// If the result is the same as the query, e.g. just a single number,
 		// then don't return a result.
-		if query.trim() == title {
+		if query.trim() == result {
 			return ProviderResult::empty();
 		}
 
-		let hit = SimpleHit::new(title, self.config.subtitle.clone(), do_copy).with_score(MAX_SCORE);
+		let hit = SimpleHit::new(result, self.config.subtitle.clone(), do_copy).with_score(MAX_SCORE);
 
 		ProviderResult::single(Arc::new(hit))
 	}
+}
+
+fn eval(expression: &str) -> Option<String> {
+	match evalexpr::eval(expression) {
+		Ok(Value::Float(result)) => Some(result),
+		Ok(Value::Int(result)) => Some(result as f64),
+		_ => None,
+	}
+	.map(|r| round(r, 15).to_string())
 }
 
 fn do_copy(hit: &SimpleHit<()>, sender: &Sender<FrontendMessage>) {
@@ -79,4 +82,33 @@ fn set_clipboard(str: &str) -> Result<(), Box<dyn Error>> {
 #[derive(Deserialize, Debug)]
 struct Config {
 	pub subtitle: String,
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use rstest::rstest;
+
+	#[rstest]
+	#[case("1", "1")]
+	#[case("1 + 1", "2")]
+	#[case("1 - 1", "0")]
+	#[case("1 / 1", "1")]
+	#[case("1 * 1", "1")]
+	#[case("3 * 0.2", "0.6")]
+	#[case("2 ^ 10", "1024")]
+	fn should_eval(#[case] expression: &str, #[case] expected: &str) {
+		let actual = eval(expression);
+		assert_eq!(Some(expected), actual.as_deref(), "{expression}");
+	}
+
+	#[rstest]
+	#[case("clippy")]
+	#[case("1 1")]
+	#[case("1 / 0")]
+	#[case("x + 5")]
+	fn should_err(#[case] expression: &str) {
+		let actual = eval(expression);
+		assert_eq!(None, actual, "{expression}");
+	}
 }
