@@ -113,7 +113,7 @@ mod tests {
 	#[case("1 1")]
 	#[case("1 / 0")]
 	#[case("x + 5")]
-	fn should_err(#[case] expression: &str) {
+	fn should_fail(#[case] expression: &str) {
 		let actual = eval(expression);
 		assert_eq!(None, actual, "{expression}");
 	}

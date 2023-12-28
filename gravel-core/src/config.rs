@@ -3,6 +3,8 @@
 use ::config::{Config, File, FileFormat};
 use serde::Deserialize;
 
+pub const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../config.yml"));
+
 /// Manages a [`Config`] and allows building a plugin's config.
 pub struct ConfigManager {
 	config: Config,
@@ -49,11 +51,6 @@ impl<'a> PluginConfigAdapter<'a> {
 	/// Build and deserialize the plugin's config into the given type.
 	pub fn get<'de, T: Deserialize<'de>>(&self, default_config: &str) -> T {
 		self.config.get_plugin_config(&self.alias, default_config)
-	}
-
-	/// Borrow gravel's main config.
-	pub fn get_root(&self) -> &RootConfig {
-		&self.config.root
 	}
 }
 

@@ -1,8 +1,7 @@
 use ::config::{builder::DefaultState, Config, ConfigBuilder, File, FileFormat};
-use gravel_core::{config::ConfigManager, paths::get_gravel_config_dir};
-use std::{env, path::PathBuf};
-
-const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
+use gravel_core::config::{ConfigManager, DEFAULT_CONFIG};
+use gravel_core::paths::get_gravel_config_dir;
+use std::path::PathBuf;
 
 /// Reads and deserializes the configuration from multiple sources:
 /// - baked-in default config (config.yml in crate root)
