@@ -31,3 +31,6 @@ config = "0.13.2"
 lazy_static.workspace = true
 shellexpand.workspace = true
 single-instance = "0.3.3"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { workspace = true, features = ["wincon"] }

@@ -1,9 +1,8 @@
 //! gravel's bin crate.
 //! Reads the config, loads plugins and initializes features.
 
-// When compiling in release mode, disable the cmd window that pops up on windows.
-// This also disables console output, that's why it isn't enabled in debug mode.
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+// Without this, windows will open an additional console window for the application
+#![windows_subsystem = "windows"]
 
 use gravel_core::*;
 use std::sync::mpsc;
@@ -11,6 +10,9 @@ use std::sync::mpsc;
 mod init;
 
 fn main() {
+	#[cfg(windows)]
+	init::windows_console::attach();
+
 	let config = init::config();
 	let (sender, receiver) = mpsc::channel::<FrontendMessage>();
 
@@ -22,4 +24,7 @@ fn main() {
 	init::hotkeys(&config.root.hotkeys, sender);
 
 	frontend.run(receiver);
+
+	#[cfg(windows)]
+	init::windows_console::detach();
 }
