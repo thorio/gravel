@@ -9,8 +9,7 @@ use arboard::Clipboard;
 use gravel_core::{config::PluginConfigAdapter, plugin::*, scoring::MAX_SCORE, *};
 use mexprp::Answer;
 use serde::Deserialize;
-use std::error::Error;
-use std::sync::{mpsc::Sender, Arc};
+use std::sync::{mpsc::Sender, Arc, Mutex};
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
@@ -23,11 +22,17 @@ pub fn register_plugins(registry: &mut PluginRegistry) {
 fn get_provider(config: &PluginConfigAdapter) -> Box<dyn Provider> {
 	let plugin_config = config.get::<Config>(DEFAULT_CONFIG);
 
-	Box::new(CalculatorProvider { config: plugin_config })
+	let clipboard = Clipboard::new().map(|c| Arc::new(Mutex::new(c))).ok();
+
+	Box::new(CalculatorProvider {
+		config: plugin_config,
+		clipboard,
+	})
 }
 
 struct CalculatorProvider {
 	config: Config,
+	clipboard: Option<Arc<Mutex<Clipboard>>>,
 }
 
 impl Provider for CalculatorProvider {
@@ -45,7 +50,12 @@ impl Provider for CalculatorProvider {
 			return ProviderResult::empty();
 		}
 
-		let hit = SimpleHit::new(result, self.config.subtitle.clone(), do_copy).with_score(MAX_SCORE);
+		let clipboard = self.clipboard.clone();
+
+		let hit = SimpleHit::new(result, self.config.subtitle.clone(), move |h, s| {
+			do_copy(clipboard.clone(), h, s)
+		})
+		.with_score(MAX_SCORE);
 
 		ProviderResult::single(Arc::new(hit))
 	}
@@ -60,8 +70,10 @@ fn eval(expression: &str) -> Option<String> {
 	.map(|r| round(r, 10).to_string())
 }
 
-fn do_copy(hit: &SimpleHit<()>, sender: &Sender<FrontendMessage>) {
-	set_clipboard(hit.get_title()).ok();
+fn do_copy(clipboard: Option<Arc<Mutex<Clipboard>>>, hit: &SimpleHit<()>, sender: &Sender<FrontendMessage>) {
+	if let Some(clipboard_mutex) = clipboard {
+		clipboard_mutex.lock().unwrap().set_text(hit.get_title()).ok();
+	}
 
 	sender
 		.send(FrontendMessage::Hide)
@@ -71,11 +83,6 @@ fn do_copy(hit: &SimpleHit<()>, sender: &Sender<FrontendMessage>) {
 fn round(number: f64, precision: u32) -> f64 {
 	let factor = 10_u64.pow(precision) as f64;
 	(number * factor).round() / factor
-}
-
-fn set_clipboard(str: &str) -> Result<(), Box<dyn Error>> {
-	Clipboard::new()?.set_text(str)?;
-	Ok(())
 }
 
 #[derive(Deserialize, Debug)]
