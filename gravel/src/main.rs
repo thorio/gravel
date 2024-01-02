@@ -23,7 +23,7 @@ fn main() {
 	let engine = init::engine(sender.clone(), &registry, &config);
 	let mut frontend = init::frontend(&registry, engine, &config);
 
-	init::single_instance(config.root.single_instance.as_ref());
+	init::single_instance(config.root.single_instance.as_deref());
 	init::hotkeys(&config.root.hotkeys, sender);
 
 	frontend.run(receiver);

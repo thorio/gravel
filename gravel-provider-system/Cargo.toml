@@ -6,7 +6,9 @@ edition = "2021"
 [dependencies]
 gravel-core = { path = "../gravel-core" }
 
+anyhow.workspace = true
 serde.workspace = true
+log.workspace = true
 
 [target.'cfg(windows)'.dependencies]
 winapi = { workspace = true, features = ["powrprof"] }

@@ -132,12 +132,8 @@ impl FltkFrontend {
 	}
 
 	fn input_select_all(&mut self) {
-		let length = self.ui.input.value().chars().count() as i32;
-
-		if length > 0 {
-			self.ui.input.set_position(0).unwrap();
-			self.ui.input.set_mark(length).unwrap();
-		}
+		self.ui.input.set_position(i32::MIN).ok();
+		self.ui.input.set_mark(i32::MAX).ok();
 	}
 
 	/// Queries the [`QueryEngine`] if the input has changed.
@@ -197,11 +193,10 @@ impl FltkFrontend {
 
 	/// Writes the hit data to the UI elements.
 	fn update_hits(&mut self) {
-		for i in 0..self.config.layout.max_hits {
-			let position = self.scroll.scroll() + i;
+		for (i, hit_ui) in self.ui.hits.iter_mut().enumerate() {
+			let position = self.scroll.scroll() + i as i32;
 			let selected = position == self.scroll.cursor();
 
-			let hit_ui = self.ui.hits.get_mut(i as usize).unwrap();
 			let hit = self.result.hits.get(position as usize);
 			update_hit(hit_ui, hit, selected, self.config.behaviour.show_scores);
 		}

@@ -20,7 +20,8 @@ pub(crate) fn get_programs(config: &Config) -> Vec<Arc<dyn Hit>> {
 }
 
 fn fun_name(expanded_path: Cow<str>, hits: &mut Vec<Arc<dyn Hit>>) {
-	for result in glob(&expanded_path).expect("Failed to read glob pattern") {
+	// TODO: error handling, unify windows/linux logic
+	for result in glob(&expanded_path).expect("failed to read glob pattern") {
 		if result.is_err() {
 			continue;
 		}
@@ -55,9 +56,7 @@ fn run_program(hit: &SimpleHit<ExtraData>, sender: &Sender<FrontendMessage>) {
 	Command::new("explorer")
 		.arg(&hit.get_data().link_file)
 		.spawn()
-		.expect("failed to run application");
+		.expect("running explorer should never fail");
 
-	sender
-		.send(FrontendMessage::Hide)
-		.expect("failed to send frontend message");
+	sender.send(FrontendMessage::Hide).ok();
 }

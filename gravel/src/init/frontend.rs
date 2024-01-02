@@ -1,5 +1,6 @@
 use crate::config::*;
 use gravel_core::{plugin::PluginRegistry, *};
+use log::*;
 
 /// Initializes the configured [`Frontend`].
 pub fn frontend(registry: &PluginRegistry, engine: QueryEngine, config: &ConfigManager) -> Box<dyn Frontend> {
@@ -11,12 +12,12 @@ pub fn frontend(registry: &PluginRegistry, engine: QueryEngine, config: &ConfigM
 
 	let frontend = try_get_frontend(registry, engine, frontend_plugin, &adapter);
 
-	if frontend.is_none() {
-		println!("frontend \"{frontend_plugin}\" not found, exiting");
+	let Some(frontend) = frontend else {
+		warn!("frontend \"{frontend_plugin}\" not found, exiting");
 		std::process::exit(1);
-	}
+	};
 
-	frontend.unwrap()
+	frontend
 }
 
 fn try_get_frontend(

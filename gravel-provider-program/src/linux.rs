@@ -30,9 +30,10 @@ fn get_hit(result: PathBuf) -> Option<Arc<dyn Hit>> {
 fn get_desktop_entries(mut path: PathBuf) -> impl Iterator<Item = PathBuf> {
 	path.push("*.desktop");
 
-	let pattern = path.to_str().unwrap();
+	let pattern = path.to_string_lossy();
 
-	glob(pattern)
+	// TODO: error handling, unify windows/linux logic
+	glob(&pattern)
 		.expect("Failed to read glob pattern")
 		.filter_map(Result::ok)
 }
@@ -90,7 +91,5 @@ fn run_program(hit: &SimpleHit<ExtraData>, sender: &Sender<FrontendMessage>) {
 		.spawn()
 		.expect("gtk-launch should be present");
 
-	sender
-		.send(FrontendMessage::Hide)
-		.expect("receiver should live for the lifetime of the program");
+	sender.send(FrontendMessage::Hide).ok();
 }

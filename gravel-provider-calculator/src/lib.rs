@@ -7,6 +7,7 @@
 
 use arboard::Clipboard;
 use gravel_core::{config::PluginConfigAdapter, plugin::*, scoring::MAX_SCORE, *};
+use log::*;
 use mexprp::Answer;
 use serde::Deserialize;
 use std::sync::{mpsc::Sender, Arc, Mutex};
@@ -22,12 +23,20 @@ pub fn register_plugins(registry: &mut PluginRegistry) {
 fn get_provider(config: &PluginConfigAdapter) -> Box<dyn Provider> {
 	let plugin_config = config.get::<Config>(DEFAULT_CONFIG);
 
-	let clipboard = Clipboard::new().map(|c| Arc::new(Mutex::new(c))).ok();
-
 	Box::new(CalculatorProvider {
 		config: plugin_config,
-		clipboard,
+		clipboard: get_clipboard(),
 	})
+}
+
+fn get_clipboard() -> Option<Arc<Mutex<Clipboard>>> {
+	match Clipboard::new() {
+		Err(err) => {
+			error!("unable to initialize clipboard: {err}");
+			None
+		}
+		Ok(clipboard) => Some(Arc::new(Mutex::new(clipboard))),
+	}
 }
 
 struct CalculatorProvider {
@@ -44,8 +53,6 @@ impl Provider for CalculatorProvider {
 			return ProviderResult::empty();
 		};
 
-		// If the result is the same as the query or just the value of a constant,
-		// then don't return a result.
 		if query == result || matches!(query, "e" | "pi" | "i") {
 			return ProviderResult::empty();
 		}
@@ -72,12 +79,11 @@ fn eval(expression: &str) -> Option<String> {
 
 fn do_copy(clipboard: Option<Arc<Mutex<Clipboard>>>, hit: &SimpleHit<()>, sender: &Sender<FrontendMessage>) {
 	if let Some(clipboard_mutex) = clipboard {
-		clipboard_mutex.lock().unwrap().set_text(hit.get_title()).ok();
+		let mut guard = clipboard_mutex.lock().expect("thread holding the mutex can't panic");
+		guard.set_text(hit.get_title()).ok();
 	}
 
-	sender
-		.send(FrontendMessage::Hide)
-		.expect("receiver should live for the lifetime of the program");
+	sender.send(FrontendMessage::Hide).ok();
 }
 
 fn round(number: f64, precision: u32) -> f64 {

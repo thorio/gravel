@@ -8,6 +8,7 @@ gravel-core = { path = "../gravel-core" }
 
 anyhow.workspace = true
 itertools.workspace = true
+log.workspace = true
 serde.workspace = true
 
 [target.'cfg(windows)'.dependencies]

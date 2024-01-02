@@ -5,5 +5,5 @@ pub fn logging(level: LevelFilter) {
 		.timestamp(stderrlog::Timestamp::Off)
 		.verbosity(level)
 		.init()
-		.expect("this will never be called twice");
+		.expect("this must never be called twice");
 }

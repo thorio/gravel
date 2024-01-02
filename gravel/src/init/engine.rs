@@ -1,4 +1,5 @@
 use gravel_core::{config::*, plugin::*, *};
+use log::*;
 use std::sync::mpsc::Sender;
 
 /// Initializes the configured [`Provider`]s and the [`QueryEngine`].
@@ -15,12 +16,12 @@ pub fn engine(sender: Sender<FrontendMessage>, registry: &PluginRegistry, config
 		let adapter = config.get_plugin_adapter(provider_name);
 		let provider = try_get_provider(registry, &provider_config.plugin, &adapter);
 
-		if provider.is_none() {
-			println!("provider \"{}\" not found, skipping", provider_config.plugin);
+		let Some(provider) = provider else {
+			warn!("provider \"{}\" not found, skipping", provider_config.plugin);
 			continue;
-		}
+		};
 
-		engine.register(provider.unwrap(), provider_config.keyword.clone());
+		engine.register(provider, provider_config.keyword.clone());
 	}
 
 	engine

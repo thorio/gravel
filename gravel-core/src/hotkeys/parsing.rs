@@ -1,5 +1,6 @@
 use crate::hotkeys::{Key, Modifier};
 use enumflags2::BitFlags;
+use thiserror::Error;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct ParsedBinding {
@@ -7,17 +8,23 @@ pub struct ParsedBinding {
 	pub key: Key,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Error, Debug)]
 pub enum ParseError {
-	InvalidModifier,
-	InvalidKey,
+	#[error("'{0}' is not a valid modifier")]
+	InvalidModifier(String),
+	#[error("'{0}' is not a valid key")]
+	InvalidKey(String),
+	#[error("'{0}' is a valid modifier, but is used in place of a key")]
+	ModifierUsedAsKey(String),
+	#[error("binding is empty")]
+	Empty,
 }
 
 /// Parse an emacs-like keybinding. Does not support cords.
 pub fn parse_binding(binding: &str) -> Result<ParsedBinding, ParseError> {
 	let parts = binding.split('-').collect::<Vec<&str>>();
 
-	let key = convert_key(parts.last().unwrap())?;
+	let key = convert_key(parts.last().expect("vec always contains at least one item"))?;
 	let mut modifiers = BitFlags::empty();
 
 	for part in &parts[0..parts.len() - 1] {
@@ -28,64 +35,75 @@ pub fn parse_binding(binding: &str) -> Result<ParsedBinding, ParseError> {
 }
 
 fn convert_modifier(value: &str) -> Result<Modifier, ParseError> {
-	match value {
-		"A" => Ok(Modifier::Alt),
-		"C" => Ok(Modifier::Control),
-		"S" => Ok(Modifier::Shift),
-		"M" => Ok(Modifier::Super),
-		_ => Err(ParseError::InvalidModifier),
-	}
+	let modifier = match value {
+		"A" => Modifier::Alt,
+		"C" => Modifier::Control,
+		"S" => Modifier::Shift,
+		"M" => Modifier::Super,
+		_ => return Err(ParseError::InvalidModifier(value.to_owned())),
+	};
+
+	Ok(modifier)
 }
 
 fn convert_key(value: &str) -> Result<Key, ParseError> {
-	match value.to_lowercase().as_str() {
-		"a" => Ok(Key::A),
-		"b" => Ok(Key::B),
-		"c" => Ok(Key::C),
-		"d" => Ok(Key::D),
-		"e" => Ok(Key::E),
-		"f" => Ok(Key::F),
-		"g" => Ok(Key::G),
-		"h" => Ok(Key::H),
-		"i" => Ok(Key::I),
-		"j" => Ok(Key::J),
-		"k" => Ok(Key::K),
-		"l" => Ok(Key::L),
-		"m" => Ok(Key::M),
-		"n" => Ok(Key::N),
-		"o" => Ok(Key::O),
-		"p" => Ok(Key::P),
-		"q" => Ok(Key::Q),
-		"r" => Ok(Key::R),
-		"s" => Ok(Key::S),
-		"t" => Ok(Key::T),
-		"u" => Ok(Key::U),
-		"v" => Ok(Key::V),
-		"w" => Ok(Key::W),
-		"x" => Ok(Key::X),
-		"y" => Ok(Key::Y),
-		"z" => Ok(Key::Z),
-		"<backspace>" => Ok(Key::Backspace),
-		"<tab>" => Ok(Key::Tab),
-		"<enter>" => Ok(Key::Enter),
-		"<caps_lock>" => Ok(Key::CapsLock),
-		"<escape>" => Ok(Key::Escape),
-		"<space>" => Ok(Key::Space),
-		"<page_up>" => Ok(Key::PageUp),
-		"<page_down>" => Ok(Key::PageDown),
-		"<end>" => Ok(Key::End),
-		"<home>" => Ok(Key::Home),
-		"<left>" => Ok(Key::Left),
-		"<right>" => Ok(Key::Right),
-		"<up>" => Ok(Key::Up),
-		"<down>" => Ok(Key::Down),
-		"<print_screen>" => Ok(Key::PrintScreen),
-		"<insert>" => Ok(Key::Insert),
-		"<delete>" => Ok(Key::Delete),
-		_ => Err(ParseError::InvalidKey),
+	if convert_modifier(value).is_ok() {
+		return Err(ParseError::ModifierUsedAsKey(value.to_owned()));
 	}
+
+	let key = match value {
+		"a" => Key::A,
+		"b" => Key::B,
+		"c" => Key::C,
+		"d" => Key::D,
+		"e" => Key::E,
+		"f" => Key::F,
+		"g" => Key::G,
+		"h" => Key::H,
+		"i" => Key::I,
+		"j" => Key::J,
+		"k" => Key::K,
+		"l" => Key::L,
+		"m" => Key::M,
+		"n" => Key::N,
+		"o" => Key::O,
+		"p" => Key::P,
+		"q" => Key::Q,
+		"r" => Key::R,
+		"s" => Key::S,
+		"t" => Key::T,
+		"u" => Key::U,
+		"v" => Key::V,
+		"w" => Key::W,
+		"x" => Key::X,
+		"y" => Key::Y,
+		"z" => Key::Z,
+		_ => match value.to_lowercase().as_str() {
+			"<backspace>" => Key::Backspace,
+			"<tab>" => Key::Tab,
+			"<enter>" => Key::Enter,
+			"<caps_lock>" => Key::CapsLock,
+			"<escape>" => Key::Escape,
+			"<space>" => Key::Space,
+			"<page_up>" => Key::PageUp,
+			"<page_down>" => Key::PageDown,
+			"<end>" => Key::End,
+			"<home>" => Key::Home,
+			"<left>" => Key::Left,
+			"<right>" => Key::Right,
+			"<up>" => Key::Up,
+			"<down>" => Key::Down,
+			"<print_screen>" => Key::PrintScreen,
+			"<insert>" => Key::Insert,
+			"<delete>" => Key::Delete,
+			_ => return Err(ParseError::InvalidKey(value.to_owned())),
+		},
+	};
+
+	Ok(key)
 }
 
+// TODO: improve these
 #[cfg(test)]
 mod tests {
 	use super::*;

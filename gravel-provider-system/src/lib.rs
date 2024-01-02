@@ -1,7 +1,9 @@
 //! System provider.
 //! Provides system commands such as shutdown, log out or exiting gravel.
 
+use anyhow::Result;
 use gravel_core::{config::PluginConfigAdapter, plugin::*, *};
+use log::*;
 use serde::Deserialize;
 use std::sync::Arc;
 
@@ -52,21 +54,22 @@ impl Provider for WebsearchProvider {
 
 fn get_exit(config: ExitConfig) -> Arc<dyn Hit> {
 	let hit = SimpleHit::new(config.title, config.subtitle, |_hit, sender| {
-		sender
-			.send(FrontendMessage::Exit)
-			.expect("failed to send frontend message");
+		sender.send(FrontendMessage::Exit).ok();
 	});
 
 	Arc::new(hit)
 }
 
-fn get_hit(config: SubcommandConfig, action: impl Fn(&str) + Send + Sync + 'static) -> Arc<SimpleHit<()>> {
+fn get_hit(
+	config: SubcommandConfig,
+	action: impl Fn(&str) -> Result<()> + Send + Sync + 'static,
+) -> Arc<SimpleHit<()>> {
 	let hit = SimpleHit::new(config.title, config.subtitle, move |_, sender| {
-		action(&config.command_linux);
+		if let Err(err) = action(&config.command_linux) {
+			error!("error during system operation: {err}");
+		}
 
-		sender
-			.send(FrontendMessage::Hide)
-			.expect("failed to send frontend message");
+		sender.send(FrontendMessage::Hide).ok();
 	});
 
 	Arc::new(hit)

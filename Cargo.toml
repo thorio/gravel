@@ -20,6 +20,7 @@ log = "0.4.19"
 rstest = "0.18.2"
 serde = "1.0.188"
 shellexpand = "3.1.0"
+thiserror = "1.0.56"
 winapi = "0.3.9"
 
 [profile.release]

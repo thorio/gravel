@@ -7,6 +7,7 @@ edition = "2021"
 gravel-core = { path = "../gravel-core" }
 
 arboard = "3.2.1"
+log.workspace = true
 mexprp = {version = "0.3.1", default-features = false}
 serde.workspace = true
 

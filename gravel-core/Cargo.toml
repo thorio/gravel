@@ -10,4 +10,6 @@ fuzzy-matcher = "0.3.7"
 hotkey = "0.3.1"
 itertools.workspace = true
 lazy_static.workspace = true
+log.workspace = true
 serde.workspace = true
+thiserror.workspace = true

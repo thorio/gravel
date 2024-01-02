@@ -4,10 +4,10 @@ const APP_NAME: &str = "gravel";
 
 fn get_home() -> PathBuf {
 	#[cfg(unix)]
-	let home = env::var("HOME").expect("$HOME is not set");
+	let home = env::var("HOME").expect("$HOME should always be set");
 
 	#[cfg(windows)]
-	let home = env::var("USERPROFILE").expect("$USERPROFILE is not set");
+	let home = env::var("USERPROFILE").expect("$USERPROFILE should always be set");
 
 	PathBuf::from(home)
 }

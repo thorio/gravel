@@ -3,6 +3,7 @@
 
 use gravel_core::{config::PluginConfigAdapter, plugin::*, *};
 use implementation::Pid;
+use log::*;
 use std::sync::{mpsc::Sender, Arc};
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
@@ -23,7 +24,15 @@ pub struct KillProvider {}
 
 impl Provider for KillProvider {
 	fn query(&self, _query: &str) -> ProviderResult {
-		ProviderResult::new(implementation::query().unwrap())
+		let hits = match implementation::query() {
+			Ok(hits) => hits,
+			Err(err) => {
+				error!("error while querying running processes: {err}");
+				vec![]
+			}
+		};
+
+		ProviderResult::new(hits)
 	}
 }
 
@@ -38,7 +47,5 @@ fn do_kill(sender: &Sender<FrontendMessage>, pid: Pid) {
 	// We don't care if this fails
 	implementation::kill_process(pid).unwrap_or(());
 
-	sender
-		.send(FrontendMessage::Hide)
-		.expect("receiver should live for the lifetime of the program");
+	sender.send(FrontendMessage::Hide).ok();
 }

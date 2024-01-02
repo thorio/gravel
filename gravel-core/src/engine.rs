@@ -79,8 +79,9 @@ impl QueryEngine {
 	/// If one is found, the keyword is stripped from the query and the
 	/// resulting new query is run against that provider only.
 	fn try_keyword_query(&self, query: &str) -> Option<QueryResult> {
-		let words = query.split(' ').collect::<Vec<&str>>();
-		let first_word: &str = words.first().unwrap();
+		let Some(first_word) = query.split(' ').next() else {
+			return None;
+		};
 
 		let Some(provider) = self.check_keywords(first_word) else {
 			return None;
