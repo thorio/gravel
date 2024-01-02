@@ -13,6 +13,9 @@ fn main() {
 	#[cfg(windows)]
 	init::windows_console::attach();
 
+	let args = init::cli();
+	init::logging(args.verbosity.log_level());
+
 	let config = init::config();
 	let (sender, receiver) = mpsc::channel::<FrontendMessage>();
 

@@ -27,10 +27,13 @@ gravel-provider-program = { path = "../gravel-provider-program" }
 gravel-provider-system = { path = "../gravel-provider-system" }
 gravel-provider-websearch = { path = "../gravel-provider-websearch" }
 
+clap = { version = "4.4.12", features = ["derive"] }
 config = "0.13.2"
 lazy_static.workspace = true
+log.workspace = true
 shellexpand.workspace = true
 single-instance = "0.3.3"
+stderrlog = "0.5.4"
 
 [target.'cfg(windows)'.dependencies]
 winapi = { workspace = true, features = ["wincon"] }
