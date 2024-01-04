@@ -8,7 +8,7 @@ pub struct ParsedBinding {
 	pub key: Key,
 }
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, PartialEq, Eq)]
 pub enum ParseError {
 	#[error("'{0}' is not a valid modifier")]
 	InvalidModifier(String),
@@ -22,6 +22,10 @@ pub enum ParseError {
 
 /// Parse an emacs-like keybinding. Does not support cords.
 pub fn parse_binding(binding: &str) -> Result<ParsedBinding, ParseError> {
+	if binding.is_empty() {
+		return Err(ParseError::Empty);
+	}
+
 	let parts = binding.split('-').collect::<Vec<&str>>();
 
 	let key = convert_key(parts.last().expect("vec always contains at least one item"))?;
@@ -103,38 +107,31 @@ fn convert_key(value: &str) -> Result<Key, ParseError> {
 	Ok(key)
 }
 
-// TODO: improve these
 #[cfg(test)]
 mod tests {
 	use super::*;
 	use crate::hotkeys::{Key, Modifier};
 	use enumflags2::BitFlags;
+	use rstest::rstest;
 
-	#[test]
-	fn should_parse_single_key() {
-		check_binding("q", BitFlags::empty(), Key::Q);
+	#[rstest]
+	#[case("q", ParsedBinding {modifiers: BitFlags::empty(), key: Key::Q})]
+	#[case("C-a", ParsedBinding {modifiers: Modifier::Control.into(), key: Key::A})]
+	#[case("C-A-S-s", ParsedBinding {modifiers: Modifier::Control | Modifier::Alt | Modifier::Shift, key: Key::S})]
+	#[case("M-S-<PRINT_screen>", ParsedBinding {modifiers: Modifier::Super | Modifier::Shift, key: Key::PrintScreen})]
+	fn should_parse(#[case] binding: &str, #[case] expected: ParsedBinding) {
+		let actual = parse_binding(binding);
+		assert_eq!(actual, Ok(expected));
 	}
 
-	#[test]
-	fn should_parse_single_modifier() {
-		check_binding("C-a", (Modifier::Control).into(), Key::A);
-	}
-
-	#[test]
-	fn should_parse_multi_modifier() {
-		check_binding("C-A-S-s", Modifier::Control | Modifier::Alt | Modifier::Shift, Key::S);
-	}
-
-	#[test]
-	#[should_panic]
-	fn should_fail() {
-		check_binding("garbage in - garbage out", BitFlags::empty(), Key::A);
-	}
-
-	fn check_binding(binding: &str, modifiers: BitFlags<Modifier>, key: Key) {
-		let expected = ParsedBinding { modifiers, key };
-
-		let actual = parse_binding(binding).unwrap();
-		assert_eq!(actual, expected);
+	#[rstest]
+	#[case("not- working", ParseError::InvalidKey(String::from(" working")))]
+	#[case("Z", ParseError::InvalidKey(String::from("Z")))]
+	#[case("c-d", ParseError::InvalidModifier(String::from("c")))]
+	#[case("C-S", ParseError::ModifierUsedAsKey(String::from("S")))]
+	#[case("", ParseError::Empty)]
+	fn should_err(#[case] binding: &str, #[case] expected: ParseError) {
+		let actual = parse_binding(binding);
+		assert_eq!(actual, Err(expected));
 	}
 }

@@ -13,3 +13,6 @@ lazy_static.workspace = true
 log.workspace = true
 serde.workspace = true
 thiserror.workspace = true
+
+[dev-dependencies]
+rstest.workspace = true

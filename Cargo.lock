@@ -992,6 +992,7 @@ dependencies = [
  "itertools",
  "lazy_static",
  "log",
+ "rstest",
  "serde",
  "thiserror",
 ]
