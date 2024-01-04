@@ -13,6 +13,9 @@
 					"build"
 				]
 			},
+			"env": {
+				"GRAVEL_CONFIG_PATH": "${workspaceFolder}/.dev-config",
+			},
 			"program": "${cargo:program}",
 			"args": []
 		}

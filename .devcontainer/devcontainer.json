@@ -13,7 +13,7 @@
 	"remoteEnv": {
 		"XAUTHORITY": "/tmp/.Xauthority",
 		"DISPLAY": "${localEnv:DISPLAY:}",
-		"GRAVEL_CONFIG_PATH": "/workspaces/gravel/.devcontainer/config"
+		"GRAVEL_CONFIG_PATH": "/workspaces/gravel/.dev-config"
 	},
 	"runArgs": [
 		"--net", "host",
