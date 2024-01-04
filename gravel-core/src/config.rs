@@ -1,6 +1,7 @@
 //! For an explanation of the config, see `config.yml` in the crate's root.
 
 use ::config::{Config, File, FileFormat};
+use log::*;
 use serde::Deserialize;
 
 pub const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../config.yml"));
@@ -13,10 +14,13 @@ pub struct ConfigManager {
 
 impl ConfigManager {
 	pub fn new(config: Config) -> Self {
-		// TODO: error handling
-		let root = config.clone().try_deserialize().unwrap();
-
-		Self { config, root }
+		match config.clone().try_deserialize() {
+			Ok(root) => Self { config, root },
+			Err(err) => {
+				error!("config: {err}");
+				std::process::exit(1);
+			}
+		}
 	}
 
 	pub fn get_plugin_adapter(&self, alias: &str) -> PluginConfigAdapter {
@@ -35,9 +39,15 @@ impl ConfigManager {
 			.add_source(File::from_str(&processed_config, FileFormat::Yaml))
 			.add_source(self.config.clone());
 
-		// TODO: error handling
 		let key = format!("plugin_config.{alias}");
-		builder.build().unwrap().get(key.as_str()).unwrap()
+
+		match builder.build().and_then(|c| c.get(&key)) {
+			Ok(config) => config,
+			Err(err) => {
+				error!("plugin config '{alias}': {err}");
+				std::process::exit(1);
+			}
+		}
 	}
 }
 

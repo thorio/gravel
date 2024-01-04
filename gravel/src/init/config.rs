@@ -1,6 +1,7 @@
 use ::config::{builder::DefaultState, Config, ConfigBuilder, File, FileFormat};
 use gravel_core::config::{ConfigManager, DEFAULT_CONFIG};
 use gravel_core::paths::get_gravel_config_dir;
+use log::*;
 use std::path::PathBuf;
 
 /// Reads and deserializes the configuration from multiple sources:
@@ -9,8 +10,13 @@ use std::path::PathBuf;
 ///
 /// Each layer can override the values of the previous layers.
 pub fn config() -> ConfigManager {
-	// TODO: error handling
-	let config = get_builder().build().unwrap();
+	let config = match get_builder().build() {
+		Ok(config) => config,
+		Err(err) => {
+			error!("config: {err}");
+			std::process::exit(1);
+		}
+	};
 
 	ConfigManager::new(config)
 }
