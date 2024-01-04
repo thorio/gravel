@@ -13,7 +13,12 @@
 //!
 //! Launches applications using explorer.
 
+use std::{path::PathBuf, sync::Arc};
+
+use glob::{glob, Paths};
 use gravel_core::{config::*, plugin::*, *};
+use itertools::Itertools;
+use log::*;
 use serde::Deserialize;
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
@@ -28,22 +33,46 @@ pub fn register_plugins(registry: &mut PluginRegistry) {
 	registry.register(definition);
 }
 
-fn get_provider(config: &PluginConfigAdapter) -> Box<dyn Provider> {
-	let plugin_config = config.get::<Config>(DEFAULT_CONFIG);
+fn get_provider(config_adapter: &PluginConfigAdapter) -> Box<dyn Provider> {
+	let config = config_adapter.get::<Config>(DEFAULT_CONFIG);
 
-	Box::new(ProgramProvider { config: plugin_config })
+	let program_paths = implementation::get_program_paths(&config);
+
+	Box::new(ProgramProvider { program_paths })
 }
 
 struct ProgramProvider {
-	config: Config,
+	program_paths: Vec<String>,
 }
 
 impl Provider for ProgramProvider {
 	fn query(&self, _query: &str) -> ProviderResult {
-		let hits = implementation::get_programs(&self.config);
+		let hits = get_programs(&self.program_paths);
 
 		ProviderResult::new(hits)
 	}
+}
+
+/// Expands the path globs and returns hit representations of all programs it finds
+pub(crate) fn get_programs(paths: &[String]) -> Vec<Arc<dyn Hit>> {
+	paths
+		.iter()
+		.filter_map(expand_glob)
+		.flatten()
+		.filter_map(Result::ok)
+		.unique_by(|p| p.file_name().map(ToOwned::to_owned))
+		.filter_map(get_hit)
+		.collect()
+}
+
+pub fn expand_glob(pattern: &String) -> Option<Paths> {
+	glob(pattern)
+		.map_err(|err| error!("couldn't expand glob '{pattern}': {err}"))
+		.ok()
+}
+
+fn get_hit(path: PathBuf) -> Option<Arc<dyn Hit>> {
+	Some(Arc::new(implementation::get_program(&path)?))
 }
 
 #[derive(Deserialize, Debug)]

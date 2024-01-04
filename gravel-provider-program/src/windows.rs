@@ -1,60 +1,34 @@
 use crate::Config;
-use glob::glob;
 use gravel_core::*;
-use std::borrow::Cow;
-use std::path::PathBuf;
+use log::*;
+use std::path::Path;
 use std::process::Command;
-use std::sync::{mpsc::Sender, Arc};
+use std::sync::mpsc::Sender;
 
-/// Expands the path globs and returns hit representations of all
-/// symlinks it finds.
-pub(crate) fn get_programs(config: &Config) -> Vec<Arc<dyn Hit>> {
-	let mut hits = vec![] as Vec<Arc<dyn Hit>>;
-
-	for path in &config.windows.shortcut_paths {
-		let expanded_path = shellexpand::env(path).unwrap();
-		fun_name(expanded_path, &mut hits);
-	}
-
-	hits
+pub(crate) fn get_program_paths(config: &Config) -> Vec<String> {
+	config.windows.shortcut_paths.iter().filter_map(expand_path).collect()
 }
 
-fn fun_name(expanded_path: Cow<str>, hits: &mut Vec<Arc<dyn Hit>>) {
-	// TODO: error handling, unify windows/linux logic
-	for result in glob(&expanded_path).expect("failed to read glob pattern") {
-		if result.is_err() {
-			continue;
-		}
-
-		let hit = get_program(result.unwrap());
-		hits.push(Arc::new(hit));
-	}
+fn expand_path(path: &String) -> Option<String> {
+	shellexpand::env(path)
+		.map(|p| p.into_owned())
+		.map_err(|err| error!("couldn't expand shortcut_path '{path}': {err}"))
+		.ok()
 }
 
 /// Extracts an application's name from the filename of the link and
 /// returns a [`SimpleHit`] that represents it.
-fn get_program(path: PathBuf) -> SimpleHit<ExtraData> {
-	let name = path.file_stem().unwrap().to_str().unwrap();
-	let path_str = path.to_str().unwrap();
-	SimpleHit::new_with_data(name, path_str, ExtraData::new(path_str), run_program)
-}
+pub fn get_program(path: &Path) -> Option<SimpleHit<()>> {
+	let name = path.file_stem()?.to_string_lossy();
+	let path = path.to_str()?.to_owned();
 
-struct ExtraData {
-	pub link_file: String,
-}
-
-impl ExtraData {
-	pub fn new(link_file: &str) -> Self {
-		Self {
-			link_file: link_file.to_owned(),
-		}
-	}
+	Some(SimpleHit::new(name, path.clone(), move |h, s| run_program(&path, h, s)))
 }
 
 /// Passes the link's path to explorer, which then launches the application.
-fn run_program(hit: &SimpleHit<ExtraData>, sender: &Sender<FrontendMessage>) {
+fn run_program(desktop_file: &str, _: &SimpleHit<()>, sender: &Sender<FrontendMessage>) {
 	Command::new("explorer")
-		.arg(&hit.get_data().link_file)
+		.arg(desktop_file)
 		.spawn()
 		.expect("running explorer should never fail");
 
