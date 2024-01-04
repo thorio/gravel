@@ -8,10 +8,6 @@ use log::*;
 use serde::Deserialize;
 use std::sync::{mpsc::Sender, Arc};
 
-#[cfg_attr(target_os = "linux", path = "linux.rs")]
-#[cfg_attr(windows, path = "windows.rs")]
-mod implementation;
-
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
 pub fn register_plugins(registry: &mut PluginRegistry) {
@@ -52,7 +48,7 @@ fn do_search(hit: &SimpleHit<ExtraData>, sender: &Sender<FrontendMessage>) {
 	let encoded = urlencoding::encode(hit.get_title());
 	let url = hit.get_data().url_pattern.replace("{}", &encoded);
 
-	if let Err(err) = implementation::open_url(&url) {
+	if let Err(err) = open::that(url) {
 		error!("unable to open URL: {err}")
 	}
 

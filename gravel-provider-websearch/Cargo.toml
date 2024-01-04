@@ -8,5 +8,6 @@ gravel-core = { path = "../gravel-core" }
 
 anyhow.workspace = true
 log.workspace = true
+open = "5.0.1"
 serde.workspace = true
 urlencoding = "2.1.3"
