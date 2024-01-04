@@ -60,10 +60,7 @@ fn get_exit(config: ExitConfig) -> Arc<dyn Hit> {
 	Arc::new(hit)
 }
 
-fn get_hit(
-	config: SubcommandConfig,
-	action: impl Fn(&str) -> Result<()> + Send + Sync + 'static,
-) -> Arc<SimpleHit<()>> {
+fn get_hit(config: SubcommandConfig, action: impl Fn(&str) -> Result<()> + Send + Sync + 'static) -> Arc<SimpleHit> {
 	let hit = SimpleHit::new(config.title, config.subtitle, move |_, sender| {
 		if let Err(err) = action(&config.command_linux) {
 			error!("error during system operation: {err}");

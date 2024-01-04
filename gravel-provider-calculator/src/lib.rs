@@ -77,7 +77,7 @@ fn eval(expression: &str) -> Option<String> {
 	.map(|r| round(r, 10).to_string())
 }
 
-fn do_copy(clipboard: Option<Arc<Mutex<Clipboard>>>, hit: &SimpleHit<()>, sender: &Sender<FrontendMessage>) {
+fn do_copy(clipboard: Option<Arc<Mutex<Clipboard>>>, hit: &SimpleHit, sender: &Sender<FrontendMessage>) {
 	if let Some(clipboard_mutex) = clipboard {
 		let mut guard = clipboard_mutex.lock().expect("thread holding the mutex can't panic");
 		guard.set_text(hit.get_title()).ok();

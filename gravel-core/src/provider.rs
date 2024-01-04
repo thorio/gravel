@@ -43,47 +43,29 @@ pub trait Hit: Sync + Send {
 /// Reference implementation for [`Hit`].
 ///
 /// Takes a function for an action and can store extra data.
-pub struct SimpleHit<T> {
+pub struct SimpleHit {
 	title: Box<str>,
 	subtitle: Box<str>,
 	override_score: Option<u32>,
-	data: T,
 
 	// I think inlining it is easier to read in this case, due to T.
 	#[allow(clippy::type_complexity)]
 	action_func: Box<dyn Fn(&Self, &Sender<FrontendMessage>) + Send + Sync>,
 }
 
-impl SimpleHit<()> {
+impl SimpleHit {
 	/// Creates a new instance without extra data.
 	pub fn new(
 		title: impl Into<Box<str>>,
 		subtitle: impl Into<Box<str>>,
 		func: impl Fn(&Self, &Sender<FrontendMessage>) + Send + Sync + 'static,
 	) -> Self {
-		SimpleHit::new_with_data(title, subtitle, (), func)
-	}
-}
-
-impl<T> SimpleHit<T> {
-	/// Creates a new instance with extra data.
-	pub fn new_with_data(
-		title: impl Into<Box<str>>,
-		subtitle: impl Into<Box<str>>,
-		data: T,
-		func: impl Fn(&Self, &Sender<FrontendMessage>) + Send + Sync + 'static,
-	) -> Self {
 		Self {
 			title: title.into(),
 			subtitle: subtitle.into(),
 			override_score: None,
-			data,
 			action_func: Box::new(func),
 		}
-	}
-
-	pub fn get_data(&self) -> &T {
-		&self.data
 	}
 
 	#[must_use]
@@ -93,10 +75,7 @@ impl<T> SimpleHit<T> {
 	}
 }
 
-impl<T> Hit for SimpleHit<T>
-where
-	T: Send + Sync,
-{
+impl Hit for SimpleHit {
 	fn action(&self, sender: &Sender<FrontendMessage>) {
 		(self.action_func)(self, sender);
 	}

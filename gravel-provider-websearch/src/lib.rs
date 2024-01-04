@@ -16,37 +16,34 @@ pub fn register_plugins(registry: &mut PluginRegistry) {
 	registry.register(definition);
 }
 
-fn get_provider(config: &PluginConfigAdapter) -> Box<dyn Provider> {
-	let plugin_config = config.get::<Config>(DEFAULT_CONFIG);
+fn get_provider(config_adapter: &PluginConfigAdapter) -> Box<dyn Provider> {
+	let config = config_adapter.get::<Config>(DEFAULT_CONFIG);
 
-	let provider = WebsearchProvider { config: plugin_config };
+	// this avoids a clone on every keystroke
+	let url_pattern = Box::leak(Box::new(config.url_pattern.clone()));
+
+	let provider = WebsearchProvider { config, url_pattern };
 
 	Box::new(provider)
 }
 
 pub struct WebsearchProvider {
 	config: Config,
+	url_pattern: &'static str,
 }
 
 impl Provider for WebsearchProvider {
 	fn query(&self, query: &str) -> ProviderResult {
-		let extra = ExtraData {
-			url_pattern: self.config.url_pattern.clone(),
-		};
-
-		let hit = SimpleHit::new_with_data(query, &*self.config.subtitle, extra, do_search).with_score(MIN_SCORE);
+		let hit = SimpleHit::new(query, &*self.config.subtitle, |h, s| do_search(self.url_pattern, h, s))
+			.with_score(MIN_SCORE);
 
 		ProviderResult::single(Arc::new(hit))
 	}
 }
 
-struct ExtraData {
-	pub url_pattern: String,
-}
-
-fn do_search(hit: &SimpleHit<ExtraData>, sender: &Sender<FrontendMessage>) {
+fn do_search(url_pattern: &str, hit: &SimpleHit, sender: &Sender<FrontendMessage>) {
 	let encoded = urlencoding::encode(hit.get_title());
-	let url = hit.get_data().url_pattern.replace("{}", &encoded);
+	let url = url_pattern.replace("{}", &encoded);
 
 	if let Err(err) = open::that(url) {
 		error!("unable to open URL: {err}")

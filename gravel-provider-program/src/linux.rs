@@ -17,7 +17,7 @@ pub(crate) fn get_program_paths(_config: &Config) -> Vec<String> {
 }
 
 /// Parses a desktop entry and returns a [`SimpleHit`] that represents it.
-pub fn get_program(path: &Path) -> Option<SimpleHit<()>> {
+pub fn get_program(path: &Path) -> Option<SimpleHit> {
 	let filename = path.file_name()?.to_str()?;
 
 	let entry = freedesktop_entry_parser::parse_entry(path).ok()?;
@@ -36,7 +36,7 @@ pub fn get_program(path: &Path) -> Option<SimpleHit<()>> {
 }
 
 /// Runs the given entry using gtk-launch.
-fn run_program(desktop_file: &str, _: &SimpleHit<()>, sender: &Sender<FrontendMessage>) {
+fn run_program(desktop_file: &str, _: &SimpleHit, sender: &Sender<FrontendMessage>) {
 	Command::new("gtk-launch")
 		.arg(desktop_file)
 		// explicitly prevent stream inheritance

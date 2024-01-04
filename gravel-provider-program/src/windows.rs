@@ -18,7 +18,7 @@ fn expand_path(path: &String) -> Option<String> {
 
 /// Extracts an application's name from the filename of the link and
 /// returns a [`SimpleHit`] that represents it.
-pub fn get_program(path: &Path) -> Option<SimpleHit<()>> {
+pub fn get_program(path: &Path) -> Option<SimpleHit> {
 	let name = path.file_stem()?.to_string_lossy();
 	let path = path.to_str()?.to_owned();
 
@@ -26,7 +26,7 @@ pub fn get_program(path: &Path) -> Option<SimpleHit<()>> {
 }
 
 /// Passes the link's path to explorer, which then launches the application.
-fn run_program(desktop_file: &str, _: &SimpleHit<()>, sender: &Sender<FrontendMessage>) {
+fn run_program(desktop_file: &str, _: &SimpleHit, sender: &Sender<FrontendMessage>) {
 	Command::new("explorer")
 		.arg(desktop_file)
 		.spawn()
