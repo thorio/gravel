@@ -12,11 +12,51 @@ repository = "https://github.com/thorio/gravel"
 maintainer = "thorou <thorou@chirality.de>"
 section = "x11"
 priority = "extra"
-depends = ["libx11-6", "libxinerama1", "libxft2", "libxext6", "libxcursor1", "libxrender1", "libxfixes3", "libcairo2", "libpango-1.0-0", "libpangocairo-1.0-0", "libpangoxft-1.0-0", "libglib2.0-0", "libfontconfig1", "libglu1-mesa", "libgl1"]
+depends = [
+	# FLTK dependencies
+	"libx11-6",
+	"libxinerama1",
+	"libxft2",
+	"libxext6",
+	"libxcursor1",
+	"libxrender1",
+	"libxfixes3",
+	"libcairo2",
+	"libpango-1.0-0",
+	"libpangocairo-1.0-0",
+	"libpangoxft-1.0-0",
+	"libglib2.0-0",
+	"libfontconfig1",
+	"libglu1-mesa",
+	"libgl1",
+	# provider dependencies
+	"coreutils", # env
+	"bash",
+	"libgtk-3-bin", # gtk-launch
+	"xdg-utils", # xdg-open
+]
 
 [package.metadata.arch]
 maintainer = "thorou <thorou@chirality.de>"
-depends = ["libx11", "libxext", "libxft", "libxinerama", "libxcursor", "libxrender", "libxfixes", "pango", "cairo", "libgl", "mesa"]
+depends = [
+	# FLTK dependencies
+	"libx11",
+	"libxext",
+	"libxft",
+	"libxinerama",
+	"libxcursor",
+	"libxrender",
+	"libxfixes",
+	"pango",
+	"cairo",
+	"libgl",
+	"mesa",
+	# provider dependencies
+	"coreutils", # env
+	"bash",
+	"gtk3", # gtk-launch
+	"xdg-utils", # xdg-open
+]
 
 [dependencies]
 gravel-core = { path = "../gravel-core" }
