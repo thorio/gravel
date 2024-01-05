@@ -43,6 +43,8 @@ pub(crate) fn get_hit(name: &str, pid: Pid, cmdline: &str) -> Arc<dyn Hit> {
 }
 
 fn do_kill(sender: &Sender<FrontendMessage>, pid: Pid) {
+	log::debug!("attempting to kill PID {pid}");
+
 	// We don't care if this fails
 	implementation::kill_process(pid).unwrap_or(());
 

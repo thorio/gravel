@@ -44,6 +44,7 @@ fn do_search(url_pattern: &str, hit: &SimpleHit, sender: &Sender<FrontendMessage
 	let encoded = urlencoding::encode(hit.get_title());
 	let url = url_pattern.replace("{}", &encoded);
 
+	log::debug!("opening URL '{url}'");
 	if let Err(err) = open::that(url) {
 		log::error!("unable to open URL: {err}")
 	}

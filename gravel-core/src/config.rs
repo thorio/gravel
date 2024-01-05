@@ -31,6 +31,8 @@ impl ConfigManager {
 
 	/// Build and deserialize the specified plugin config section.
 	pub fn get_plugin_config<'de, T: Deserialize<'de>>(&self, alias: &str, default_config: &str) -> T {
+		log::trace!("reading plugin config for '{alias}'");
+
 		let processed_config = preprocess_plugin_config(default_config, alias);
 
 		// layer the cached config over the plugins' defaults

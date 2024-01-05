@@ -4,12 +4,17 @@ use std::sync::mpsc::Sender;
 /// Initializes a hotkey listener on a different thread.
 /// See [`Listener`].
 pub fn hotkeys(hotkeys: &[HotkeyConfig], sender: Sender<FrontendMessage>) {
+	log::trace!("initializing hotkeys");
+
 	let mut listener = Listener::<FrontendMessage>::default();
 
 	for hotkey in hotkeys {
-		match listener.register_emacs(&hotkey.binding, get_control_message(hotkey)) {
-			Ok(_) => (),
-			Err(err) => log::warn!("invalid binding '{}', {err}. skipping", &hotkey.binding),
+		let binding = &hotkey.binding;
+		let action = &hotkey.action;
+
+		match listener.register_emacs(binding, get_control_message(hotkey)) {
+			Ok(_) => log::debug!("registered hotkey '{binding}' with action '{action:?}'"),
+			Err(err) => log::warn!("invalid binding '{}', {err}. skipping", binding),
 		};
 	}
 

@@ -61,6 +61,8 @@ impl FltkFrontend {
 				Message::Exit => self.ui.app.quit(),
 			}
 		}
+
+		log::trace!("shutting down frontend");
 	}
 
 	/// Registers a recurring timeout that forwards [`FrontendMessage`]s on

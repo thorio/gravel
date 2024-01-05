@@ -7,6 +7,7 @@ mod engine;
 mod frontend;
 pub mod hotkeys;
 pub mod paths;
+pub mod performance;
 pub mod plugin;
 mod provider;
 pub mod scoring;

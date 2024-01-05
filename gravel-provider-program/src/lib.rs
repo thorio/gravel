@@ -36,6 +36,7 @@ fn get_provider(config_adapter: &PluginConfigAdapter) -> Box<dyn Provider> {
 	let config = config_adapter.get::<Config>(DEFAULT_CONFIG);
 
 	let program_paths = implementation::get_program_paths(&config);
+	log::debug!("determined program paths: {program_paths:?}");
 
 	Box::new(ProgramProvider { program_paths })
 }

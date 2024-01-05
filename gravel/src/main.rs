@@ -4,12 +4,13 @@
 // Without this, windows will open an additional console window for the application
 #![windows_subsystem = "windows"]
 
-use gravel_core::*;
+use gravel_core::{performance::Stopwatch, *};
 use std::sync::mpsc;
 
 mod init;
 
 fn main() {
+	let stopwatch = Stopwatch::start();
 	#[cfg(windows)]
 	init::windows_console::attach();
 
@@ -26,8 +27,12 @@ fn main() {
 	init::single_instance(config.root.single_instance.as_deref());
 	init::hotkeys(&config.root.hotkeys, sender);
 
+	log::trace!("initialization complete, took {stopwatch}");
+	log::trace!("starting frontend");
 	frontend.run(receiver);
 
 	#[cfg(windows)]
 	init::windows_console::detach();
+
+	log::trace!("exiting");
 }

@@ -29,6 +29,8 @@ fn get_provider(config: &PluginConfigAdapter) -> Box<dyn Provider> {
 }
 
 fn get_clipboard() -> Option<Arc<Mutex<Clipboard>>> {
+	log::trace!("spawning clipboard instance");
+
 	match Clipboard::new() {
 		Err(err) => {
 			log::error!("unable to initialize clipboard: {err}");
@@ -77,9 +79,12 @@ fn eval(expression: &str) -> Option<String> {
 }
 
 fn do_copy(clipboard: Option<Arc<Mutex<Clipboard>>>, hit: &SimpleHit, sender: &Sender<FrontendMessage>) {
+	let value = hit.get_title();
+	log::debug!("copying value to clipboard: {value}");
+
 	if let Some(clipboard_mutex) = clipboard {
 		let mut guard = clipboard_mutex.lock().expect("thread holding the mutex can't panic");
-		guard.set_text(hit.get_title()).ok();
+		guard.set_text(value).ok();
 	}
 
 	sender.send(FrontendMessage::Hide).ok();

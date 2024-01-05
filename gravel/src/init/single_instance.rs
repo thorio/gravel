@@ -7,6 +7,8 @@ pub fn single_instance(name: Option<&str>) {
 		return;
 	};
 
+	log::debug!("initializing single-instance with key {name}");
+
 	match SingleInstance::new(name) {
 		Err(err) => {
 			log::error!("unable to setup single-instance, error: {err}")

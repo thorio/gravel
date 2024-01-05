@@ -37,6 +37,8 @@ pub fn get_program(path: &Path) -> Option<SimpleHit> {
 
 /// Runs the given entry using gtk-launch.
 fn run_program(desktop_file: &str, _: &SimpleHit, sender: &Sender<FrontendMessage>) {
+	log::debug!("starting application '{desktop_file}'");
+
 	Command::new("gtk-launch")
 		.arg(desktop_file)
 		// explicitly prevent stream inheritance

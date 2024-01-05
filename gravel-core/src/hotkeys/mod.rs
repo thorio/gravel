@@ -53,6 +53,7 @@ impl<T: 'static + Send + Clone + Debug> Listener<T> {
 
 		// run the listener on another thread to avoid blocking the current one
 		std::thread::spawn(move || {
+			log::trace!("starting hotkey listener thread");
 			init_hotkeys(&sender, hotkeys).listen();
 		});
 

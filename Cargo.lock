@@ -1004,6 +1004,7 @@ dependencies = [
  "fltk",
  "gravel-core",
  "lazy_static",
+ "log",
  "serde",
  "winapi",
 ]

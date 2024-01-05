@@ -1,6 +1,7 @@
 use itertools::Itertools;
 
 use crate::frontend::FrontendMessage;
+use crate::performance::Stopwatch;
 use crate::scoring::ScoredHit;
 use crate::{provider::*, scoring};
 use std::sync::mpsc::Sender;
@@ -49,15 +50,22 @@ impl QueryEngine {
 
 	/// Queries all providers with the given query.
 	pub fn query(&self, query: &str) -> QueryResult {
+		let stopwatch = Stopwatch::start();
+
 		if query.trim().is_empty() {
 			return QueryResult { hits: vec![] };
 		}
+
+		log::trace!("starting query '{query}'");
 
 		if let Some(result) = self.try_keyword_query(query) {
 			return result;
 		}
 
-		self.full_query(query)
+		let result = self.full_query(query);
+
+		log::trace!("query complete, took {stopwatch}");
+		result
 	}
 
 	pub fn run_hit_action(&self, hit: &dyn Hit) {

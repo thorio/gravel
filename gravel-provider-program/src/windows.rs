@@ -25,9 +25,11 @@ pub fn get_program(path: &Path) -> Option<SimpleHit> {
 }
 
 /// Passes the link's path to explorer, which then launches the application.
-fn run_program(desktop_file: &str, _: &SimpleHit, sender: &Sender<FrontendMessage>) {
+fn run_program(link_path: &str, _: &SimpleHit, sender: &Sender<FrontendMessage>) {
+	log::debug!("starting application '{link_path}'");
+
 	Command::new("explorer")
-		.arg(desktop_file)
+		.arg(link_path)
 		.spawn()
 		.expect("running explorer should never fail");
 

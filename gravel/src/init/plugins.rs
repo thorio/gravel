@@ -2,6 +2,8 @@ use gravel_core::plugin::*;
 
 /// Initializes the [`PluginRegistry`] and registers built-in plugins.
 pub fn plugins() -> PluginRegistry {
+	log::trace!("loading plugins");
+
 	let mut registry = PluginRegistry::default();
 	register_builtins(&mut registry);
 	register_externals(&mut registry);

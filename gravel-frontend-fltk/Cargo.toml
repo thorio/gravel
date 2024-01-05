@@ -8,6 +8,7 @@ gravel-core = { path = "../gravel-core" }
 
 fltk = { version = "^1.4", features = ["fltk-bundled"] }
 lazy_static.workspace = true
+log.workspace = true
 serde.workspace = true
 
 [target.'cfg(windows)'.dependencies]
