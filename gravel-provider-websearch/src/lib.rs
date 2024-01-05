@@ -4,7 +4,6 @@
 //! opens the user's default browser and searches for the query.
 
 use gravel_core::{config::PluginConfigAdapter, plugin::*, scoring::MIN_SCORE, *};
-use log::*;
 use serde::Deserialize;
 use std::sync::{mpsc::Sender, Arc};
 
@@ -46,7 +45,7 @@ fn do_search(url_pattern: &str, hit: &SimpleHit, sender: &Sender<FrontendMessage
 	let url = url_pattern.replace("{}", &encoded);
 
 	if let Err(err) = open::that(url) {
-		error!("unable to open URL: {err}")
+		log::error!("unable to open URL: {err}")
 	}
 
 	sender.send(FrontendMessage::Hide).ok();

@@ -1,5 +1,4 @@
 use gravel_core::{config::*, hotkeys::*, *};
-use log::*;
 use std::sync::mpsc::Sender;
 
 /// Initializes a hotkey listener on a different thread.
@@ -10,7 +9,7 @@ pub fn hotkeys(hotkeys: &[HotkeyConfig], sender: Sender<FrontendMessage>) {
 	for hotkey in hotkeys {
 		match listener.register_emacs(&hotkey.binding, get_control_message(hotkey)) {
 			Ok(_) => (),
-			Err(err) => warn!("invalid binding '{}', {err}. skipping", &hotkey.binding),
+			Err(err) => log::warn!("invalid binding '{}', {err}. skipping", &hotkey.binding),
 		};
 	}
 

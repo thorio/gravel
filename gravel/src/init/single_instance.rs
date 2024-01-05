@@ -1,4 +1,3 @@
-use log::*;
 use single_instance::SingleInstance;
 
 /// Checks for duplicate instances with the given name.
@@ -10,10 +9,10 @@ pub fn single_instance(name: Option<&str>) {
 
 	match SingleInstance::new(name) {
 		Err(err) => {
-			error!("unable to setup single-instance, error: {err}")
+			log::error!("unable to setup single-instance, error: {err}")
 		}
 		Ok(instance) if !instance.is_single() => {
-			warn!("duplicate instance with name '{name}' detected, exiting");
+			log::warn!("duplicate instance with name '{name}' detected, exiting");
 			std::process::exit(1);
 		}
 		Ok(instance) => {

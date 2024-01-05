@@ -18,7 +18,6 @@ use std::{path::PathBuf, sync::Arc};
 use glob::{glob, Paths};
 use gravel_core::{config::*, plugin::*, *};
 use itertools::Itertools;
-use log::*;
 use serde::Deserialize;
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
@@ -67,7 +66,7 @@ pub(crate) fn get_programs(paths: &[String]) -> Vec<Arc<dyn Hit>> {
 
 pub fn expand_glob(pattern: &String) -> Option<Paths> {
 	glob(pattern)
-		.map_err(|err| error!("couldn't expand glob '{pattern}': {err}"))
+		.map_err(|err| log::error!("couldn't expand glob '{pattern}': {err}"))
 		.ok()
 }
 

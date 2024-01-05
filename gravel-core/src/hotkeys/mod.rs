@@ -1,5 +1,4 @@
 use enumflags2::BitFlags;
-use log::*;
 use std::fmt::Debug;
 use std::sync::mpsc::Sender;
 
@@ -84,7 +83,7 @@ fn init_hotkeys<T: 'static + Clone + Debug>(sender: &Sender<T>, hotkeys: Vec<Hot
 		});
 
 		if let Err(_error) = result {
-			warn!("failed to register hotkey {hotkey:?}, skipping");
+			log::warn!("failed to register hotkey {hotkey:?}, skipping");
 		}
 	}
 

@@ -1,7 +1,6 @@
 //! For an explanation of the config, see `config.yml` in the crate's root.
 
 use ::config::{Config, File, FileFormat};
-use log::*;
 use serde::Deserialize;
 
 pub const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../config.yml"));
@@ -17,7 +16,7 @@ impl ConfigManager {
 		match config.clone().try_deserialize() {
 			Ok(root) => Self { config, root },
 			Err(err) => {
-				error!("config: {err}");
+				log::error!("config: {err}");
 				std::process::exit(1);
 			}
 		}
@@ -44,7 +43,7 @@ impl ConfigManager {
 		match builder.build().and_then(|c| c.get(&key)) {
 			Ok(config) => config,
 			Err(err) => {
-				error!("plugin config '{alias}': {err}");
+				log::error!("plugin config '{alias}': {err}");
 				std::process::exit(1);
 			}
 		}

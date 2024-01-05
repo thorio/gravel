@@ -1,5 +1,4 @@
 use crate::{config::PluginConfigAdapter, Frontend, Provider, QueryEngine};
-use log::*;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum PluginType {
@@ -96,12 +95,12 @@ impl PluginRegistry {
 	/// is skipped.
 	pub fn register(&mut self, plugin: PluginDefinition) -> &mut Self {
 		if !plugin.has_plugin() {
-			warn!("malformed plugin {}, skipping", plugin.name);
+			log::warn!("malformed plugin {}, skipping", plugin.name);
 			return self;
 		}
 
 		if self.find_plugin(&plugin.name, plugin.plugin_type).is_some() {
-			warn!("duplicate {:?} \"{}\", skipping", plugin.plugin_type, plugin.name);
+			log::warn!("duplicate {:?} \"{}\", skipping", plugin.plugin_type, plugin.name);
 			return self;
 		}
 

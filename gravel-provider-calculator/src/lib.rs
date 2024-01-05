@@ -7,7 +7,6 @@
 
 use arboard::Clipboard;
 use gravel_core::{config::PluginConfigAdapter, plugin::*, scoring::MAX_SCORE, *};
-use log::*;
 use mexprp::Answer;
 use serde::Deserialize;
 use std::sync::{mpsc::Sender, Arc, Mutex};
@@ -32,7 +31,7 @@ fn get_provider(config: &PluginConfigAdapter) -> Box<dyn Provider> {
 fn get_clipboard() -> Option<Arc<Mutex<Clipboard>>> {
 	match Clipboard::new() {
 		Err(err) => {
-			error!("unable to initialize clipboard: {err}");
+			log::error!("unable to initialize clipboard: {err}");
 			None
 		}
 		Ok(clipboard) => Some(Arc::new(Mutex::new(clipboard))),

@@ -6,4 +6,6 @@ pub fn logging(level: LevelFilter) {
 		.verbosity(level)
 		.init()
 		.expect("this must never be called twice");
+
+	log::trace!("hello world");
 }

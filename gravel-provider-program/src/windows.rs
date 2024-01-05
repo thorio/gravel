@@ -1,6 +1,5 @@
 use crate::Config;
 use gravel_core::*;
-use log::*;
 use std::path::Path;
 use std::process::Command;
 use std::sync::mpsc::Sender;
@@ -12,7 +11,7 @@ pub(crate) fn get_program_paths(config: &Config) -> Vec<String> {
 fn expand_path(path: &String) -> Option<String> {
 	shellexpand::env(path)
 		.map(|p| p.into_owned())
-		.map_err(|err| error!("couldn't expand shortcut_path '{path}': {err}"))
+		.map_err(|err| log::error!("couldn't expand shortcut_path '{path}': {err}"))
 		.ok()
 }
 

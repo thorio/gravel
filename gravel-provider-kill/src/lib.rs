@@ -3,7 +3,6 @@
 
 use gravel_core::{config::PluginConfigAdapter, plugin::*, *};
 use implementation::Pid;
-use log::*;
 use std::sync::{mpsc::Sender, Arc};
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
@@ -27,7 +26,7 @@ impl Provider for KillProvider {
 		let hits = match implementation::query() {
 			Ok(hits) => hits,
 			Err(err) => {
-				error!("error while querying running processes: {err}");
+				log::error!("error while querying running processes: {err}");
 				vec![]
 			}
 		};
