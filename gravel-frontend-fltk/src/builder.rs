@@ -1,5 +1,14 @@
 use crate::{config::*, scrollbar::Scrollbar, structs::*};
-use fltk::{app, app::Sender, enums::*, frame::Frame, group::Group, input::Input, prelude::*, window::Window};
+use fltk::{
+	app,
+	app::{sleep, Sender},
+	enums::*,
+	frame::Frame,
+	group::Group,
+	input::Input,
+	prelude::*,
+	window::Window,
+};
 
 /// Get the window's target size given the number of hits displayed.
 pub fn get_window_height(config: &Config, hit_count: i32) -> i32 {
@@ -22,10 +31,10 @@ pub fn build(config: &Config) -> Ui {
 	let mut input = build_input(config);
 
 	let do_auto_hide = config.behaviour.auto_hide;
-	let mut sender_clone = sender.clone();
+	let sender_clone = sender.clone();
 	window.handle(move |_window, event| window_event(event, &sender_clone, do_auto_hide));
 
-	sender_clone = sender.clone();
+	let sender_clone = sender.clone();
 	input.handle(move |_input, event| input_event(event, &sender_clone));
 
 	let mut hits = vec![];
@@ -38,6 +47,11 @@ pub fn build(config: &Config) -> Ui {
 	window.end();
 	window.show();
 	window.platform_hide();
+
+	// HACK: hiding the window right after it's created doesn't
+	// work on linux, so wait a bit and then hide it again.
+	let sender_clone = sender.clone();
+	fltk::app::add_timeout3(0.01, move |_handle| sender_clone.send(Message::HideWindow));
 
 	Ui {
 		window,
