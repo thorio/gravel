@@ -1,14 +1,5 @@
 use crate::{config::*, scrollbar::Scrollbar, structs::*};
-use fltk::{
-	app,
-	app::{sleep, Sender},
-	enums::*,
-	frame::Frame,
-	group::Group,
-	input::Input,
-	prelude::*,
-	window::Window,
-};
+use fltk::{app, app::Sender, enums::*, frame::Frame, group::Group, input::Input, prelude::*, window::Window};
 
 /// Get the window's target size given the number of hits displayed.
 pub fn get_window_height(config: &Config, hit_count: i32) -> i32 {
