@@ -38,6 +38,9 @@ colors:
   text: 0xffffff
 
 behaviour:
+  ## Whether or not to show the window when starting gravel
+  start_hidden: true
+
   ## Automatically hides the window when it loses focus.
   auto_hide: true
 
