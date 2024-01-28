@@ -1,90 +1,52 @@
-use crate::{config::PluginConfigAdapter, Frontend, Provider, QueryEngine};
+use crate::{config::PluginConfigAdapter, *};
+use std::collections::HashMap;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum PluginType {
-	Provider,
-	Frontend,
+pub type ProviderFactory = Box<dyn Fn(&PluginConfigAdapter) -> Box<dyn Provider>>;
+pub type FrontendFactory = Box<dyn Fn(QueryEngine, &PluginConfigAdapter) -> Box<dyn Frontend>>;
+
+pub enum PluginFactory {
+	Provider(ProviderFactory),
+	Frontend(FrontendFactory),
 }
-
-type ProviderFactory = dyn Fn(&PluginConfigAdapter) -> Box<dyn Provider>;
-type FrontendFactory = dyn Fn(QueryEngine, &PluginConfigAdapter) -> Box<dyn Frontend>;
 
 /// Holds metadata about a frontend or provider, as well as
-/// a way to instantiate them.
+/// a way to construct them.
 pub struct PluginDefinition {
-	pub name: String,
-	pub plugin_type: PluginType,
-	provider: Option<Box<ProviderFactory>>,
-	frontend: Option<Box<FrontendFactory>>,
-	has_plugin: bool,
+	pub meta: PluginMetadata,
+	pub factory: PluginFactory,
 }
 
-impl PluginDefinition {
-	/// Creates a new instance with the given name.
-	///
-	/// The plugin *must* be further defined using the `with_` functions,
-	/// otherwise the definition is invalid.
-	pub fn new(name: &str) -> Self {
-		Self {
-			name: String::from(name),
-			plugin_type: PluginType::Provider,
-			provider: None,
-			frontend: None,
-			has_plugin: false,
+pub struct PluginMetadata {
+	pub name: String,
+}
+
+impl PluginMetadata {
+	#[must_use]
+	pub fn with_provider(self, factory: ProviderFactory) -> PluginDefinition {
+		PluginDefinition {
+			meta: self,
+			factory: PluginFactory::Provider(factory),
 		}
 	}
 
-	/// Assigns a [`Provider`] to the definition.
-	///
-	/// Panics the definition has already been assigned a plugin.
 	#[must_use]
-	pub fn with_provider(mut self, get_fn: impl Fn(&PluginConfigAdapter) -> Box<dyn Provider> + 'static) -> Self {
-		assert!(!self.has_plugin, "cannot assign multiple plugin types");
-
-		self.provider = Some(Box::new(get_fn));
-		self.plugin_type = PluginType::Provider;
-		self.has_plugin = true;
-		self
+	pub fn with_frontend(self, factory: FrontendFactory) -> PluginDefinition {
+		PluginDefinition {
+			meta: self,
+			factory: PluginFactory::Frontend(factory),
+		}
 	}
+}
 
-	/// Assigns a [`Frontend`] to the definition.
-	///
-	/// Panics the definition has already been assigned a plugin.
-	#[must_use]
-	pub fn with_frontend(
-		mut self,
-		get_fn: impl Fn(QueryEngine, &PluginConfigAdapter) -> Box<dyn Frontend> + 'static,
-	) -> Self {
-		assert!(!self.has_plugin, "cannot assign multiple plugin types");
-
-		self.frontend = Some(Box::new(get_fn));
-		self.plugin_type = PluginType::Frontend;
-		self.has_plugin = true;
-		self
-	}
-
-	/// Attempts to instantiate a [`Provider`].
-	pub fn get_provider(&self, config: &PluginConfigAdapter) -> Option<Box<dyn Provider>> {
-		let get_fn = self.provider.as_ref()?;
-		Some(get_fn(config))
-	}
-
-	/// Attempts to instantiate a [`Frontend`].
-	pub fn get_frontend(&self, engine: QueryEngine, config: &PluginConfigAdapter) -> Option<Box<dyn Frontend>> {
-		let get_fn = self.frontend.as_ref()?;
-		Some(get_fn(engine, config))
-	}
-
-	/// Returns if the definition has been assigned a plugin.
-	pub fn has_plugin(&self) -> bool {
-		self.has_plugin
-	}
+#[must_use]
+pub fn plugin(name: impl Into<String>) -> PluginMetadata {
+	PluginMetadata { name: name.into() }
 }
 
 /// Facilitates registering and finding plugins.
 #[derive(Default)]
 pub struct PluginRegistry {
-	plugins: Vec<PluginDefinition>,
+	plugins: HashMap<String, PluginDefinition>,
 }
 
 impl PluginRegistry {
@@ -94,36 +56,18 @@ impl PluginRegistry {
 	/// name and type is already registered, an error is logged and the plugin
 	/// is skipped.
 	pub fn register(&mut self, plugin: PluginDefinition) -> &mut Self {
-		if !plugin.has_plugin() {
-			log::warn!("malformed plugin {}, skipping", plugin.name);
+		let name = &plugin.meta.name;
+
+		if self.plugins.contains_key(name) {
+			log::warn!("attempted to register duplicate plugin '{}', skipping", name);
 			return self;
 		}
 
-		if self.find_plugin(&plugin.name, plugin.plugin_type).is_some() {
-			log::warn!("duplicate {:?} \"{}\", skipping", plugin.plugin_type, plugin.name);
-			return self;
-		}
-
-		self.plugins.push(plugin);
+		self.plugins.insert(name.clone(), plugin);
 		self
 	}
 
-	/// Attempts to retrieve a provider plugin with the given name.
-	pub fn get_provider(&self, name: &str) -> Option<&PluginDefinition> {
-		self.find_plugin(name, PluginType::Provider)
-	}
-
-	/// Attempts to retrieve a frontend plugin with the given name.
-	pub fn get_frontend(&self, name: &str) -> Option<&PluginDefinition> {
-		self.find_plugin(name, PluginType::Frontend)
-	}
-
-	fn find_plugin(&self, name: &str, plugin_type: PluginType) -> Option<&PluginDefinition> {
-		let plugin = self
-			.plugins
-			.iter()
-			.find(|plugin| plugin.plugin_type == plugin_type && plugin.name == name)?;
-
-		Some(plugin)
+	pub fn get_plugin(&self, name: &str) -> Option<&PluginDefinition> {
+		self.plugins.get(name)
 	}
 }

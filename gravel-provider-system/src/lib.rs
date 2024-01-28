@@ -13,7 +13,7 @@ mod implementation;
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
 pub fn register_plugins(registry: &mut PluginRegistry) {
-	let definition = PluginDefinition::new("system").with_provider(get_provider);
+	let definition = plugin("system").with_provider(Box::new(get_provider));
 
 	registry.register(definition);
 }

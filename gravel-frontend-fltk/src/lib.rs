@@ -16,7 +16,7 @@ mod structs;
 mod native;
 
 pub fn register_plugins(registry: &mut PluginRegistry) {
-	let definition = PluginDefinition::new("fltk").with_frontend(get_frontend);
+	let definition = plugin("fltk").with_frontend(Box::new(get_frontend));
 
 	registry.register(definition);
 }

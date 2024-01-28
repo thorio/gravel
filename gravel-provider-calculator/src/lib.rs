@@ -14,7 +14,7 @@ use std::sync::{mpsc::Sender, Arc, Mutex};
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
 pub fn register_plugins(registry: &mut PluginRegistry) {
-	let definition = PluginDefinition::new("calculator").with_provider(get_provider);
+	let definition = plugin("calculator").with_provider(Box::new(get_provider));
 
 	registry.register(definition);
 }

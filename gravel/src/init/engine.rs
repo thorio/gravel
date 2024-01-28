@@ -18,19 +18,23 @@ pub fn engine(sender: Sender<FrontendMessage>, registry: &PluginRegistry, config
 		log::debug!("initializing provider '{plugin_name}' with alias '{provider_name}'");
 
 		let adapter = config.get_plugin_adapter(provider_name);
-		let provider = try_get_provider(registry, plugin_name, &adapter);
+		let factory = get_provider_factory(registry, plugin_name);
 
-		let Some(provider) = provider else {
-			log::warn!("provider \"{}\" not found, skipping", plugin_name);
+		let Some(factory) = factory else {
+			log::warn!("provider '{}' not found, skipping", plugin_name);
 			continue;
 		};
 
+		let provider = factory(&adapter);
 		engine.register(provider, provider_config.keyword.clone());
 	}
 
 	engine
 }
 
-fn try_get_provider(registry: &PluginRegistry, name: &str, config: &PluginConfigAdapter) -> Option<Box<dyn Provider>> {
-	registry.get_provider(name)?.get_provider(config)
+fn get_provider_factory<'a>(registry: &'a PluginRegistry, name: &str) -> Option<&'a ProviderFactory> {
+	match &registry.get_plugin(name)?.factory {
+		PluginFactory::Provider(factory) => Some(factory),
+		_ => None,
+	}
 }

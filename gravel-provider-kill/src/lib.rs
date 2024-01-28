@@ -10,7 +10,7 @@ use std::sync::{mpsc::Sender, Arc};
 mod implementation;
 
 pub fn register_plugins(registry: &mut PluginRegistry) {
-	let definition = PluginDefinition::new("kill").with_provider(get_provider);
+	let definition = plugin("kill").with_provider(Box::new(get_provider));
 
 	registry.register(definition);
 }
