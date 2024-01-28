@@ -2,7 +2,7 @@ use anyhow::Result;
 use gravel_core::Hit;
 use itertools::Itertools;
 use std::sync::Arc;
-use sysinfo::{PidExt, Process, ProcessExt, System, SystemExt};
+use sysinfo::{Process, System};
 use winapi::shared::minwindef::DWORD;
 use winapi::um::{handleapi, processthreadsapi, winnt, winnt::HANDLE};
 
