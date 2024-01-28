@@ -9,7 +9,10 @@ use arboard::Clipboard;
 use gravel_core::{config::PluginConfigAdapter, plugin::*, scoring::MAX_SCORE, *};
 use mexprp::Answer;
 use serde::Deserialize;
-use std::sync::{mpsc::Sender, Arc, Mutex};
+use std::{
+	cell::OnceCell,
+	sync::{mpsc::Sender, Arc, Mutex},
+};
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
@@ -24,11 +27,11 @@ fn get_provider(config: &PluginConfigAdapter) -> Box<dyn Provider> {
 
 	Box::new(CalculatorProvider {
 		config: plugin_config,
-		clipboard: get_clipboard(),
+		clipboard: OnceCell::new(),
 	})
 }
 
-fn get_clipboard() -> Option<Arc<Mutex<Clipboard>>> {
+fn create_clipboard() -> Option<Arc<Mutex<Clipboard>>> {
 	log::trace!("spawning clipboard instance");
 
 	match Clipboard::new() {
@@ -42,7 +45,13 @@ fn get_clipboard() -> Option<Arc<Mutex<Clipboard>>> {
 
 struct CalculatorProvider {
 	config: Config,
-	clipboard: Option<Arc<Mutex<Clipboard>>>,
+	clipboard: OnceCell<Option<Arc<Mutex<Clipboard>>>>,
+}
+
+impl CalculatorProvider {
+	fn get_clipboard(&self) -> Option<Arc<Mutex<Clipboard>>> {
+		self.clipboard.get_or_init(create_clipboard).clone()
+	}
 }
 
 impl Provider for CalculatorProvider {
@@ -58,7 +67,7 @@ impl Provider for CalculatorProvider {
 			return ProviderResult::empty();
 		}
 
-		let clipboard = self.clipboard.clone();
+		let clipboard = self.get_clipboard();
 
 		let hit = SimpleHit::new(result, self.config.subtitle.clone(), move |h, s| {
 			do_copy(clipboard.clone(), h, s)
