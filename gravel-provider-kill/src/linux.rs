@@ -26,7 +26,7 @@ pub fn query() -> Result<Vec<Arc<dyn Hit>>> {
 
 fn get_hit(process: &Process) -> Result<Arc<dyn Hit>> {
 	let args = process.cmdline()?;
-	let cmdline = args.join(" ");
+	let cmdline = args.join(" ").replace('\n', "\\n");
 	let name = get_cmdline_binary(&args)
 		.or_else(|| get_exe_binary(process))
 		.or_else(|| get_command_name(process))
