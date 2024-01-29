@@ -18,6 +18,17 @@ pub struct ScoredHit {
 	pub score: u32,
 }
 
+/// Like [`get_scored_hits`], but skips the actual scoring step, defaulting to 0
+pub fn get_unscored_hits(hits: Vec<Arc<dyn Hit>>) -> Vec<ScoredHit> {
+	hits.into_iter()
+		.map(|hit| {
+			let score = hit.get_override_score().unwrap_or(0);
+			ScoredHit { hit, score }
+		})
+		.sorted_by(compare_hits)
+		.collect()
+}
+
 /// Assigns each hit a score based on how closely its title matches the query,
 /// discards non-matching hits and orders them highest to lowest.
 pub fn get_scored_hits(hits: Vec<Arc<dyn Hit>>, query: &str) -> Vec<ScoredHit> {

@@ -59,6 +59,7 @@ impl QueryEngine {
 		log::trace!("starting query '{query}'");
 
 		if let Some(result) = self.try_keyword_query(query) {
+			log::trace!("query complete, took {stopwatch}");
 			return result;
 		}
 
@@ -103,14 +104,9 @@ impl QueryEngine {
 
 	/// Tries to find a provider with the a keyword that matches the given string.
 	fn check_keywords(&self, first_word: &str) -> Option<&ProviderInfo> {
-		for provider in &self.providers {
-			match provider.keyword.as_ref() {
-				Some(keyword) if keyword == first_word => return Some(provider),
-				_ => (),
-			};
-		}
-
-		None
+		self.providers
+			.iter()
+			.find(|p| matches!(&p.keyword, Some(k) if k == first_word))
 	}
 }
 
@@ -121,7 +117,10 @@ fn inner_query(providers: &[&ProviderInfo], query: &str) -> QueryResult {
 		.flat_map(|p| p.provider.query(query).hits)
 		.collect_vec();
 
-	let hits = scoring::get_scored_hits(hits, query);
+	let hits = match query.trim() {
+		"*" => scoring::get_unscored_hits(hits),
+		_ => scoring::get_scored_hits(hits, query),
+	};
 
 	QueryResult { hits }
 }
