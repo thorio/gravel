@@ -47,6 +47,7 @@ impl FltkFrontend {
 
 			match message {
 				Message::Query => self.query(),
+				Message::ForceQuery => self.force_query(),
 				Message::Confirm => self.confirm(),
 				Message::CursorUp => self.cursor_up(),
 				Message::CursorDown => self.cursor_down(),
@@ -130,7 +131,7 @@ impl FltkFrontend {
 	fn show_with(&mut self, query: &str) {
 		self.show();
 		self.ui.input.set_value(query);
-		self.query_force();
+		self.force_query();
 	}
 
 	fn input_select_all(&mut self) {
@@ -141,12 +142,12 @@ impl FltkFrontend {
 	/// Queries the [`QueryEngine`] if the input has changed.
 	fn query(&mut self) {
 		if self.ui.input.changed() {
-			self.query_force();
+			self.force_query();
 		}
 	}
 
 	/// Queries the [`QueryEngine`].
-	fn query_force(&mut self) {
+	fn force_query(&mut self) {
 		self.result = self.engine.query(&self.ui.input.value());
 		self.ui.input.clear_changed();
 

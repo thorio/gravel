@@ -24,6 +24,7 @@ pub struct HitUi {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Message {
 	Query,
+	ForceQuery,
 	Confirm,
 	CursorUp,
 	CursorDown,
@@ -47,6 +48,7 @@ impl From<FrontendMessage> for Message {
 			FrontendMessage::Hide => Message::HideWindow,
 			FrontendMessage::ShowWithQuery(query) => Message::ShowWithQuery(query),
 			FrontendMessage::Exit => Message::Exit,
+			FrontendMessage::Refresh => Message::ForceQuery,
 		}
 	}
 }

@@ -48,5 +48,5 @@ fn do_kill(sender: &Sender<FrontendMessage>, pid: Pid) {
 	// We don't care if this fails
 	implementation::kill_process(pid).unwrap_or(());
 
-	sender.send(FrontendMessage::Hide).ok();
+	sender.send(FrontendMessage::Refresh).ok();
 }

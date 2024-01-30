@@ -17,4 +17,5 @@ pub enum FrontendMessage {
 	Hide,
 	ShowWithQuery(String),
 	Exit,
+	Refresh,
 }
