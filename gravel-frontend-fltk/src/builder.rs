@@ -39,10 +39,8 @@ pub fn build(config: &Config) -> Ui {
 	window.show();
 
 	if config.behaviour.start_hidden {
-		window.platform_hide();
-
-		// HACK: hiding the window right after it's created doesn't
-		// work on linux, so wait a bit and then hide it again.
+		// HACK: hiding the window right after it's created doesn't work on linux
+		// and causes high cpu usage on windows, so wait a bit and then hide it.
 		let sender_clone = sender.clone();
 		fltk::app::add_timeout3(0.01, move |_handle| sender_clone.send(Message::HideWindow));
 	}
