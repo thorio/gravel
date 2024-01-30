@@ -3,7 +3,9 @@ use gravel_core::Hit;
 use itertools::Itertools;
 use std::sync::Arc;
 use sysinfo::{Process, System};
+use thiserror::Error;
 use winapi::shared::minwindef::DWORD;
+use winapi::um::errhandlingapi;
 use winapi::um::{handleapi, processthreadsapi, winnt, winnt::HANDLE};
 
 pub type Pid = u32;
@@ -24,7 +26,11 @@ impl Drop for HandleWrapper {
 	}
 }
 
-pub struct CannotKillProcess;
+#[derive(Error, Debug)]
+pub enum KillError {
+	#[error("winapi error: {0}")]
+	NativeError(u32),
+}
 
 pub fn query() -> Result<Vec<Arc<dyn Hit>>> {
 	// TODO: sysinfo crate loads a lot of unnecessary data into memory,
@@ -47,21 +53,27 @@ fn get_hit(pid: &sysinfo::Pid, process: &Process) -> Arc<dyn Hit> {
 	super::get_hit(process.name(), pid.as_u32(), &cmdline)
 }
 
-fn open_process(desired_access: DWORD, pid: Pid) -> Option<HandleWrapper> {
+fn open_process(desired_access: DWORD, pid: Pid) -> Result<HandleWrapper, KillError> {
 	let handle = unsafe { processthreadsapi::OpenProcess(desired_access, 0, pid) };
 
 	if handle == 0 as HANDLE {
-		return None;
+		return Err(get_last_error());
 	}
 
-	Some(HandleWrapper::from(handle))
+	Ok(HandleWrapper::from(handle))
 }
 
-pub fn kill_process(pid: Pid) -> Result<(), CannotKillProcess> {
-	let handle = open_process(winnt::PROCESS_TERMINATE, pid).ok_or(CannotKillProcess)?;
+fn get_last_error() -> KillError {
+	let errno = unsafe { errhandlingapi::GetLastError() };
+
+	KillError::NativeError(errno)
+}
+
+pub fn kill_process(pid: Pid) -> Result<(), KillError> {
+	let handle = open_process(winnt::PROCESS_TERMINATE, pid)?;
 
 	if unsafe { processthreadsapi::TerminateProcess(handle.handle, 1) } != 0 {
-		return Err(CannotKillProcess);
+		return Err(get_last_error());
 	}
 
 	Ok(())

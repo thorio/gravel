@@ -10,6 +10,7 @@ anyhow.workspace = true
 itertools.workspace = true
 log.workspace = true
 serde.workspace = true
+thiserror.workspace = true
 
 [target.'cfg(windows)'.dependencies]
 sysinfo = "0.30.5"
