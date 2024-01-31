@@ -10,6 +10,8 @@ use std::sync::mpsc;
 mod init;
 
 fn main() {
+	color_eyre::install().unwrap();
+
 	let stopwatch = Stopwatch::start();
 	#[cfg(windows)]
 	init::windows_console::attach();

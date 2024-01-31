@@ -4,7 +4,7 @@ version = "0.0.0" # patched by github actions
 edition = "2021"
 description = "cross-platform run launcher"
 readme = "../README.md"
-license = "GPL-3.0"
+license = "GPL-3"
 authors = ["thorou"]
 repository = "https://github.com/thorio/gravel"
 
@@ -68,6 +68,7 @@ gravel-provider-system = { path = "../gravel-provider-system" }
 gravel-provider-websearch = { path = "../gravel-provider-websearch" }
 
 clap = { version = "4.4.12", features = ["derive"] }
+color-eyre = "0.6.2"
 config = "0.13.2"
 lazy_static.workspace = true
 log.workspace = true
