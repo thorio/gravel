@@ -26,6 +26,6 @@ fn get_control_message(hotkey: &HotkeyConfig) -> FrontendMessage {
 		HotkeyAction::ShowHide => FrontendMessage::ShowOrHide,
 		HotkeyAction::Show => FrontendMessage::Show,
 		HotkeyAction::Hide => FrontendMessage::Hide,
-		HotkeyAction::ShowWith => FrontendMessage::ShowWithQuery(hotkey.query.as_deref().unwrap_or("").to_owned()),
+		HotkeyAction::ShowWith(query) => FrontendMessage::ShowWithQuery(query.clone()),
 	}
 }

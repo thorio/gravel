@@ -24,8 +24,8 @@ hotkeys:
 
   ## Shows the frontend and pre-populates with the given query.
   # - binding: M-r
-  #   action: ShowWith
-  #   query: example
+  #   action:
+  #     ShowWith: example
 
 ## Frontend, or UI, to use. This is responsible for the elements you
 ## interact with.

@@ -105,7 +105,6 @@ pub struct RootConfig {
 pub struct HotkeyConfig {
 	pub binding: String,
 	pub action: HotkeyAction,
-	pub query: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
@@ -113,7 +112,7 @@ pub enum HotkeyAction {
 	ShowHide,
 	Show,
 	Hide,
-	ShowWith,
+	ShowWith(String),
 }
 
 #[derive(Debug, Deserialize)]
