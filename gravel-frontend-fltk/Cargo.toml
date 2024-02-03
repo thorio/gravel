@@ -1,12 +1,12 @@
 [package]
 name = "gravel-frontend-fltk"
-version = "0.0.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 
 [dependencies]
 gravel-core = { path = "../gravel-core" }
 
-fltk = { version = "^1.4", features = ["fltk-bundled"] }
+fltk = { workspace = true, features = ["fltk-bundled"] }
 lazy_static.workspace = true
 log.workspace = true
 serde.workspace = true

@@ -4,7 +4,7 @@ script_runner = "sh"
 script = '''
 	sha=$(git rev-parse --short HEAD)
 	tag=$(git describe --tags --abbrev=0 --match 'v*' | sed 's/^v//')
-	sed -i '0,/version/{s/version = ".*"/version = "'$tag+$sha'"/}' gravel/Cargo.toml
+	sed -i '0,/version/{s/version = ".*"/version = "'$tag+$sha'"/}' Cargo.toml
 '''
 
 [tasks.artifact-dropoff]

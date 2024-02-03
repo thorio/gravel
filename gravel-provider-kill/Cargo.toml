@@ -1,7 +1,7 @@
 [package]
 name = "gravel-provider-kill"
-version = "0.0.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 
 [dependencies]
 gravel-core = { path = "../gravel-core" }
@@ -13,9 +13,9 @@ serde.workspace = true
 thiserror.workspace = true
 
 [target.'cfg(windows)'.dependencies]
-sysinfo = "0.30.5"
+sysinfo.workspace = true
 winapi.workspace = true
 
 [target.'cfg(unix)'.dependencies]
-nix = { version = "0.27.1", features = ["process", "signal"] }
-procfs = "0.16.0"
+nix = { workspace = true, features = ["process", "signal"] }
+procfs.workspace = true

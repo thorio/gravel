@@ -1,14 +1,14 @@
 [package]
 name = "gravel-provider-calculator"
-version = "0.0.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 
 [dependencies]
 gravel-core = { path = "../gravel-core" }
 
-arboard = "3.2.1"
+arboard.workspace = true
 log.workspace = true
-mexprp = {version = "0.3.1", default-features = false}
+mexprp.workspace = true
 serde.workspace = true
 
 [dev-dependencies]

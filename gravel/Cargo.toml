@@ -1,7 +1,7 @@
 [package]
 name = "gravel"
-version = "0.0.0-dev" # patched by CI
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 description = "cross-platform run launcher"
 readme = "../README.md"
 license = "GPL-3"
@@ -67,14 +67,14 @@ gravel-provider-program = { path = "../gravel-provider-program" }
 gravel-provider-system = { path = "../gravel-provider-system" }
 gravel-provider-websearch = { path = "../gravel-provider-websearch" }
 
-clap = { version = "4.4.12", features = ["derive"] }
-color-eyre = "0.6.2"
-config = "0.13.2"
+clap = { workspace = true, features = ["derive"] }
+color-eyre.workspace = true
+config.workspace = true
 lazy_static.workspace = true
 log.workspace = true
 shellexpand.workspace = true
-single-instance = "0.3.3"
-stderrlog = "0.5.4"
+single-instance.workspace = true
+stderrlog.workspace = true
 
 [target.'cfg(windows)'.dependencies]
 winapi = { workspace = true, features = ["wincon"] }
