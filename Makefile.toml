@@ -1,0 +1,40 @@
+# NOTE: grep is super old on github actions windows-2022 so don't use it without LC_ALL=en_US.utf8
+[tasks.patch-version]
+script_runner = "sh"
+script = '''
+	sha=$(git rev-parse --short HEAD)
+	tag=$(git describe --tags --abbrev=0 --match 'v*' | sed 's/^v//')
+	sed -i '0,/version/{s/version = ".*"/version = "'$tag+$sha'"/}' gravel/Cargo.toml
+'''
+
+[tasks.artifact-dropoff]
+script_runner = "sh"
+script = "mkdir -p target/artifacts"
+
+[tasks.deb]
+command = "cargo"
+dependencies = ["artifact-dropoff", "patch-version"]
+args = [
+	"deb",
+	"-p", "gravel",
+	"-o", "target/artifacts/gravel-x86_64.deb",
+]
+
+[tasks.build-arch]
+command = "cargo"
+cwd = "gravel"
+dependencies = ["artifact-dropoff", "patch-version"]
+args = ["arch"]
+
+[tasks.arch]
+dependencies = ["build-arch"]
+script = "mv gravel/*.pkg.tar.zst target/artifacts/gravel-x86_64.pkg.tar.zst"
+
+[tasks.build-exe]
+command = "cargo"
+dependencies = ["artifact-dropoff", "patch-version"]
+args = ["build", "--release"]
+
+[tasks.exe]
+dependencies = ["build-exe"]
+script = "mv target/release/gravel.exe target/artifacts/gravel-x86_64.exe"

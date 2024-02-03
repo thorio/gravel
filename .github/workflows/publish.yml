@@ -10,27 +10,25 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: checkout repository
-        uses: actions/checkout@v4
-
       - name: install tools
         run: |
           sudo apt-get install libx11-dev libxext-dev libxft-dev libxinerama-dev libxcursor-dev libxrender-dev libxfixes-dev libpango1.0-dev libgl1-mesa-dev libglu1-mesa-dev libgtk-3-bin xdg-utils -y
-          cargo install cargo-deb
+          cargo install --debug cargo-make
 
-      - name: patch project version
-        run: |
-          tag=$(echo ${{ github.ref }} | grep -Po '(?<=^refs/tags/v).*')
-          version=$tag+${GITHUB_SHA:0:8}
-          sed -i "0,/version/{s/0.0.0/$version/}" gravel/Cargo.toml
-
-      - name: package deb
-        run: cargo deb -p gravel && cp target/debian/gravel*.deb ./gravel-x86_64.deb
-
-      - name: Release
-        uses: softprops/action-gh-release@v1
+      - name: checkout repository
+        uses: actions/checkout@v4
         with:
-          files: gravel-x86_64.deb
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: build and package
+        run: cargo make --no-workspace deb
+
+      - name: upload packages
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file_glob: true
+          file: target/artifacts/*
 
   arch:
     runs-on: ubuntu-22.04
@@ -42,60 +40,53 @@ jobs:
       - name: install packages
         run: pacman -Syu base-devel rustup git sudo libx11 libxext libxft libxinerama libxcursor libxrender libxfixes pango cairo libgl mesa gtk3 xdg-utils --noconfirm
 
-      - name: checkout repository
-        uses: actions/checkout@v4
-
       - name: setup build user
-        run: |
-          useradd builder -m
-          chown -R builder:builder .
+        run: useradd builder -m
 
       - name: install rust tools
         shell: sudo -u builder bash {0}
         run: |
           rustup default stable
-          cargo install cargo-arch
+          cargo install --debug cargo-make
 
-      - name: patch project version
-        run: |
-          tag=$(echo ${{ github.ref }} | grep -Po '(?<=^refs/tags/v).*')
-          version=$tag+${GITHUB_SHA:0:8}
-          sed -i "0,/version/{s/0.0.0/$version/}" gravel/Cargo.toml
-
-      - name: package for arch
-        working-directory: gravel
-        run: |
-          sudo -u builder cargo arch
-          mv *.pkg.tar.zst ../gravel-x86_64.pkg.tar.zst
-
-      - name: Release
-        uses: softprops/action-gh-release@v1
+      - name: checkout repository
+        uses: actions/checkout@v4
         with:
-          files: gravel-x86_64.pkg.tar.zst
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: fix permissions
+        run: chown -R builder:builder .
+
+      - name: build and package
+        shell: sudo -u builder bash {0}
+        run: cargo make --no-workspace arch
+
+      - name: upload packages
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file_glob: true
+          file: target/artifacts/*
 
   windows:
     runs-on: windows-2022
     permissions:
       contents: write
-    env:
-      # because grep 3.0 from 2017 refuses to do anything otherwise
-      LC_ALL: en_US.utf8
     steps:
+      - name: install rust tools
+        run: cargo install --debug cargo-make
+
       - name: checkout repository
         uses: actions/checkout@v4
-
-      - name: patch project version
-        shell: bash
-        run: |
-          tag=$(echo ${{ github.ref }} | grep -Po '(?<=^refs/tags/v).*')
-          version=$tag+${GITHUB_SHA:0:8}
-          sed -i "0,/version/{s/0.0.0/$version/}" gravel/Cargo.toml
-          echo $version
-
-      - name: compile binary
-        run: cargo build --release && cp target/release/gravel.exe ./gravel-x86_64.exe
-
-      - name: Release
-        uses: softprops/action-gh-release@v1
         with:
-          files: gravel-x86_64.exe
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: build and package
+        run: cargo make --no-workspace exe
+
+      - name: upload packages
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file_glob: true
+          file: target/artifacts/*
