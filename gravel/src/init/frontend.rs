@@ -9,16 +9,12 @@ pub fn frontend(registry: &PluginRegistry, engine: QueryEngine, config: &ConfigM
 	let frontend_name = config.root.frontend.alias.as_ref().unwrap_or(plugin_name);
 	log::debug!("initializing frontend '{plugin_name}' with alias '{frontend_name}'");
 
-	let adapter = config.get_plugin_adapter(frontend_name);
-
-	let factory = get_frontend_factory(registry, plugin_name);
-
-	let Some(factory) = factory else {
+	let Some(factory) = get_frontend_factory(registry, plugin_name) else {
 		log::error!("frontend '{plugin_name}' not found, exiting");
 		std::process::exit(1);
 	};
 
-	factory(engine, &adapter)
+	factory(engine, &config.get_frontend_adapter())
 }
 
 fn get_frontend_factory<'a>(registry: &'a PluginRegistry, name: &str) -> Option<&'a FrontendFactory> {

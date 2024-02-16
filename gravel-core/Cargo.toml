@@ -4,8 +4,8 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-config.workspace = true
 enumflags2.workspace = true
+figment.workspace = true
 fuzzy-matcher.workspace = true
 hotkey.workspace = true
 itertools.workspace = true

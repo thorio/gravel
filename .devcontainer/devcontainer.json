@@ -8,6 +8,7 @@
 			"extensions": ["shardulm94.trailing-spaces"]
 		}
 	},
+	"onCreateCommand": "cargo install --debug cargo-make",
 	"workspaceFolder": "/workspaces/gravel",
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/gravel,type=bind",
 	"remoteEnv": {

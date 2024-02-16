@@ -69,7 +69,7 @@ gravel-provider-websearch = { path = "../gravel-provider-websearch" }
 
 clap = { workspace = true, features = ["derive"] }
 color-eyre.workspace = true
-config.workspace = true
+figment = { workspace = true, features = ["yaml"] }
 lazy_static.workspace = true
 log.workspace = true
 shellexpand.workspace = true

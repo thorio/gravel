@@ -10,14 +10,12 @@ pub fn engine(sender: Sender<FrontendMessage>, registry: &PluginRegistry, config
 
 	let mut engine = QueryEngine::new(sender);
 
-	for provider_config in &config.root.providers {
-		// fall back to the plugin name if no alias is configured
+	for (index, provider_config) in config.root.providers.iter().enumerate() {
 		let plugin_name = &provider_config.plugin;
-		let provider_name = provider_config.alias.as_ref().unwrap_or(plugin_name);
 
-		log::debug!("initializing provider '{plugin_name}' with alias '{provider_name}'");
+		log::debug!("initializing provider '{plugin_name}' with index '{index}'");
 
-		let adapter = config.get_plugin_adapter(provider_name);
+		let adapter = config.get_provider_adapter(index);
 		let factory = get_provider_factory(registry, plugin_name);
 
 		let Some(factory) = factory else {

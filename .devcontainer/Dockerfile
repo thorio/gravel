@@ -7,4 +7,3 @@ RUN apt-get update && \
 
 RUN rustup target add x86_64-unknown-linux-gnu x86_64-pc-windows-gnu
 RUN rustup component add rustfmt
-RUN cargo install --debug cargo-make
