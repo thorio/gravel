@@ -2,6 +2,7 @@
 
 use figment::providers::{Format, Yaml};
 use figment::Figment;
+use nameof::name_of;
 use serde::Deserialize;
 
 pub const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../config.yml"));
@@ -24,11 +25,11 @@ impl ConfigManager {
 	}
 
 	pub fn get_provider_adapter(&self, index: usize) -> PluginConfigAdapter {
-		self.get_plugin_adapter(format!("providers.{index}"))
+		self.get_plugin_adapter(format!("{}.{index}", name_of!(providers in RootConfig)))
 	}
 
 	pub fn get_frontend_adapter(&self) -> PluginConfigAdapter {
-		self.get_plugin_adapter("frontend")
+		self.get_plugin_adapter(name_of!(frontend in RootConfig))
 	}
 
 	fn get_plugin_adapter(&self, key: impl Into<Box<str>>) -> PluginConfigAdapter {
