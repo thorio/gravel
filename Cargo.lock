@@ -1069,6 +1069,7 @@ dependencies = [
  "gravel-core",
  "gravel-frontend-fltk",
  "gravel-provider-calculator",
+ "gravel-provider-exec",
  "gravel-provider-kill",
  "gravel-provider-program",
  "gravel-provider-system",
@@ -1120,6 +1121,17 @@ dependencies = [
  "mexprp",
  "rstest",
  "serde",
+]
+
+[[package]]
+name = "gravel-provider-exec"
+version = "0.0.0-dev"
+dependencies = [
+ "anyhow",
+ "gravel-core",
+ "log",
+ "serde",
+ "winapi",
 ]
 
 [[package]]

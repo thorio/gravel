@@ -10,6 +10,7 @@ members = [
 	"gravel-core",
 	"gravel-frontend-fltk",
 	"gravel-provider-calculator",
+	"gravel-provider-exec",
 	"gravel-provider-kill",
 	"gravel-provider-program",
 	"gravel-provider-system",

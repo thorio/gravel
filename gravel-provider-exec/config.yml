@@ -1,0 +1,5 @@
+## Config for gravel's exec provider.
+## Remember to duplicate changes here in gravel's main config.
+
+## Changes the subtitle of the hit. Visual difference only.
+subtitle: Run Command

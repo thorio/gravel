@@ -22,6 +22,7 @@ fn register_builtins(registry: &mut PluginRegistry) {
 
 	gravel_provider_calculator::register_plugins(registry);
 	gravel_provider_kill::register_plugins(registry);
+	gravel_provider_exec::register_plugins(registry);
 	gravel_provider_program::register_plugins(registry);
 	gravel_provider_system::register_plugins(registry);
 	gravel_provider_websearch::register_plugins(registry);

@@ -1,0 +1,14 @@
+[package]
+name = "gravel-provider-exec"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+gravel-core = { path = "../gravel-core" }
+
+anyhow.workspace = true
+log.workspace = true
+serde.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+winapi = { workspace = true, features = ["shellapi"] }

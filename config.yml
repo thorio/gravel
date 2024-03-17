@@ -202,3 +202,14 @@ providers:
     ## with this keyword, then shows only this providers results for any
     ## query that is. You can use it with any provider.
     keyword: kill
+
+  ## Command runner.
+  ## Runs the given command with either sh on Linux,
+  ## or ShellExecute on Windows.
+  - plugin: exec
+    keyword: ">"
+
+    ## https://github.com/thorio/gravel/tree/master/gravel-provider-exec
+    # config:
+    #   ## Changes the subtitle of the hit. Visual difference only.
+    #   subtitle: Run Command
