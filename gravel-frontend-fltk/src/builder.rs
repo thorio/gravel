@@ -60,6 +60,7 @@ fn build_window(config: &Config) -> Window {
 	let mut window = Window::default()
 		.with_size(config.layout.window_width, get_window_height(config, 0))
 		.with_label("Gravel");
+
 	window.set_color(config.colors.background);
 	window.set_border(false);
 
@@ -70,6 +71,7 @@ fn build_input(config: &Config) -> Input {
 	let mut input = Input::default()
 		.with_pos(config.layout.padding, config.layout.padding)
 		.with_size(config.layout.query_width, config.layout.query_height);
+
 	input.set_text_size(config.layout.query_font_size);
 	input.set_frame(FrameType::FlatBox);
 	input.set_color(config.colors.background);
@@ -94,6 +96,7 @@ fn build_hit(i: i32, config: &Config) -> HitUi {
 	let mut group = Group::default()
 		.with_pos(config.layout.padding, y)
 		.with_size(config.layout.hit_width, config.layout.hit_height);
+
 	group.set_color(config.colors.accent);
 	group.set_frame(FrameType::FlatBox);
 
@@ -101,6 +104,7 @@ fn build_hit(i: i32, config: &Config) -> HitUi {
 		.with_pos(config.layout.padding, y)
 		.with_size(config.layout.hit_width, config.layout.hit_title_height)
 		.with_align(Align::BottomLeft | Align::Inside | Align::Clip);
+
 	title.set_label_size(config.layout.hit_title_font_size);
 	title.set_label_color(config.colors.text);
 
@@ -108,6 +112,7 @@ fn build_hit(i: i32, config: &Config) -> HitUi {
 		.with_pos(config.layout.padding, y + config.layout.hit_title_height)
 		.with_size(config.layout.hit_width, config.layout.hit_subtitle_height)
 		.with_align(Align::TopLeft | Align::Inside | Align::Clip);
+
 	subtitle.set_label_size(config.layout.hit_subtitle_font_size);
 	subtitle.set_label_color(config.colors.text);
 
@@ -134,7 +139,7 @@ fn window_unfocus(sender: &Sender<Message>) -> bool {
 /// Handles events on the input.
 fn input_event(event: Event, sender: &Sender<Message>) -> bool {
 	match event {
-		Event::KeyDown => input_keydown(app::event_key(), sender),
+		Event::KeyDown | Event::Paste => input_keydown(app::event_key(), sender),
 		_ => false,
 	}
 }
