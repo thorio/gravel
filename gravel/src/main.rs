@@ -13,6 +13,7 @@ fn main() {
 	color_eyre::install().unwrap();
 
 	let stopwatch = Stopwatch::start();
+
 	#[cfg(windows)]
 	init::windows_console::attach();
 
@@ -20,13 +21,15 @@ fn main() {
 	init::logging(args.verbosity.log_level());
 
 	let config = init::config();
-	let (sender, receiver) = mpsc::channel::<FrontendMessage>();
+
+	init::single_instance(config.root.single_instance.as_deref());
 
 	let registry = init::plugins();
+
+	let (sender, receiver) = mpsc::channel::<FrontendMessage>();
 	let engine = init::engine(sender.clone(), &registry, &config);
 	let mut frontend = init::frontend(&registry, engine, &config);
 
-	init::single_instance(config.root.single_instance.as_deref());
 	init::hotkeys(&config.root.hotkeys, sender);
 
 	log::trace!("initialization complete, took {stopwatch}");
