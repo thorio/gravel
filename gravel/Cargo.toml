@@ -1,6 +1,6 @@
 [package]
 name = "gravel"
-version = "0.0.0-dev" # patched by CI (hack)
+version.workspace = true
 edition.workspace = true
 description = "cross-platform run launcher"
 readme = "../README.md"

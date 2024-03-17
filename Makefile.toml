@@ -5,7 +5,6 @@ script = '''
 	sha=$(git rev-parse --short HEAD)
 	tag=$(git describe --tags --abbrev=0 --match 'v*' | sed 's/^v//')
 	sed -i '0,/version/{s/version = ".*"/version = "'$tag+$sha'"/}' Cargo.toml
-	sed -i '0,/version/{s/version = ".*"/version = "'$tag+$sha'"/}' gravel/Cargo.toml
 '''
 
 [tasks.artifact-dropoff]
@@ -29,7 +28,7 @@ args = ["arch"]
 
 [tasks.arch]
 dependencies = ["build-arch"]
-script = "mv gravel/gravel-0*.pkg.tar.zst target/artifacts/gravel-x86_64.pkg.tar.zst"
+script = "mv gravel/*.pkg.tar.zst target/artifacts/gravel-x86_64.pkg.tar.zst"
 
 [tasks.build-exe]
 command = "cargo"
