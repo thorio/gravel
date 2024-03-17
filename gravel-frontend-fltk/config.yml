@@ -52,4 +52,4 @@ behaviour:
   auto_center_window: true
 
   ## Time in milliseconds after hiding in which show requests should be ignored.
-  window_hide_debounce: 500
+  window_hide_debounce: 200

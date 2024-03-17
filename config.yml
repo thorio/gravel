@@ -84,7 +84,7 @@ frontend:
   #     auto_center_window: true
   #
   #     ## Time in milliseconds after hiding in which show requests should be ignored.
-  #     window_hide_debounce: 500
+  #     window_hide_debounce: 200
 
 ## Providers to use. These are responsible for the results you get.
 ## Providers each yield different sets of results, so if you need more or
