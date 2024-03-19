@@ -8,34 +8,6 @@ license = "GPL-3"
 authors = ["thorou"]
 repository = "https://github.com/thorio/gravel"
 
-[package.metadata.deb]
-maintainer = "thorou <thorou@chirality.de>"
-section = "x11"
-priority = "extra"
-depends = [
-	# FLTK dependencies
-	"libx11-6",
-	"libxinerama1",
-	"libxft2",
-	"libxext6",
-	"libxcursor1",
-	"libxrender1",
-	"libxfixes3",
-	"libcairo2",
-	"libpango-1.0-0",
-	"libpangocairo-1.0-0",
-	"libpangoxft-1.0-0",
-	"libglib2.0-0",
-	"libfontconfig1",
-	"libglu1-mesa",
-	"libgl1",
-	# provider dependencies
-	"coreutils", # env
-	"bash",
-	"libgtk-3-bin", # gtk-launch
-	"xdg-utils", # xdg-open
-]
-
 [dependencies]
 gravel-core = { path = "../gravel-core" }
 gravel-frontend-fltk = { path = "../gravel-frontend-fltk" }

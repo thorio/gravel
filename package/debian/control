@@ -1,0 +1,11 @@
+Package: gravel
+Architecture: amd64
+Version: 0.0.0-dev
+Maintainer: thorou <thorou@chirality.de>
+Section: x11
+Priority: extra
+Depends: libx11-6, libxinerama1, libxft2, libxext6, libxcursor1, libxrender1,
+ libxfixes3, libcairo2, libpango-1.0-0, libpangocairo-1.0-0, libpangoxft-1.0-0,
+ libglib2.0-0, libfontconfig1, libglu1-mesa, libgl1, coreutils,
+ libgtk-3-bin, xdg-utils
+Description: Cross-platform application launcher for Linux and Windows

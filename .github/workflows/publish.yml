@@ -60,7 +60,7 @@ jobs:
         run: chown -R builder:builder .
 
       - name: install dependencies
-        run: source package/PKGBUILD && pacman -S ${depends[@]} --noconfirm
+        run: source package/arch/PKGBUILD && pacman -S ${depends[@]} --noconfirm
 
       - name: build and package
         shell: sudo -u builder bash {0}
