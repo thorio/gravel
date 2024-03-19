@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+TryExec=gravel
+Exec=gravel
+Icon=gravel
+Terminal=false
+Categories=Utility;
+
+Name=Gravel
+GenericName=Run Launcher
+Comment=Launch applications, do math and more

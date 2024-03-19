@@ -4,7 +4,8 @@ script_runner = "sh"
 script = '''
 	sha=$(git rev-parse --short HEAD)
 	tag=$(git describe --tags --abbrev=0 --match 'v*' | sed 's/^v//')
-	sed -i '0,/version/{s/version = ".*"/version = "'$tag+$sha'"/}' Cargo.toml
+	sed -i "s/0.0.0-dev/$tag+$sha/" Cargo.toml
+	sed -i "s/0.0.0_dev/$(echo $tag | sed 's/-/_/g')/" package/PKGBUILD
 '''
 
 [tasks.artifact-dropoff]
@@ -20,15 +21,13 @@ args = [
 	"-o", "target/artifacts/gravel-x86_64.deb",
 ]
 
-[tasks.build-arch]
-command = "cargo"
-cwd = "gravel"
-dependencies = ["artifact-dropoff", "patch-version"]
-args = ["arch"]
-
 [tasks.arch]
-dependencies = ["build-arch"]
-script = "mv gravel/*.pkg.tar.zst target/artifacts/gravel-x86_64.pkg.tar.zst"
+dependencies = ["patch-version", "artifact-dropoff"]
+script = '''
+	cargo build --release
+	(cd package && makepkg -Cf)
+	mv package/*.pkg.tar.zst target/artifacts/gravel-x86_64.pkg.tar.zst
+'''
 
 [tasks.build-exe]
 command = "cargo"

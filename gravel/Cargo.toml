@@ -36,28 +36,6 @@ depends = [
 	"xdg-utils", # xdg-open
 ]
 
-[package.metadata.arch]
-maintainer = "thorou <thorou@chirality.de>"
-depends = [
-	# FLTK dependencies
-	"libx11",
-	"libxext",
-	"libxft",
-	"libxinerama",
-	"libxcursor",
-	"libxrender",
-	"libxfixes",
-	"pango",
-	"cairo",
-	"libgl",
-	"mesa",
-	# provider dependencies
-	"coreutils", # env
-	"bash",
-	"gtk3", # gtk-launch
-	"xdg-utils", # xdg-open
-]
-
 [dependencies]
 gravel-core = { path = "../gravel-core" }
 gravel-frontend-fltk = { path = "../gravel-frontend-fltk" }

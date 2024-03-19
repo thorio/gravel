@@ -38,8 +38,8 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: install packages
-        run: pacman -Syu base-devel rustup git sudo libx11 libxext libxft libxinerama libxcursor libxrender libxfixes pango cairo libgl mesa gtk3 xdg-utils --noconfirm
+      - name: install tools
+        run: pacman -Syu base-devel rustup git sudo --noconfirm
 
       - name: setup build user
         run: useradd builder -m
@@ -58,6 +58,9 @@ jobs:
 
       - name: fix permissions
         run: chown -R builder:builder .
+
+      - name: install dependencies
+        run: source package/PKGBUILD && pacman -S ${depends[@]} --noconfirm
 
       - name: build and package
         shell: sudo -u builder bash {0}

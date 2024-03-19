@@ -1,4 +1,14 @@
 ## Default configuration for gravel
+##
+## Indentation is important! Check https://yaml.org/ if you're unfamiliar.
+##
+## Put this configuration in ~/.config/gravel/config.yml.
+## Ommitted keys are set to sensible defaults, so you only
+## need to keep what you want to change.
+##
+## Additionally, you can add ~/.config/gravel/platform/linux.yml (or windows)
+## to overwrite your normal config with platform-specific changes. Again, you
+## only need to specify what you want to change relative to your main config.
 
 ## Configures the key for single-instance functionality.
 ## Set to null to disable.
