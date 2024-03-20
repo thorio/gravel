@@ -29,11 +29,11 @@ script = '''
 	mv package/arch/*.pkg.tar.zst target/artifacts/gravel-x86_64.pkg.tar.zst
 '''
 
-[tasks.build-exe]
-command = "cargo"
-dependencies = ["artifact-dropoff", "patch-version"]
-args = ["build", "--release"]
-
 [tasks.exe]
-dependencies = ["build-exe"]
-script = "mv target/release/gravel.exe target/artifacts/gravel-x86_64.exe"
+dependencies = ["artifact-dropoff", "patch-version"]
+script_runner = "sh"
+script = '''
+	cargo build --release
+	rcedit target/release/gravel.exe --set-icon package/icons/icon.ico
+	mv target/release/gravel.exe target/artifacts/gravel-x86_64.exe
+'''
