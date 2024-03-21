@@ -89,6 +89,11 @@ impl FltkFrontend {
 	}
 
 	fn hide(&mut self) {
+		if self.config.behaviour.exit_on_hide {
+			self.ui.sender.send(Message::Exit);
+			return;
+		}
+
 		self.ui.window.platform_hide();
 		self.visible = false;
 		self.last_hide_time = SystemTime::now();

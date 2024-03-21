@@ -6,17 +6,24 @@ pub const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR")
 
 /// Reads the [`DeserializedLayoutConfig`] from the adapter and transforms
 /// it to the final [`Config`].
-pub fn get_config(config: &PluginConfigAdapter) -> Config {
-	config.get::<Config>(DEFAULT_CONFIG)
+pub fn get_config(adapter: &PluginConfigAdapter) -> Config {
+	let config = adapter.get::<Config>(DEFAULT_CONFIG);
+
+	if config.behaviour.start_hidden && config.behaviour.exit_on_hide {
+		log::warn!("frontend is configured to both start hidden and hide on exit, that doesn't make sense");
+	}
+
+	config
 }
 
 #[derive(Deserialize, Debug)]
 pub struct Behaviour {
 	pub start_hidden: bool,
 	pub auto_hide: bool,
-	pub show_scores: bool,
-	pub auto_center_window: bool,
+	pub exit_on_hide: bool,
 	pub window_hide_debounce: Option<u64>,
+	pub auto_center_window: bool,
+	pub show_scores: bool,
 }
 
 #[derive(Deserialize, Debug)]

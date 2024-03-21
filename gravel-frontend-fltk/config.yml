@@ -38,18 +38,25 @@ colors:
   text: 0xffffff
 
 behaviour:
+
   ## Whether or not to show the window when starting gravel
-  start_hidden: true
+  start_hidden: false
 
   ## Automatically hides the window when it loses focus.
-  auto_hide: true
+  auto_hide: false
 
-  ## Shows the internal score assigned to each hit,
-  ## useful for debugging purposes.
-  show_scores: false
+  ## Exits the application instead of hiding the window.
+  ## Requires external solution to start gravel when desired.
+  exit_on_hide: false
+
+  ## Time in milliseconds after hiding in which show requests
+  ## should be ignored. This is a workaround for weird behaviour
+  ## in X11 where hotkeys steal focus.
+  window_hide_debounce: 200
 
   ## Automatically centers the window on the screen each time it is shown.
   auto_center_window: true
 
-  ## Time in milliseconds after hiding in which show requests should be ignored.
-  window_hide_debounce: 200
+  ## Shows the internal score assigned to each hit,
+  ## useful for debugging purposes.
+  show_scores: false

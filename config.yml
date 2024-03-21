@@ -83,18 +83,28 @@ frontend:
   #     text: 0xffffff
   #
   #   behaviour:
-  #     ## Automatically hides the window when it loses focus.
-  #     auto_hide: true
   #
-  #     ## Shows the internal score assigned to each hit,
-  #     ## useful for debugging purposes.
-  #     show_scores: false
+  #     ## Whether or not to show the window when starting gravel
+  #     start_hidden: false
+  #
+  #     ## Automatically hides the window when it loses focus.
+  #     auto_hide: false
+  #
+  #     ## Exits the application instead of hiding the window.
+  #     ## Requires external solution to start gravel when desired.
+  #     exit_on_hide: false
+  #
+  #     ## Time in milliseconds after hiding in which show requests
+  #     ## should be ignored. This is a workaround for weird behaviour
+  #     ## in X11 where hotkeys steal focus.
+  #     window_hide_debounce: 200
   #
   #     ## Automatically centers the window on the screen each time it is shown.
   #     auto_center_window: true
   #
-  #     ## Time in milliseconds after hiding in which show requests should be ignored.
-  #     window_hide_debounce: 200
+  #     ## Shows the internal score assigned to each hit,
+  #     ## useful for debugging purposes.
+  #     show_scores: false
 
 ## Providers to use. These are responsible for the results you get.
 ## Providers each yield different sets of results, so if you need more or
