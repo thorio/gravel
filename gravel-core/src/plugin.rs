@@ -52,7 +52,7 @@ pub struct PluginRegistry {
 impl PluginRegistry {
 	/// Registers the plugin.
 	///
-	/// If the plugin is incorrectly defined or another plugin with indentical
+	/// If the plugin is incorrectly defined or another plugin with identical
 	/// name and type is already registered, an error is logged and the plugin
 	/// is skipped.
 	pub fn register(&mut self, plugin: PluginDefinition) -> &mut Self {

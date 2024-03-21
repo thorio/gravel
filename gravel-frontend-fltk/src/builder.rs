@@ -33,7 +33,7 @@ pub fn build(config: &Config) -> Ui {
 		hits.push(build_hit(i, config));
 	}
 
-	let scollbar = build_scrollbar(config);
+	let scrollbar = build_scrollbar(config);
 
 	window.end();
 	window.show();
@@ -49,7 +49,7 @@ pub fn build(config: &Config) -> Ui {
 		window,
 		app,
 		input,
-		scrollbar: scollbar,
+		scrollbar,
 		hits,
 		receiver,
 		sender,

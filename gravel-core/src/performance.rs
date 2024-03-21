@@ -12,8 +12,8 @@ impl Stopwatch {
 
 impl Display for Stopwatch {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		let nanos = self.begin.elapsed().as_micros() as f32;
-		let millis = nanos / 1000.0;
+		let micros = self.begin.elapsed().as_micros() as f32;
+		let millis = micros / 1000.0;
 		write!(f, "{millis}ms")
 	}
 }
