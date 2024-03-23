@@ -26,6 +26,11 @@ impl FltkFrontend {
 	pub fn new(engine: QueryEngine, config: Config) -> Self {
 		let ui = builder::build(&config);
 		let max_view_size = config.layout.max_hits;
+		let visible = !config.behaviour.start_hidden;
+
+		if visible {
+			native::activate_window(&ui.window);
+		}
 
 		Self {
 			config,
@@ -33,7 +38,7 @@ impl FltkFrontend {
 			ui,
 			result: QueryResult::empty(),
 			scroll: Scroll::new(0, max_view_size),
-			visible: false,
+			visible,
 			last_hide_time: UNIX_EPOCH,
 		}
 	}
