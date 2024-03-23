@@ -29,3 +29,6 @@ stderrlog.workspace = true
 
 [target.'cfg(windows)'.dependencies]
 winapi = { workspace = true, features = ["wincon"] }
+
+[target.'cfg(unix)'.dependencies]
+exec.workspace = true

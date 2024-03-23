@@ -7,8 +7,8 @@ edition.workspace = true
 gravel-core = { path = "../gravel-core" }
 
 anyhow.workspace = true
-serde.workspace = true
 log.workspace = true
+serde.workspace = true
 
 [target.'cfg(windows)'.dependencies]
 winapi = { workspace = true, features = ["powrprof"] }

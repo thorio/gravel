@@ -186,6 +186,10 @@ providers:
     #     title: exit
     #     subtitle: Exit gravel
     #
+    #   reload:
+    #     title: reload
+    #     subtitle: Reload gravel
+    #
     #   lock:
     #     title: lock
     #     subtitle: Lock the System

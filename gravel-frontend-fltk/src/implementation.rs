@@ -15,10 +15,10 @@ pub struct FltkFrontend {
 }
 
 impl Frontend for FltkFrontend {
-	fn run(&mut self, receiver: Receiver<FrontendMessage>) {
+	fn run(&mut self, receiver: Receiver<FrontendMessage>) -> FrontendExitStatus {
 		self.handle_frontend_messages(receiver);
 		self.update_window_position();
-		self.run_event_loop();
+		self.run_event_loop()
 	}
 }
 
@@ -39,31 +39,44 @@ impl FltkFrontend {
 	}
 
 	/// Runs the FLTK event loop. Blocks until the app exits.
-	fn run_event_loop(&mut self) {
+	fn run_event_loop(&mut self) -> FrontendExitStatus {
+		let mut exit_status = FrontendExitStatus::Exit;
+
 		while self.ui.app.wait() {
 			let Some(message) = self.ui.receiver.recv() else {
 				continue;
 			};
 
-			match message {
-				Message::Query => self.query(),
-				Message::ForceQuery => self.force_query(),
-				Message::Confirm => self.confirm(),
-				Message::CursorUp => self.cursor_up(),
-				Message::CursorDown => self.cursor_down(),
-				Message::CursorPageUp => self.cursor_page_up(),
-				Message::CursorPageDown => self.cursor_page_down(),
-				Message::CursorTop => self.cursor_top(),
-				Message::CursorBottom => self.cursor_bottom(),
-				Message::ShowWindow => self.show(),
-				Message::Cancel | Message::HideWindow => self.hide(),
-				Message::ShowOrHideWindow => self.show_or_hide(),
-				Message::ShowWithQuery(query) => self.show_with(&query),
-				Message::Exit => self.ui.app.quit(),
+			if let Some(status) = self.handle_message(message) {
+				exit_status = status;
+				self.ui.app.quit();
 			}
 		}
 
 		log::trace!("shutting down frontend");
+		exit_status
+	}
+
+	fn handle_message(&mut self, message: Message) -> Option<FrontendExitStatus> {
+		match message {
+			Message::Query => self.query(),
+			Message::ForceQuery => self.force_query(),
+			Message::Confirm => self.confirm(),
+			Message::CursorUp => self.cursor_up(),
+			Message::CursorDown => self.cursor_down(),
+			Message::CursorPageUp => self.cursor_page_up(),
+			Message::CursorPageDown => self.cursor_page_down(),
+			Message::CursorTop => self.cursor_top(),
+			Message::CursorBottom => self.cursor_bottom(),
+			Message::ShowWindow => self.show(),
+			Message::Cancel | Message::HideWindow => self.hide(),
+			Message::ShowOrHideWindow => self.show_or_hide(),
+			Message::ShowWithQuery(query) => self.show_with(&query),
+			Message::Exit => return Some(FrontendExitStatus::Exit),
+			Message::Restart => return Some(FrontendExitStatus::Restart),
+		};
+
+		None
 	}
 
 	/// Registers a recurring timeout that forwards [`FrontendMessage`]s on

@@ -3,7 +3,7 @@ use std::sync::mpsc::Receiver;
 /// A frontend is a user-interactive interface with which the user can issue
 /// queries and browse and select their results.
 pub trait Frontend {
-	fn run(&mut self, receiver: Receiver<FrontendMessage>);
+	fn run(&mut self, receiver: Receiver<FrontendMessage>) -> FrontendExitStatus;
 }
 
 /// Represents actions the [`Frontend`] should take.
@@ -16,6 +16,13 @@ pub enum FrontendMessage {
 	Show,
 	Hide,
 	ShowWithQuery(String),
-	Exit,
 	Refresh,
+	Exit,
+	Restart,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum FrontendExitStatus {
+	Exit,
+	Restart,
 }

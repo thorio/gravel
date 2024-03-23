@@ -13,5 +13,5 @@ mod provider;
 pub mod scoring;
 
 pub use engine::{QueryEngine, QueryResult};
-pub use frontend::{Frontend, FrontendMessage};
+pub use frontend::{Frontend, FrontendExitStatus, FrontendMessage};
 pub use provider::{Hit, Provider, ProviderResult, SimpleHit};

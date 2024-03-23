@@ -38,6 +38,7 @@ pub enum Message {
 	ShowWithQuery(String),
 	Cancel,
 	Exit,
+	Restart,
 }
 
 impl From<FrontendMessage> for Message {
@@ -47,8 +48,9 @@ impl From<FrontendMessage> for Message {
 			FrontendMessage::Show => Message::ShowWindow,
 			FrontendMessage::Hide => Message::HideWindow,
 			FrontendMessage::ShowWithQuery(query) => Message::ShowWithQuery(query),
-			FrontendMessage::Exit => Message::Exit,
 			FrontendMessage::Refresh => Message::ForceQuery,
+			FrontendMessage::Exit => Message::Exit,
+			FrontendMessage::Restart => Message::Restart,
 		}
 	}
 }
