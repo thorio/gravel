@@ -79,9 +79,9 @@ fn build_input(config: &Config) -> Input {
 	input.set_text_size(config.layout.query_font_size);
 	input.set_frame(FrameType::FlatBox);
 	input.set_color(config.colors.background);
-	input.set_text_color(config.colors.text);
-	input.set_selection_color(config.colors.accent);
-	input.set_cursor_color(config.colors.accent);
+	input.set_text_color(config.colors.query_text);
+	input.set_selection_color(config.colors.query_highlight);
+	input.set_cursor_color(config.colors.query_cursor);
 
 	input
 }
@@ -91,7 +91,7 @@ fn build_scrollbar(config: &Config) -> Scrollbar {
 		.with_pos(config.layout.scrollbar_x, config.layout.scrollbar_y)
 		.with_size(config.layout.scrollbar_width, config.layout.scrollbar_height)
 		.with_padding(config.layout.scrollbar_padding)
-		.with_colors(config.colors.background, config.colors.accent)
+		.with_colors(config.colors.background, config.colors.scrollbar)
 }
 
 fn build_hit(i: i32, config: &Config) -> HitUi {
@@ -101,7 +101,7 @@ fn build_hit(i: i32, config: &Config) -> HitUi {
 		.with_pos(config.layout.padding, y)
 		.with_size(config.layout.hit_width, config.layout.hit_height);
 
-	group.set_color(config.colors.accent);
+	group.set_color(config.colors.hit_highlight);
 	group.set_frame(FrameType::FlatBox);
 
 	let mut title = Frame::default()
@@ -110,7 +110,7 @@ fn build_hit(i: i32, config: &Config) -> HitUi {
 		.with_align(Align::BottomLeft | Align::Inside | Align::Clip);
 
 	title.set_label_size(config.layout.hit_title_font_size);
-	title.set_label_color(config.colors.text);
+	title.set_label_color(config.colors.hit_title);
 
 	let mut subtitle = Frame::default()
 		.with_pos(config.layout.padding, y + config.layout.hit_title_height)
@@ -118,7 +118,7 @@ fn build_hit(i: i32, config: &Config) -> HitUi {
 		.with_align(Align::TopLeft | Align::Inside | Align::Clip);
 
 	subtitle.set_label_size(config.layout.hit_subtitle_font_size);
-	subtitle.set_label_color(config.colors.text);
+	subtitle.set_label_color(config.colors.hit_subtitle);
 
 	group.show();
 	group.end();

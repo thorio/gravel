@@ -53,18 +53,29 @@ pub struct Layout {
 #[derive(Deserialize, Debug)]
 pub struct Config {
 	pub layout: Layout,
-	pub colors: Colors,
+	#[serde(deserialize_with = "deserialize::colors")]
+	pub colors: DetailedColors,
 	pub behaviour: Behaviour,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct Colors {
+pub struct DetailedColors {
 	#[serde(deserialize_with = "deserialize::color")]
 	pub background: Color,
 	#[serde(deserialize_with = "deserialize::color")]
-	pub accent: Color,
+	pub query_text: Color,
 	#[serde(deserialize_with = "deserialize::color")]
-	pub text: Color,
+	pub query_cursor: Color,
+	#[serde(deserialize_with = "deserialize::color")]
+	pub query_highlight: Color,
+	#[serde(deserialize_with = "deserialize::color")]
+	pub hit_title: Color,
+	#[serde(deserialize_with = "deserialize::color")]
+	pub hit_subtitle: Color,
+	#[serde(deserialize_with = "deserialize::color")]
+	pub hit_highlight: Color,
+	#[serde(deserialize_with = "deserialize::color")]
+	pub scrollbar: Color,
 }
 
 pub mod deserialize {
@@ -73,6 +84,51 @@ pub mod deserialize {
 
 	pub fn color<'de, D: Deserializer<'de>>(de: D) -> Result<Color, D::Error> {
 		u32::deserialize(de).map(Color::from_hex)
+	}
+
+	pub fn colors<'de, D: Deserializer<'de>>(de: D) -> Result<super::DetailedColors, D::Error> {
+		ColorVariants::deserialize(de).map(|v| v.into())
+	}
+
+	#[derive(Deserialize, Debug)]
+	#[serde(untagged)]
+	pub enum ColorVariants {
+		SimpleColors(SimpleColors),
+		DetailedColors(super::DetailedColors),
+	}
+
+	#[derive(Deserialize, Debug)]
+	pub struct SimpleColors {
+		#[serde(deserialize_with = "color")]
+		pub background: Color,
+		#[serde(deserialize_with = "color")]
+		pub accent: Color,
+		#[serde(deserialize_with = "color")]
+		pub text: Color,
+	}
+
+	impl From<ColorVariants> for super::DetailedColors {
+		fn from(val: ColorVariants) -> Self {
+			match val {
+				ColorVariants::SimpleColors(colors) => colors.into(),
+				ColorVariants::DetailedColors(colors) => colors,
+			}
+		}
+	}
+
+	impl From<SimpleColors> for super::DetailedColors {
+		fn from(val: SimpleColors) -> Self {
+			super::DetailedColors {
+				background: val.background,
+				query_text: val.text,
+				query_cursor: val.accent,
+				query_highlight: val.accent,
+				hit_title: val.text,
+				hit_subtitle: val.text,
+				hit_highlight: val.accent,
+				scrollbar: val.accent,
+			}
+		}
 	}
 
 	#[derive(Deserialize, Debug)]

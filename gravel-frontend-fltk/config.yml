@@ -27,15 +27,21 @@ layout:
 ## Color configuration. Use the hex color: `0xRRGGBB`.
 ## Google has a color picker if you search for, well, "color picker".
 colors:
-
-  ## Background color of the window.
   background: 0x202020
-
-  ## Text/hit selection and scrollbar color.
   accent: 0xbf6c0d
-
-  ## Color of all text.
   text: 0xffffff
+
+## Alternative representation which is more customizable.
+## Chose *either* block, not both.
+# colors:
+  background: 0x202020
+  query_text: 0xffffff
+  query_cursor: 0xbf6c0d
+  query_highlight: 0xbf6c0d
+  hit_title: 0xffffff
+  hit_subtitle: 0xffffff
+  hit_highlight: 0xbf6c0d
+  scrollbar: 0xbf6c0d
 
 behaviour:
 
