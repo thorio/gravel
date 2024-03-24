@@ -9,6 +9,9 @@
 ## Additionally, you can add ~/.config/gravel/platform/linux.yml (or windows)
 ## to overwrite your normal config with platform-specific changes. Again, you
 ## only need to specify what you want to change relative to your main config.
+##
+## Finally, you can add ~/.config/gravel/host/elster.yml (with your hostname)
+## for host-specific changes. This works like the others, but trumps them.
 
 ## Configures the key for single-instance functionality.
 ## Set to null to disable.

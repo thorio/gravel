@@ -21,6 +21,7 @@ gravel-provider-websearch = { path = "../gravel-provider-websearch" }
 clap = { workspace = true, features = ["derive"] }
 color-eyre.workspace = true
 figment = { workspace = true, features = ["yaml"] }
+hostname.workspace = true
 lazy_static.workspace = true
 log.workspace = true
 shellexpand.workspace = true
