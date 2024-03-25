@@ -31,7 +31,7 @@ fn run() {
 	let args = init::cli();
 	init::logging(args.verbosity.log_level());
 
-	let config = init::config();
+	let config = init::config(args.config_override);
 
 	let single_instance = init::single_instance(config.root.single_instance.as_deref());
 

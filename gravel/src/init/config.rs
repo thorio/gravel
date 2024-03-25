@@ -13,16 +13,16 @@ use std::env::consts;
 ///   `$XDG_CONFIG_HOME/gravel/host/elster.yml`
 ///
 /// Each layer can override the values of the previous layers.
-pub fn config() -> ConfigManager {
+pub fn config(overrides: Vec<(String, String)>) -> ConfigManager {
 	log::trace!("loading config");
 
-	let figment = get_figment();
+	let figment = get_figment(overrides);
 
 	ConfigManager::new(figment)
 }
 
 /// Initializes up the [`ConfigBuilder`] with all sources.
-fn get_figment() -> Figment {
+fn get_figment(overrides: Vec<(String, String)>) -> Figment {
 	let user_config_dir = get_gravel_config_dir();
 	let user_config_path = user_config_dir.join("config.yml");
 	let platform_config_path = user_config_dir.join(format!("platform/{}.yml", consts::OS));
@@ -30,11 +30,18 @@ fn get_figment() -> Figment {
 
 	log::debug!("reading configs from {user_config_path:?}; {platform_config_path:?}; {host_config_path:?}");
 
-	Figment::new()
+	let mut figment = Figment::new()
 		.merge(Yaml::string(DEFAULT_CONFIG))
 		.merge(Yaml::file(user_config_path))
 		.admerge(Yaml::file(platform_config_path))
-		.admerge(Yaml::file(host_config_path))
+		.admerge(Yaml::file(host_config_path));
+
+	// doesn't work right for non-strings or arrays
+	for (key, value) in overrides.into_iter() {
+		figment = figment.merge((key, value));
+	}
+
+	figment
 }
 
 fn get_hostname() -> String {
