@@ -70,7 +70,7 @@ impl Provider for CalculatorProvider {
 		let clipboard = self.get_clipboard();
 
 		let hit = SimpleHit::new(result, self.config.subtitle.clone(), move |h, s| {
-			do_copy(clipboard.clone(), h, s)
+			do_copy(clipboard.clone(), h, s);
 		})
 		.with_score(MAX_SCORE);
 

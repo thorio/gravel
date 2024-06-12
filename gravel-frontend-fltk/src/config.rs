@@ -6,7 +6,7 @@ pub const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR")
 
 /// Reads the [`DeserializedLayoutConfig`] from the adapter and transforms
 /// it to the final [`Config`].
-pub fn get_config(adapter: &PluginConfigAdapter) -> Config {
+pub fn get(adapter: &PluginConfigAdapter) -> Config {
 	let config = adapter.get::<Config>(DEFAULT_CONFIG);
 
 	if config.behaviour.start_hidden && config.behaviour.exit_on_hide {
@@ -87,7 +87,7 @@ pub mod deserialize {
 	}
 
 	pub fn colors<'de, D: Deserializer<'de>>(de: D) -> Result<super::DetailedColors, D::Error> {
-		ColorVariants::deserialize(de).map(|v| v.into())
+		ColorVariants::deserialize(de).map(Into::into)
 	}
 
 	#[derive(Deserialize, Debug)]

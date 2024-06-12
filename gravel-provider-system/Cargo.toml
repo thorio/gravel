@@ -13,3 +13,6 @@ serde.workspace = true
 [target.'cfg(windows)'.dependencies]
 winapi = { workspace = true, features = ["powrprof"] }
 system_shutdown.workspace = true
+
+[lints]
+workspace = true

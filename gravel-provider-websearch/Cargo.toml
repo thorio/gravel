@@ -11,3 +11,6 @@ log.workspace = true
 open.workspace = true
 serde.workspace = true
 urlencoding.workspace = true
+
+[lints]
+workspace = true

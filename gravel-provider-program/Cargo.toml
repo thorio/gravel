@@ -14,3 +14,6 @@ shellexpand.workspace = true
 
 [target.'cfg(unix)'.dependencies]
 freedesktop_entry_parser.workspace = true
+
+[lints]
+workspace = true

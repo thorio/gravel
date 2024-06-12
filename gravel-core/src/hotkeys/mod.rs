@@ -94,7 +94,7 @@ fn init_hotkeys<T: 'static + Clone + Debug>(sender: &Sender<T>, hotkeys: Vec<Hot
 fn convert_modifiers(modifiers: BitFlags<Modifier>) -> u32 {
 	let mut result = 0;
 
-	for modifier in modifiers.iter() {
+	for modifier in modifiers {
 		result |= convert_modifier(modifier);
 	}
 

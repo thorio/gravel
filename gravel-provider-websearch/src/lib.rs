@@ -46,7 +46,7 @@ fn do_search(url_pattern: &str, hit: &SimpleHit, sender: &Sender<FrontendMessage
 
 	log::debug!("opening URL '{url}'");
 	if let Err(err) = open::that(url) {
-		log::error!("unable to open URL: {err}")
+		log::error!("unable to open URL: {err}");
 	}
 
 	sender.send(FrontendMessage::Hide).ok();

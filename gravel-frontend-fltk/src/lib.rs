@@ -1,6 +1,5 @@
 //! gravel's default frontend, based on fltk.
 
-use crate::config::get_config;
 use gravel_core::{config::PluginConfigAdapter, plugin::*, *};
 use implementation::FltkFrontend;
 
@@ -22,5 +21,5 @@ pub fn register_plugins(registry: &mut PluginRegistry) {
 }
 
 fn get_frontend(engine: QueryEngine, config: &PluginConfigAdapter) -> Box<dyn Frontend> {
-	Box::new(FltkFrontend::new(engine, get_config(config)))
+	Box::new(FltkFrontend::new(engine, config::get(config)))
 }

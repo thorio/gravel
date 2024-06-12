@@ -12,3 +12,6 @@ serde.workspace = true
 
 [target.'cfg(windows)'.dependencies]
 winapi = { workspace = true, features = ["shellapi"] }
+
+[lints]
+workspace = true

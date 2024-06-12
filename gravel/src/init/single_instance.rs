@@ -3,9 +3,7 @@ use single_instance::SingleInstance;
 /// Checks for duplicate instances with the given name.
 /// If `name` is [`None`], does nothing.
 pub fn single_instance(name: Option<&str>) -> Option<SingleInstance> {
-	let Some(name) = name else {
-		return None;
-	};
+	let name = name?;
 
 	log::debug!("initializing single-instance with key {name}");
 

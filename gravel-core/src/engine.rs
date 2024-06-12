@@ -88,13 +88,9 @@ impl QueryEngine {
 	/// If one is found, the keyword is stripped from the query and the
 	/// resulting new query is run against that provider only.
 	fn try_keyword_query(&self, query: &str) -> Option<QueryResult> {
-		let Some(first_word) = query.split(' ').next() else {
-			return None;
-		};
+		let first_word = query.split(' ').next()?;
 
-		let Some(provider) = self.check_keywords(first_word) else {
-			return None;
-		};
+		let provider = self.check_keywords(first_word)?;
 
 		// remove the keyword from the query
 		let new_query = &query[first_word.len()..query.len()].trim_start();
