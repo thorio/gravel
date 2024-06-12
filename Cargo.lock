@@ -818,8 +818,8 @@ dependencies = [
 
 [[package]]
 name = "figment"
-version = "0.10.14"
-source = "git+https://github.com/thorio/figment?branch=master#cf267ecb202413a044edb365040b3c653ae20ca7"
+version = "0.10.19"
+source = "git+https://github.com/thorio/figment?branch=master#91826527b08b638dbe26ded49964fc5296a2a3d8"
 dependencies = [
  "atomic",
  "serde",
