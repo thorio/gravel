@@ -29,7 +29,7 @@ fn run() {
 	let executable = env::current_exe().unwrap();
 
 	let args = init::cli();
-	init::logging(args.verbosity.log_level());
+	init::logging(args.verbosity.log_level_filter());
 
 	let config = init::config();
 
