@@ -817,6 +817,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "fern"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d9f0c14694cbd524c8720dd69b0e3179344f04ebb5f90f2e4a440c6ea3b2f1ee"
+dependencies = [
+ "log",
+]
+
+[[package]]
 name = "figment"
 version = "0.10.19"
 source = "git+https://github.com/thorio/figment?branch=master#91826527b08b638dbe26ded49964fc5296a2a3d8"
@@ -826,6 +835,16 @@ dependencies = [
  "serde_yaml",
  "uncased",
  "version_check",
+]
+
+[[package]]
+name = "file-rotate"
+version = "0.7.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a3ed82142801f5b1363f7d463963d114db80f467e860b1cd82228eaebc627a0"
+dependencies = [
+ "chrono",
+ "flate2",
 ]
 
 [[package]]
@@ -1077,11 +1096,15 @@ checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
 name = "gravel"
 version = "0.0.0-dev"
 dependencies = [
+ "anyhow",
+ "chrono",
  "clap",
  "clap-verbosity-flag",
  "color-eyre",
  "exec",
+ "fern",
  "figment",
+ "file-rotate",
  "gravel-core",
  "gravel-frontend-fltk",
  "gravel-provider-calculator",

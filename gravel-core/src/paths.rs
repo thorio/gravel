@@ -20,12 +20,24 @@ pub fn get_gravel_config_dir() -> PathBuf {
 	get_xdg_config_home().join(APP_NAME)
 }
 
+pub fn get_gravel_log_path() -> PathBuf {
+	get_xdg_state_home().join(APP_NAME).join("gravel.log")
+}
+
 fn get_xdg_config_home() -> PathBuf {
 	if let Ok(path) = env::var("XDG_CONFIG_HOME") {
 		return path.into();
 	}
 
 	get_home().join(".config")
+}
+
+fn get_xdg_state_home() -> PathBuf {
+	if let Ok(path) = env::var("XDG_STATE_HOME") {
+		return path.into();
+	}
+
+	get_home().join(".local/state")
 }
 
 pub fn get_xdg_data_dirs() -> Vec<PathBuf> {

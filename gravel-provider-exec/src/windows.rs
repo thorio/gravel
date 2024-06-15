@@ -12,7 +12,7 @@ pub fn run_command(cmd: &str) -> Result<()> {
 }
 
 fn shell_execute(cmd: &str) -> Result<()> {
-	let cmd = CString::new(cmd).unwrap();
+	let cmd = CString::new(cmd)?;
 
 	let result = unsafe {
 		ShellExecuteA(

@@ -4,32 +4,35 @@
 // Without this, windows will open an additional console window for the application
 #![windows_subsystem = "windows"]
 
+use anyhow::{Context, Result};
 use gravel_core::{performance::Stopwatch, *};
 use std::{env, path::Path, sync::mpsc};
 
 mod init;
 
+// unwrap instead of returning a Result so we hit color_eyre's panic handler
+#[allow(clippy::unwrap_used)]
 fn main() {
 	color_eyre::install().unwrap();
 
 	#[cfg(windows)]
 	init::windows_console::attach();
 
-	run();
+	run().unwrap();
 
 	#[cfg(windows)]
 	init::windows_console::detach();
 
-	log::trace!("exiting");
+	log::debug!("exiting");
 }
 
-fn run() {
+fn run() -> Result<()> {
 	let stopwatch = Stopwatch::start();
 
-	let executable = env::current_exe().unwrap();
+	let executable = env::current_exe()?;
 
 	let args = init::cli();
-	init::logging(args.verbosity.log_level_filter());
+	init::logging(args.logging).context("logger error")?;
 
 	let config = init::config();
 
@@ -43,29 +46,31 @@ fn run() {
 
 	init::hotkeys(&config.root.hotkeys, sender);
 
-	log::trace!("initialization complete, took {stopwatch}");
+	log::info!("initialization complete, took {stopwatch}");
 	log::trace!("starting frontend");
 	let exit_status = frontend.run(receiver);
 
 	drop(single_instance);
 
 	match exit_status {
-		FrontendExitStatus::Exit => (),
+		FrontendExitStatus::Exit => Ok(()),
 		FrontendExitStatus::Restart => restart(&executable),
-	};
+	}
 }
 
-fn restart(executable: &Path) {
+fn restart(executable: &Path) -> Result<()> {
 	log::debug!("attempting to restart gravel");
 
 	#[cfg(unix)]
-	panic!("{:?}", exec::execvp(executable, env::args()));
+	anyhow::bail!(exec::execvp(executable, env::args()));
 
 	#[cfg(not(unix))]
 	{
 		// Windows doesn't like the first arg being the binary path
 		let args = env::args().skip(1);
 
-		std::process::Command::new(executable).args(args).spawn().unwrap();
+		std::process::Command::new(executable).args(args).spawn()?;
+
+		Ok(())
 	}
 }
