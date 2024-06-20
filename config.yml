@@ -76,13 +76,6 @@ frontend:
   #   ## Google has a color picker if you search for, well, "color picker".
   #   colors:
   #     background: 0x202020
-  #     accent: 0xbf6c0d
-  #     text: 0xffffff
-  #
-  #   ## Alternative representation which is more customizable.
-  #   ## Chose *either* block, not both.
-  #   # colors:
-  #     background: 0x202020
   #     query_text: 0xffffff
   #     query_cursor: 0xbf6c0d
   #     query_highlight: 0xbf6c0d
