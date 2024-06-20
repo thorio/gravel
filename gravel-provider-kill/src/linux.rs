@@ -1,10 +1,9 @@
-use std::sync::Arc;
-
 use anyhow::Result;
 use gravel_core::Hit;
 use itertools::Itertools;
 use nix::sys::signal::{kill, Signal};
 use procfs::process::Process;
+use std::sync::Arc;
 
 pub type Pid = i32;
 

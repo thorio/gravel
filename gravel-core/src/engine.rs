@@ -1,9 +1,7 @@
-use itertools::Itertools;
-
 use crate::frontend::FrontendMessage;
 use crate::performance::Stopwatch;
-use crate::scoring::ScoredHit;
-use crate::{provider::*, scoring};
+use crate::{scoring, scoring::ScoredHit, Hit, Provider};
+use itertools::Itertools;
 use std::sync::mpsc::Sender;
 
 /// Holds a [`Provider`] and some additional metadata.
@@ -17,6 +15,7 @@ pub struct QueryEngine {
 	sender: Sender<FrontendMessage>,
 }
 
+#[derive(Debug)]
 pub struct QueryResult {
 	pub hits: Vec<ScoredHit>,
 }

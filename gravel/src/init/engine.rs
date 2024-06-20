@@ -1,4 +1,5 @@
-use gravel_core::{config::*, plugin::*, *};
+use gravel_core::plugin::{PluginRegistry, ProviderFactory};
+use gravel_core::{config::ConfigManager, FrontendMessage, QueryEngine};
 use std::sync::mpsc::Sender;
 
 /// Initializes the configured [`Provider`]s and the [`QueryEngine`].
@@ -31,8 +32,5 @@ pub fn engine(sender: Sender<FrontendMessage>, registry: &PluginRegistry, config
 }
 
 fn get_provider_factory<'a>(registry: &'a PluginRegistry, name: &str) -> Option<&'a ProviderFactory> {
-	match &registry.get_plugin(name)?.factory {
-		PluginFactory::Provider(factory) => Some(factory),
-		_ => None,
-	}
+	registry.get(name)?.factory.provider()
 }

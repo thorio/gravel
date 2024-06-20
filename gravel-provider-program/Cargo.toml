@@ -10,10 +10,12 @@ glob.workspace = true
 itertools.workspace = true
 log.workspace = true
 serde.workspace = true
-shellexpand.workspace = true
 
 [target.'cfg(unix)'.dependencies]
 freedesktop_entry_parser.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+shellexpand.workspace = true
 
 [lints]
 workspace = true

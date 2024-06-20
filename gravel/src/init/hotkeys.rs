@@ -1,4 +1,5 @@
-use gravel_core::{config::*, hotkeys::*, *};
+use gravel_core::config::{HotkeyAction, HotkeyConfig};
+use gravel_core::{hotkeys::Listener, FrontendMessage};
 use std::sync::mpsc::Sender;
 
 /// Initializes a hotkey listener on a different thread.

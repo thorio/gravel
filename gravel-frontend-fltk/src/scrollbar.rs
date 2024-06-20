@@ -1,4 +1,5 @@
-use fltk::{enums::*, frame::Frame, prelude::*};
+use fltk::enums::{Color, FrameType};
+use fltk::{frame::Frame, prelude::*};
 
 /// Custom Scrollbar implementation.
 ///

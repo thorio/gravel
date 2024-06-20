@@ -7,7 +7,6 @@ edition.workspace = true
 gravel-core = { path = "../gravel-core" }
 
 fltk = { workspace = true, features = ["fltk-bundled"] }
-lazy_static.workspace = true
 log.workspace = true
 serde.workspace = true
 

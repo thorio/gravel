@@ -3,7 +3,9 @@
 //! Always returns a hit with the minimum score that, when selected,
 //! runs the command with the system shell.
 
-use gravel_core::{config::PluginConfigAdapter, plugin::*, scoring::MIN_SCORE, *};
+use gravel_core::plugin::{plugin, PluginRegistry};
+use gravel_core::{config::PluginConfigAdapter, scoring::MIN_SCORE};
+use gravel_core::{FrontendMessage, Hit, Provider, ProviderResult, SimpleHit};
 use serde::Deserialize;
 use std::sync::{mpsc::Sender, Arc};
 

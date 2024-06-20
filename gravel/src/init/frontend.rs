@@ -1,6 +1,5 @@
-use crate::config::*;
-use gravel_core::plugin::{FrontendFactory, PluginFactory, PluginRegistry};
-use gravel_core::*;
+use gravel_core::plugin::{FrontendFactory, PluginRegistry};
+use gravel_core::{config::ConfigManager, Frontend, QueryEngine};
 
 /// Initializes the configured [`Frontend`].
 pub fn frontend(registry: &PluginRegistry, engine: QueryEngine, config: &ConfigManager) -> Box<dyn Frontend> {
@@ -18,8 +17,5 @@ pub fn frontend(registry: &PluginRegistry, engine: QueryEngine, config: &ConfigM
 }
 
 fn get_frontend_factory<'a>(registry: &'a PluginRegistry, name: &str) -> Option<&'a FrontendFactory> {
-	match &registry.get_plugin(name)?.factory {
-		PluginFactory::Frontend(factory) => Some(factory),
-		_ => None,
-	}
+	registry.get(name)?.factory.frontend()
 }

@@ -1,4 +1,4 @@
-use crate::provider::*;
+use crate::Hit;
 use fuzzy_matcher::skim::SkimMatcherV2;
 use fuzzy_matcher::FuzzyMatcher;
 use itertools::Itertools;
@@ -13,6 +13,7 @@ lazy_static! {
 	static ref MATCHER: SkimMatcherV2 = SkimMatcherV2::default();
 }
 
+#[derive(Debug)]
 pub struct ScoredHit {
 	pub hit: Arc<dyn Hit>,
 	pub score: u32,

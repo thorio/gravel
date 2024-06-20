@@ -27,9 +27,7 @@ fern.workspace = true
 figment = { workspace = true, features = ["yaml"] }
 file-rotate.workspace = true
 hostname.workspace = true
-lazy_static.workspace = true
 log.workspace = true
-shellexpand.workspace = true
 single-instance.workspace = true
 stderrlog.workspace = true
 

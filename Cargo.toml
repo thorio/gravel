@@ -64,9 +64,23 @@ lto = true
 [profile.dev.package.backtrace]
 opt-level = 3
 
+[workspace.lints.rust]
+keyword_idents = "warn"
+non_ascii_idents = "forbid"
+noop_method_call = "warn"
+unused_crate_dependencies = "warn"
+
 [workspace.lints.clippy]
+cognitive_complexity = "warn"
+dbg_macro = "warn"
+empty_structs_with_brackets = "warn"
 explicit_iter_loop = "warn"
+match_wildcard_for_single_variants = "warn"
+print_stderr = "warn"
+print_stdout = "warn"
 question_mark = "warn"
 redundant_closure_for_method_calls = "warn"
 semicolon_if_nothing_returned = "warn"
 unwrap_used = "warn"
+used_underscore_binding = "warn"
+wildcard_imports = "warn"

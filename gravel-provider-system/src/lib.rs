@@ -2,7 +2,9 @@
 //! Provides system commands such as shutdown, log out or exiting gravel.
 
 use anyhow::Result;
-use gravel_core::{config::PluginConfigAdapter, plugin::*, *};
+use gravel_core::config::PluginConfigAdapter;
+use gravel_core::plugin::{plugin, PluginRegistry};
+use gravel_core::{FrontendMessage, Hit, Provider, ProviderResult, SimpleHit};
 use serde::Deserialize;
 use std::{env, sync::Arc};
 

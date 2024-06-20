@@ -1,6 +1,6 @@
 use crate::Config;
 use gravel_core::paths::{get_xdg_data_dirs, get_xdg_data_home};
-use gravel_core::*;
+use gravel_core::{FrontendMessage, SimpleHit};
 use std::iter::once;
 use std::path::Path;
 use std::process::{Command, Stdio};

@@ -13,12 +13,13 @@
 //!
 //! Launches applications using explorer.
 
-use std::{path::PathBuf, sync::Arc};
-
 use glob::{glob, Paths};
-use gravel_core::{config::*, plugin::*, *};
+use gravel_core::config::PluginConfigAdapter;
+use gravel_core::plugin::{plugin, PluginRegistry};
+use gravel_core::{Hit, Provider, ProviderResult};
 use itertools::Itertools;
 use serde::Deserialize;
+use std::{path::PathBuf, sync::Arc};
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
 #[cfg_attr(windows, path = "windows.rs")]

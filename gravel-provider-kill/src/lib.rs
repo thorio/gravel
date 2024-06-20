@@ -1,7 +1,9 @@
 //! gravel's process killer
 //! Lists running processes on your system and will allow you to kill them.
 
-use gravel_core::{config::PluginConfigAdapter, plugin::*, *};
+use gravel_core::config::PluginConfigAdapter;
+use gravel_core::plugin::{plugin, PluginRegistry};
+use gravel_core::{FrontendMessage, Hit, Provider, ProviderResult, SimpleHit};
 use implementation::Pid;
 use std::sync::{mpsc::Sender, Arc};
 
@@ -19,7 +21,7 @@ fn get_provider(_config: &PluginConfigAdapter) -> Box<dyn Provider> {
 	Box::new(KillProvider {})
 }
 
-pub struct KillProvider {}
+pub struct KillProvider;
 
 impl Provider for KillProvider {
 	fn query(&self, _query: &str) -> ProviderResult {

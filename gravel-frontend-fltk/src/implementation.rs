@@ -1,6 +1,9 @@
-use crate::{builder, config::*, native, scroll::Scroll, structs::*};
-use fltk::{enums::*, prelude::*};
-use gravel_core::{scoring::ScoredHit, *};
+use crate::config::Config;
+use crate::structs::{HitUi, Message, Ui};
+use crate::{builder, native, scroll::Scroll};
+use fltk::{enums::FrameType, prelude::*};
+use gravel_core::scoring::ScoredHit;
+use gravel_core::{Frontend, FrontendExitStatus, FrontendMessage, QueryEngine, QueryResult};
 use std::sync::mpsc::Receiver;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 

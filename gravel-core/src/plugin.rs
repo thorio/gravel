@@ -1,4 +1,4 @@
-use crate::{config::PluginConfigAdapter, *};
+use crate::{config::PluginConfigAdapter, Frontend, Provider, QueryEngine};
 use std::collections::HashMap;
 
 pub type ProviderFactory = Box<dyn Fn(&PluginConfigAdapter) -> Box<dyn Provider>>;
@@ -7,6 +7,24 @@ pub type FrontendFactory = Box<dyn Fn(QueryEngine, &PluginConfigAdapter) -> Box<
 pub enum PluginFactory {
 	Provider(ProviderFactory),
 	Frontend(FrontendFactory),
+}
+
+impl PluginFactory {
+	pub fn provider(&self) -> Option<&ProviderFactory> {
+		if let PluginFactory::Provider(factory) = self {
+			return Some(factory);
+		}
+
+		None
+	}
+
+	pub fn frontend(&self) -> Option<&FrontendFactory> {
+		if let PluginFactory::Frontend(factory) = self {
+			return Some(factory);
+		}
+
+		None
+	}
 }
 
 /// Holds metadata about a frontend or provider, as well as
@@ -67,7 +85,7 @@ impl PluginRegistry {
 		self
 	}
 
-	pub fn get_plugin(&self, name: &str) -> Option<&PluginDefinition> {
+	pub fn get(&self, name: &str) -> Option<&PluginDefinition> {
 		self.plugins.get(name)
 	}
 }

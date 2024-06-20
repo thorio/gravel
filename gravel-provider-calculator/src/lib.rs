@@ -6,13 +6,13 @@
 //! Selecting the hit copies the calculated value to the system's clipboard.
 
 use arboard::Clipboard;
-use gravel_core::{config::PluginConfigAdapter, plugin::*, scoring::MAX_SCORE, *};
+use gravel_core::plugin::{plugin, PluginRegistry};
+use gravel_core::{config::PluginConfigAdapter, scoring::MAX_SCORE};
+use gravel_core::{FrontendMessage, Hit, Provider, ProviderResult, SimpleHit};
 use mexprp::Answer;
 use serde::Deserialize;
-use std::{
-	cell::OnceCell,
-	sync::{mpsc::Sender, Arc, Mutex},
-};
+use std::cell::OnceCell;
+use std::sync::{mpsc::Sender, Arc, Mutex};
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 

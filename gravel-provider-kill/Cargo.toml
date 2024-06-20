@@ -9,12 +9,11 @@ gravel-core = { path = "../gravel-core" }
 anyhow.workspace = true
 itertools.workspace = true
 log.workspace = true
-serde.workspace = true
-thiserror.workspace = true
 
 [target.'cfg(windows)'.dependencies]
 sysinfo.workspace = true
 winapi.workspace = true
+thiserror.workspace = true
 
 [target.'cfg(unix)'.dependencies]
 nix = { workspace = true, features = ["process", "signal"] }

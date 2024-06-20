@@ -1,4 +1,6 @@
 use crate::frontend::FrontendMessage;
+use nameof::name_of;
+use std::fmt::{Debug, Formatter, Result};
 use std::sync::{mpsc::Sender, Arc};
 
 /// A provider takes a query and provides some relevant results.
@@ -7,6 +9,7 @@ pub trait Provider {
 }
 
 /// A collection of hits.
+#[derive(Debug)]
 pub struct ProviderResult {
 	pub hits: Vec<Arc<dyn Hit>>,
 }
@@ -33,12 +36,14 @@ impl ProviderResult {
 ///
 /// The hit can be given a score, in which case it will not be further
 /// scored and simply ordered as-is.
-pub trait Hit: Sync + Send {
+pub trait Hit: Sync + Send + Debug {
 	fn get_title(&self) -> &str;
 	fn get_subtitle(&self) -> &str;
 	fn get_override_score(&self) -> Option<u32>;
 	fn action(&self, sender: &Sender<FrontendMessage>);
 }
+
+pub type SimpleHitAction = Box<dyn Fn(&SimpleHit, &Sender<FrontendMessage>) + Send + Sync>;
 
 /// Reference implementation for [`Hit`].
 ///
@@ -48,9 +53,7 @@ pub struct SimpleHit {
 	subtitle: Box<str>,
 	override_score: Option<u32>,
 
-	// I think inlining it is easier to read in this case, due to T.
-	#[allow(clippy::type_complexity)]
-	action_func: Box<dyn Fn(&Self, &Sender<FrontendMessage>) + Send + Sync>,
+	action_func: SimpleHitAction,
 }
 
 impl SimpleHit {
@@ -72,6 +75,16 @@ impl SimpleHit {
 	pub fn with_score(mut self, score: u32) -> Self {
 		self.override_score = Some(score);
 		self
+	}
+}
+
+impl Debug for SimpleHit {
+	fn fmt(&self, fmt: &mut Formatter) -> Result {
+		fmt.debug_struct(name_of!(type SimpleHit))
+			.field(name_of!(title in SimpleHit), &self.title)
+			.field(name_of!(subtitle in SimpleHit), &self.subtitle)
+			.field(name_of!(override_score in SimpleHit), &self.override_score)
+			.finish()
 	}
 }
 

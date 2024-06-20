@@ -1,5 +1,8 @@
-use crate::{config::*, scrollbar::Scrollbar, structs::*};
-use fltk::{app, app::Sender, enums::*, frame::Frame, group::Group, input::Input, prelude::*, window::Window};
+use crate::config::Config;
+use crate::scrollbar::Scrollbar;
+use crate::structs::{HitUi, Message, Ui};
+use fltk::enums::{Align, Event, FrameType, Key};
+use fltk::{app, app::Sender, frame::Frame, group::Group, input::Input, prelude::*, window::Window};
 
 const WINDOW_TITLE: &str = "Gravel";
 const WM_CLASS: &str = "gravel";

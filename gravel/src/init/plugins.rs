@@ -1,4 +1,4 @@
-use gravel_core::plugin::*;
+use gravel_core::plugin::PluginRegistry;
 
 /// Initializes the [`PluginRegistry`] and registers built-in plugins.
 pub fn plugins() -> PluginRegistry {
@@ -11,8 +11,7 @@ pub fn plugins() -> PluginRegistry {
 	registry
 }
 
-#[allow(unused)]
-fn register_externals(registry: &mut PluginRegistry) {
+fn register_externals(_registry: &mut PluginRegistry) {
 	// TODO: load external plugins
 }
 

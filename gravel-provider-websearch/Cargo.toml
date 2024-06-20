@@ -6,7 +6,6 @@ edition.workspace = true
 [dependencies]
 gravel-core = { path = "../gravel-core" }
 
-anyhow.workspace = true
 log.workspace = true
 open.workspace = true
 serde.workspace = true

@@ -1,5 +1,5 @@
 use crate::Config;
-use gravel_core::*;
+use gravel_core::{FrontendMessage, SimpleHit};
 use std::borrow::Cow;
 use std::path::Path;
 use std::process::Command;

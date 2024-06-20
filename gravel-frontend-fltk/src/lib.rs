@@ -1,6 +1,8 @@
 //! gravel's default frontend, based on fltk.
 
-use gravel_core::{config::PluginConfigAdapter, plugin::*, *};
+use gravel_core::config::PluginConfigAdapter;
+use gravel_core::plugin::{plugin, PluginRegistry};
+use gravel_core::{Frontend, QueryEngine};
 use implementation::FltkFrontend;
 
 mod builder;

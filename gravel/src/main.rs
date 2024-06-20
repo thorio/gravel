@@ -5,7 +5,7 @@
 #![windows_subsystem = "windows"]
 
 use anyhow::{Context, Result};
-use gravel_core::{performance::Stopwatch, *};
+use gravel_core::{performance::Stopwatch, FrontendExitStatus, FrontendMessage};
 use std::{env, path::Path, sync::mpsc};
 
 mod init;
