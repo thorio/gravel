@@ -1,23 +1,23 @@
 use anyhow::Result;
 use std::process::Command;
 
-pub(crate) fn lock(command_linux: &str) -> Result<()> {
+pub fn lock(command_linux: &str) -> Result<()> {
 	shell_run(command_linux)
 }
 
-pub(crate) fn logout(command_linux: &str) -> Result<()> {
+pub fn logout(command_linux: &str) -> Result<()> {
 	shell_run(command_linux)
 }
 
-pub(crate) fn restart(command_linux: &str) -> Result<()> {
+pub fn restart(command_linux: &str) -> Result<()> {
 	shell_run(command_linux)
 }
 
-pub(crate) fn shutdown(command_linux: &str) -> Result<()> {
+pub fn shutdown(command_linux: &str) -> Result<()> {
 	shell_run(command_linux)
 }
 
-pub(crate) fn sleep(command_linux: &str) -> Result<()> {
+pub fn sleep(command_linux: &str) -> Result<()> {
 	shell_run(command_linux)
 }
 

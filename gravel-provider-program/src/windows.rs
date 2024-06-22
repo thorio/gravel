@@ -5,14 +5,14 @@ use std::path::Path;
 use std::process::Command;
 use std::sync::mpsc::Sender;
 
-pub(crate) fn get_program_paths(config: &Config) -> Vec<String> {
+pub fn get_program_paths(config: &Config) -> Vec<String> {
 	config.windows.shortcut_paths.iter().filter_map(expand_path).collect()
 }
 
 fn expand_path(path: &String) -> Option<String> {
 	shellexpand::env(path)
 		.map(Cow::into_owned)
-		.map_err(|err| log::error!("couldn't expand shortcut_path '{path}': {err}"))
+		.inspect_err(|err| log::error!("couldn't expand shortcut_path '{path}': {err}"))
 		.ok()
 }
 

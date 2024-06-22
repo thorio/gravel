@@ -1,7 +1,10 @@
+// Needs to be Result to maintain same signature as linux implementation
+#![allow(clippy::unnecessary_wraps)]
+
 use anyhow::Result;
 use winapi::um::{powrprof, winuser};
 
-pub(crate) fn lock(_command_linux: &str) -> Result<()> {
+pub fn lock(_command_linux: &str) -> Result<()> {
 	unsafe {
 		winuser::LockWorkStation();
 	}
@@ -9,22 +12,22 @@ pub(crate) fn lock(_command_linux: &str) -> Result<()> {
 	Ok(())
 }
 
-pub(crate) fn logout(_command_linux: &str) -> Result<()> {
+pub fn logout(_command_linux: &str) -> Result<()> {
 	system_shutdown::logout()?;
 	Ok(())
 }
 
-pub(crate) fn restart(_command_linux: &str) -> Result<()> {
+pub fn restart(_command_linux: &str) -> Result<()> {
 	system_shutdown::reboot()?;
 	Ok(())
 }
 
-pub(crate) fn shutdown(_command_linux: &str) -> Result<()> {
+pub fn shutdown(_command_linux: &str) -> Result<()> {
 	system_shutdown::shutdown()?;
 	Ok(())
 }
 
-pub(crate) fn sleep(_command_linux: &str) -> Result<()> {
+pub fn sleep(_command_linux: &str) -> Result<()> {
 	unsafe {
 		powrprof::SetSuspendState(0, 0, 0);
 	}

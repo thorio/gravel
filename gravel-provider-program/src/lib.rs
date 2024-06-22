@@ -19,7 +19,7 @@ use gravel_core::plugin::{plugin, PluginRegistry};
 use gravel_core::{Hit, Provider, ProviderResult};
 use itertools::Itertools;
 use serde::Deserialize;
-use std::{path::PathBuf, sync::Arc};
+use std::sync::Arc;
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
 #[cfg_attr(windows, path = "windows.rs")]
@@ -33,7 +33,7 @@ pub fn register_plugins(registry: &mut PluginRegistry) {
 	registry.register(definition);
 }
 
-fn get_provider(config_adapter: &PluginConfigAdapter) -> Box<dyn Provider> {
+fn get_provider(config_adapter: &PluginConfigAdapter<'_>) -> Box<dyn Provider> {
 	let config = config_adapter.get::<Config>(DEFAULT_CONFIG);
 
 	let program_paths = implementation::get_program_paths(&config);
@@ -62,18 +62,15 @@ pub(crate) fn get_programs(paths: &[String]) -> Vec<Arc<dyn Hit>> {
 		.flatten()
 		.filter_map(Result::ok)
 		.unique_by(|p| p.file_name().map(ToOwned::to_owned))
-		.filter_map(get_hit)
+		.filter_map(|p| implementation::get_program(&p))
+		.map(|p| Arc::new(p) as _)
 		.collect()
 }
 
 pub fn expand_glob(pattern: &String) -> Option<Paths> {
 	glob(pattern)
-		.map_err(|err| log::error!("couldn't expand glob '{pattern}': {err}"))
+		.inspect_err(|err| log::error!("couldn't expand glob '{pattern}': {err}"))
 		.ok()
-}
-
-fn get_hit(path: PathBuf) -> Option<Arc<dyn Hit>> {
-	Some(Arc::new(implementation::get_program(&path)?))
 }
 
 #[derive(Deserialize, Debug)]

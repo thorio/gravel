@@ -29,11 +29,10 @@ pub fn parse_binding(binding: &str) -> Result<ParsedBinding, ParseError> {
 	let parts = binding.split('-').collect::<Vec<&str>>();
 
 	let key = convert_key(parts.last().expect("vec always contains at least one item"))?;
-	let mut modifiers = BitFlags::empty();
-
-	for part in &parts[0..parts.len() - 1] {
-		modifiers |= convert_modifier(part)?;
-	}
+	let modifiers = parts
+		.iter()
+		.take(parts.len() - 1)
+		.try_fold(BitFlags::empty(), |r, v| convert_modifier(v).map(|m| r | m))?;
 
 	Ok(ParsedBinding { modifiers, key })
 }

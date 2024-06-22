@@ -17,7 +17,7 @@ pub fn register_plugins(registry: &mut PluginRegistry) {
 	registry.register(definition);
 }
 
-fn get_provider(_config: &PluginConfigAdapter) -> Box<dyn Provider> {
+fn get_provider(_config: &PluginConfigAdapter<'_>) -> Box<dyn Provider> {
 	Box::new(KillProvider {})
 }
 
@@ -28,7 +28,7 @@ impl Provider for KillProvider {
 		let hits = match implementation::query() {
 			Ok(hits) => hits,
 			Err(err) => {
-				log::error!("error while querying running processes: {err}");
+				log::error!("couldn't query running processes: {err}");
 				vec![]
 			}
 		};

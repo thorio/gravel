@@ -65,22 +65,32 @@ lto = true
 opt-level = 3
 
 [workspace.lints.rust]
+future_incompatible = "warn"
 keyword_idents = "warn"
 non_ascii_idents = "forbid"
+nonstandard_style = "warn"
 noop_method_call = "warn"
+rust_2018_idioms = "warn"
+single_use_lifetimes = "warn"
 unused_crate_dependencies = "warn"
+unused_lifetimes = "deny"
+unused_qualifications = "warn"
 
 [workspace.lints.clippy]
 cognitive_complexity = "warn"
 dbg_macro = "warn"
 empty_structs_with_brackets = "warn"
+equatable_if_let = "warn"
 explicit_iter_loop = "warn"
 match_wildcard_for_single_variants = "warn"
+or_fun_call = "warn"
 print_stderr = "warn"
 print_stdout = "warn"
 question_mark = "warn"
 redundant_closure_for_method_calls = "warn"
 semicolon_if_nothing_returned = "warn"
+unnecessary_wraps = "warn"
 unwrap_used = "warn"
+use_self = "warn"
 used_underscore_binding = "warn"
 wildcard_imports = "warn"

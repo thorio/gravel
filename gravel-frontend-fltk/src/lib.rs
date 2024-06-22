@@ -3,14 +3,14 @@
 use gravel_core::config::PluginConfigAdapter;
 use gravel_core::plugin::{plugin, PluginRegistry};
 use gravel_core::{Frontend, QueryEngine};
-use implementation::FltkFrontend;
+use ui::FltkFrontend;
 
 mod builder;
 mod config;
-mod implementation;
 mod scroll;
 mod scrollbar;
 mod structs;
+mod ui;
 
 #[cfg_attr(target_os = "linux", path = "native/linux.rs")]
 #[cfg_attr(windows, path = "native/windows.rs")]
@@ -22,6 +22,6 @@ pub fn register_plugins(registry: &mut PluginRegistry) {
 	registry.register(definition);
 }
 
-fn get_frontend(engine: QueryEngine, config: &PluginConfigAdapter) -> Box<dyn Frontend> {
+fn get_frontend(engine: QueryEngine, config: &PluginConfigAdapter<'_>) -> Box<dyn Frontend> {
 	Box::new(FltkFrontend::new(engine, config::get(config)))
 }

@@ -76,11 +76,14 @@ fn init_hotkeys<T: 'static + Clone + Debug>(sender: &Sender<T>, hotkeys: Vec<Hot
 	for hotkey in hotkeys {
 		let sender_clone = sender.clone();
 		let value_clone = hotkey.value.clone();
-		let modifiers = convert_modifiers(hotkey.modifiers);
+		let modifiers = hotkey.modifiers.iter().fold(0, |r, v| r | convert_modifier(v));
 		let key = convert_key(hotkey.key);
 
 		let result = hk.register_hotkey(modifiers, key, move || {
-			sender_clone.send(value_clone.clone()).ok();
+			sender_clone
+				.send(value_clone.clone())
+				.inspect_err(|e| log::error!("couldn't send hotkey action message: {e}"))
+				.ok();
 		});
 
 		if let Err(_error) = result {
@@ -89,16 +92,6 @@ fn init_hotkeys<T: 'static + Clone + Debug>(sender: &Sender<T>, hotkeys: Vec<Hot
 	}
 
 	hk
-}
-
-fn convert_modifiers(modifiers: BitFlags<Modifier>) -> u32 {
-	let mut result = 0;
-
-	for modifier in modifiers {
-		result |= convert_modifier(modifier);
-	}
-
-	result
 }
 
 fn convert_modifier(value: Modifier) -> u32 {

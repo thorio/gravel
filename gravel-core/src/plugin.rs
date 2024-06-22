@@ -1,8 +1,8 @@
 use crate::{config::PluginConfigAdapter, Frontend, Provider, QueryEngine};
 use std::collections::HashMap;
 
-pub type ProviderFactory = Box<dyn Fn(&PluginConfigAdapter) -> Box<dyn Provider>>;
-pub type FrontendFactory = Box<dyn Fn(QueryEngine, &PluginConfigAdapter) -> Box<dyn Frontend>>;
+pub type ProviderFactory = Box<dyn Fn(&PluginConfigAdapter<'_>) -> Box<dyn Provider>>;
+pub type FrontendFactory = Box<dyn Fn(QueryEngine, &PluginConfigAdapter<'_>) -> Box<dyn Frontend>>;
 
 pub enum PluginFactory {
 	Provider(ProviderFactory),
@@ -11,7 +11,7 @@ pub enum PluginFactory {
 
 impl PluginFactory {
 	pub fn provider(&self) -> Option<&ProviderFactory> {
-		if let PluginFactory::Provider(factory) = self {
+		if let Self::Provider(factory) = self {
 			return Some(factory);
 		}
 
@@ -19,7 +19,7 @@ impl PluginFactory {
 	}
 
 	pub fn frontend(&self) -> Option<&FrontendFactory> {
-		if let PluginFactory::Frontend(factory) = self {
+		if let Self::Frontend(factory) = self {
 			return Some(factory);
 		}
 
@@ -85,6 +85,7 @@ impl PluginRegistry {
 		self
 	}
 
+	#[must_use]
 	pub fn get(&self, name: &str) -> Option<&PluginDefinition> {
 		self.plugins.get(name)
 	}

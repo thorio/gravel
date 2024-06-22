@@ -6,7 +6,7 @@ pub const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR")
 
 /// Reads the [`DeserializedLayoutConfig`] from the adapter and transforms
 /// it to the final [`Config`].
-pub fn get(adapter: &PluginConfigAdapter) -> Config {
+pub fn get(adapter: &PluginConfigAdapter<'_>) -> Config {
 	let config = adapter.get::<Config>(DEFAULT_CONFIG);
 
 	if config.behaviour.start_hidden && config.behaviour.exit_on_hide {
@@ -126,7 +126,7 @@ pub mod deserialize {
 			let hit_start_y = padding * 2 + query_height;
 			let window_min_height = query_height + padding * 2;
 
-			super::Layout {
+			Self {
 				max_hits,
 				hit_width,
 				hit_height,

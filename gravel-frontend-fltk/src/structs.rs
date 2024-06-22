@@ -44,13 +44,13 @@ pub enum Message {
 impl From<FrontendMessage> for Message {
 	fn from(message: FrontendMessage) -> Self {
 		match message {
-			FrontendMessage::ShowOrHide => Message::ShowOrHideWindow,
-			FrontendMessage::Show => Message::ShowWindow,
-			FrontendMessage::Hide => Message::HideWindow,
-			FrontendMessage::ShowWithQuery(query) => Message::ShowWithQuery(query),
-			FrontendMessage::Refresh => Message::ForceQuery,
-			FrontendMessage::Exit => Message::Exit,
-			FrontendMessage::Restart => Message::Restart,
+			FrontendMessage::ShowOrHide => Self::ShowOrHideWindow,
+			FrontendMessage::Show => Self::ShowWindow,
+			FrontendMessage::Hide => Self::HideWindow,
+			FrontendMessage::ShowWithQuery(query) => Self::ShowWithQuery(query),
+			FrontendMessage::Refresh => Self::ForceQuery,
+			FrontendMessage::Exit => Self::Exit,
+			FrontendMessage::Restart => Self::Restart,
 		}
 	}
 }

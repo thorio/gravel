@@ -12,6 +12,7 @@ impl Stopwatch {
 
 impl Display for Stopwatch {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		// convert micros -> millis so we get decimal values
 		let micros = self.begin.elapsed().as_micros() as f32;
 		let millis = micros / 1000.0;
 		write!(f, "{millis}ms")

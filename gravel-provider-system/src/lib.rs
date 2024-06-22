@@ -20,7 +20,7 @@ pub fn register_plugins(registry: &mut PluginRegistry) {
 	registry.register(definition);
 }
 
-fn get_provider(config: &PluginConfigAdapter) -> Box<dyn Provider> {
+fn get_provider(config: &PluginConfigAdapter<'_>) -> Box<dyn Provider> {
 	let plugin_config = config.get::<Config>(DEFAULT_CONFIG);
 
 	let provider = WebsearchProvider::new(plugin_config);
@@ -68,7 +68,7 @@ fn get_shell_hit(
 ) -> Arc<SimpleHit> {
 	let hit = SimpleHit::new(config.title, config.subtitle, move |hit, sender| {
 		if let Err(err) = action(&config.command_linux) {
-			log::error!("error during system operation {}: {err}", hit.get_title());
+			log::error!("couldn't perform system operation {}: {err}", hit.get_title());
 		}
 
 		sender.send(FrontendMessage::Hide).ok();

@@ -58,6 +58,7 @@ pub struct SimpleHit {
 
 impl SimpleHit {
 	/// Creates a new instance without extra data.
+	#[must_use]
 	pub fn new(
 		title: impl Into<Box<str>>,
 		subtitle: impl Into<Box<str>>,
@@ -78,13 +79,15 @@ impl SimpleHit {
 	}
 }
 
+// name_of! on types doesn't work with Self
+#[allow(clippy::use_self)]
 impl Debug for SimpleHit {
-	fn fmt(&self, fmt: &mut Formatter) -> Result {
+	fn fmt(&self, fmt: &mut Formatter<'_>) -> Result {
 		fmt.debug_struct(name_of!(type SimpleHit))
-			.field(name_of!(title in SimpleHit), &self.title)
-			.field(name_of!(subtitle in SimpleHit), &self.subtitle)
-			.field(name_of!(override_score in SimpleHit), &self.override_score)
-			.finish()
+			.field(name_of!(title in Self), &self.title)
+			.field(name_of!(subtitle in Self), &self.subtitle)
+			.field(name_of!(override_score in Self), &self.override_score)
+			.finish_non_exhaustive()
 	}
 }
 
@@ -93,14 +96,17 @@ impl Hit for SimpleHit {
 		(self.action_func)(self, sender);
 	}
 
+	#[must_use]
 	fn get_title(&self) -> &str {
 		&self.title
 	}
 
+	#[must_use]
 	fn get_subtitle(&self) -> &str {
 		&self.subtitle
 	}
 
+	#[must_use]
 	fn get_override_score(&self) -> Option<u32> {
 		self.override_score
 	}

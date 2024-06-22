@@ -32,6 +32,8 @@ pub enum KillError {
 	NativeError(u32),
 }
 
+// Needs to be Result to maintain same signature as linux implementation
+#[allow(clippy::unnecessary_wraps)]
 pub fn query() -> Result<Vec<Arc<dyn Hit>>> {
 	// TODO: sysinfo crate loads a lot of unnecessary data into memory,
 	// replace with native calls (or a crate that does streaming)
@@ -41,13 +43,13 @@ pub fn query() -> Result<Vec<Arc<dyn Hit>>> {
 	let hits = sys
 		.processes()
 		.iter()
-		.map(|(pid, process)| get_hit(pid, process))
+		.map(|(pid, process)| get_hit(*pid, process))
 		.collect_vec();
 
 	Ok(hits)
 }
 
-fn get_hit(pid: &sysinfo::Pid, process: &Process) -> Arc<dyn Hit> {
+fn get_hit(pid: sysinfo::Pid, process: &Process) -> Arc<dyn Hit> {
 	let cmdline = process.cmd().join(" ");
 
 	super::get_hit(process.name(), pid.as_u32(), &cmdline)

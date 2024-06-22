@@ -6,7 +6,7 @@ use std::path::Path;
 use std::process::{Command, Stdio};
 use std::sync::mpsc::Sender;
 
-pub(crate) fn get_program_paths(_config: &Config) -> Vec<String> {
+pub fn get_program_paths(_config: &Config) -> Vec<String> {
 	once(get_xdg_data_home())
 		.chain(get_xdg_data_dirs())
 		.map(|mut p| {
@@ -20,10 +20,13 @@ pub(crate) fn get_program_paths(_config: &Config) -> Vec<String> {
 pub fn get_program(path: &Path) -> Option<SimpleHit> {
 	let filename = path.file_name()?.to_str()?;
 
-	let entry = freedesktop_entry_parser::parse_entry(path).ok()?;
+	let entry = freedesktop_entry_parser::parse_entry(path)
+		.inspect_err(|e| log::trace!("couldn't parse desktop entry {path:?}, ignoring: {e}"))
+		.ok()?;
+
 	let section = entry.section("Desktop Entry");
 
-	if let Some("true") = section.attr("NoDisplay") {
+	if section.attr("NoDisplay") == Some("true") {
 		return None;
 	}
 

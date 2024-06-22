@@ -34,10 +34,7 @@ pub fn build(config: &Config) -> Ui {
 	let sender_clone = sender.clone();
 	input.handle(move |_input, event| input_event(event, &sender_clone));
 
-	let mut hits = vec![];
-	for i in 0..config.layout.max_hits {
-		hits.push(build_hit(i, config));
-	}
+	let hits = (0..config.layout.max_hits).map(|i| build_hit(i, config)).collect();
 
 	let scrollbar = build_scrollbar(config);
 
@@ -48,7 +45,7 @@ pub fn build(config: &Config) -> Ui {
 		// HACK: hiding the window right after it's created doesn't work on linux
 		// and causes high cpu usage on windows, so wait a bit and then hide it.
 		let sender_clone = sender.clone();
-		fltk::app::add_timeout3(0.05, move |_handle| sender_clone.send(Message::HideWindow));
+		app::add_timeout3(0.05, move |_handle| sender_clone.send(Message::HideWindow));
 	}
 
 	Ui {

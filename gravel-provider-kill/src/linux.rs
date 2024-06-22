@@ -17,19 +17,20 @@ pub fn kill_process(pid: Pid) -> Result<()> {
 pub fn query() -> Result<Vec<Arc<dyn Hit>>> {
 	let hits = procfs::process::all_processes()?
 		.filter_map(Result::ok)
-		.filter_map(|p| get_hit(&p).ok())
+		.map(get_hit)
+		.filter_map(Result::ok)
 		.collect_vec();
 
 	Ok(hits)
 }
 
-fn get_hit(process: &Process) -> Result<Arc<dyn Hit>> {
+fn get_hit(process: Process) -> Result<Arc<dyn Hit>> {
 	let args = process.cmdline()?;
 	let cmdline = args.join(" ").replace('\n', "\\n");
 	let name = get_cmdline_binary(&args)
-		.or_else(|| get_exe_binary(process))
-		.or_else(|| get_command_name(process))
-		.unwrap_or(String::from("unknown process"));
+		.or_else(|| get_exe_binary(&process))
+		.or_else(|| get_command_name(&process))
+		.unwrap_or_else(|| String::from("unknown process"));
 
 	Ok(super::get_hit(&name, process.pid, &cmdline))
 }
@@ -50,5 +51,5 @@ fn get_exe_binary(process: &Process) -> Option<String> {
 }
 
 fn get_command_name(process: &Process) -> Option<String> {
-	process.stat().ok().map(|s| format!("[{}]", s.comm))
+	process.stat().map(|s| format!("[{}]", s.comm)).ok()
 }

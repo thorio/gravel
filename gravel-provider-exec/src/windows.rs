@@ -8,7 +8,7 @@ use winapi::um::shellapi::ShellExecuteA;
 pub fn run_command(cmd: &str) -> Result<()> {
 	log::debug!("running command with shell_execute '{cmd}'");
 
-	shell_execute(cmd).map_err(|_| anyhow!(""))
+	shell_execute(cmd).map_err(|e| anyhow!("couldn't execute command {cmd} : {e}"))
 }
 
 fn shell_execute(cmd: &str) -> Result<()> {

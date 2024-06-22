@@ -21,6 +21,7 @@ impl Frontend for FltkFrontend {
 	fn run(&mut self, receiver: Receiver<FrontendMessage>) -> FrontendExitStatus {
 		self.handle_frontend_messages(receiver);
 		self.update_window_position();
+
 		self.run_event_loop()
 	}
 }
@@ -48,21 +49,18 @@ impl FltkFrontend {
 
 	/// Runs the FLTK event loop. Blocks until the app exits.
 	fn run_event_loop(&mut self) -> FrontendExitStatus {
-		let mut exit_status = FrontendExitStatus::Exit;
-
 		while self.ui.app.wait() {
 			let Some(message) = self.ui.receiver.recv() else {
 				continue;
 			};
 
 			if let Some(status) = self.handle_message(message) {
-				exit_status = status;
 				self.ui.app.quit();
+				return status;
 			}
 		}
 
-		log::trace!("shutting down frontend");
-		exit_status
+		FrontendExitStatus::Exit
 	}
 
 	fn handle_message(&mut self, message: Message) -> Option<FrontendExitStatus> {

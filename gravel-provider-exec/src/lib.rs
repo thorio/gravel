@@ -21,7 +21,7 @@ pub fn register_plugins(registry: &mut PluginRegistry) {
 	registry.register(definition);
 }
 
-fn get_provider(config_adapter: &PluginConfigAdapter) -> Box<dyn Provider> {
+fn get_provider(config_adapter: &PluginConfigAdapter<'_>) -> Box<dyn Provider> {
 	let config = config_adapter.get::<Config>(DEFAULT_CONFIG);
 
 	let provider = ExecProvider { config };

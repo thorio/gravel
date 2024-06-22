@@ -24,15 +24,15 @@ impl ConfigManager {
 		}
 	}
 
-	pub fn get_provider_adapter(&self, index: usize) -> PluginConfigAdapter {
+	pub fn get_provider_adapter(&self, index: usize) -> PluginConfigAdapter<'_> {
 		self.get_plugin_adapter(format!("{}.{index}", name_of!(providers in RootConfig)))
 	}
 
-	pub fn get_frontend_adapter(&self) -> PluginConfigAdapter {
+	pub fn get_frontend_adapter(&self) -> PluginConfigAdapter<'_> {
 		self.get_plugin_adapter(name_of!(frontend in RootConfig))
 	}
 
-	fn get_plugin_adapter(&self, key: impl Into<Box<str>>) -> PluginConfigAdapter {
+	fn get_plugin_adapter(&self, key: impl Into<Box<str>>) -> PluginConfigAdapter<'_> {
 		PluginConfigAdapter {
 			key: key.into(),
 			figment: &self.figment,
@@ -47,7 +47,7 @@ pub struct PluginConfigAdapter<'a> {
 	figment: &'a Figment,
 }
 
-impl<'a> PluginConfigAdapter<'a> {
+impl PluginConfigAdapter<'_> {
 	/// Build and deserialize the plugin's config into the given type.
 	pub fn get<'de, T: Deserialize<'de>>(&self, default_config: &str) -> T {
 		log::trace!("reading plugin config for {}", self.key);

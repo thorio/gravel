@@ -21,7 +21,7 @@ pub enum FrontendMessage {
 	Restart,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum FrontendExitStatus {
 	Exit,
 	Restart,

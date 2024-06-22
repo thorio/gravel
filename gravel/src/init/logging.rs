@@ -4,7 +4,7 @@ use chrono::Local;
 use fern::{Dispatch, FormatCallback};
 use file_rotate::{compression::Compression, suffix::AppendCount, ContentLimit, FileRotate};
 use gravel_core::paths::get_gravel_log_path;
-use log::{Log, Record};
+use log::{LevelFilter, Log, Record};
 use std::fmt::Arguments;
 use std::io::Write;
 use std::path::Path;
@@ -16,9 +16,9 @@ pub fn logging(args: LogArgs) -> Result<()> {
 		dispatch = chain_stderr(dispatch);
 	}
 
-	let log_path = &args.log_file.unwrap_or(get_gravel_log_path());
-	if !matches!(log_path.to_str(), Some("off")) {
-		dispatch = chain_file(dispatch, log_path)?;
+	let log_path = &args.log_file.unwrap_or_else(get_gravel_log_path);
+	if log_path.to_str() == Some("off") {
+		dispatch = chain_file(dispatch, log_path);
 	}
 
 	dispatch.apply()?;
@@ -30,13 +30,13 @@ pub fn logging(args: LogArgs) -> Result<()> {
 
 fn chain_stderr(dispatch: Dispatch) -> Dispatch {
 	let mut stderrlog = stderrlog::new();
-	stderrlog.verbosity(4);
+	stderrlog.verbosity(LevelFilter::max());
 
 	dispatch.chain(Box::new(stderrlog) as Box<dyn Log>)
 }
 
-fn chain_file(dispatch: Dispatch, path: &Path) -> Result<Dispatch> {
-	fn format_line(out: FormatCallback, message: &Arguments, record: &Record) {
+fn chain_file(dispatch: Dispatch, path: &Path) -> Dispatch {
+	fn format_line(out: FormatCallback<'_>, message: &Arguments<'_>, record: &Record<'_>) {
 		let level = record.level();
 		let target = record.target();
 		let timestamp = Local::now().format("%Y-%m-%dT%H:%M:%S");
@@ -56,5 +56,5 @@ fn chain_file(dispatch: Dispatch, path: &Path) -> Result<Dispatch> {
 		.format(format_line)
 		.chain(Box::new(rotate) as Box<dyn Write + Send>);
 
-	Ok(dispatch.chain(file_dispatch))
+	dispatch.chain(file_dispatch)
 }
