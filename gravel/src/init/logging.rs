@@ -17,7 +17,7 @@ pub fn logging(args: LogArgs) -> Result<()> {
 	}
 
 	let log_path = &args.log_file.unwrap_or_else(get_gravel_log_path);
-	if log_path.to_str() == Some("off") {
+	if log_path.to_str() != Some("off") {
 		dispatch = chain_file(dispatch, log_path);
 	}
 
