@@ -9,6 +9,10 @@ authors = ["thorou"]
 repository = "https://github.com/thorio/gravel"
 
 [dependencies]
+gravel-ffi = { path = "../gravel-ffi" }
+
+abi_stable.workspace = true
+
 gravel-core = { path = "../gravel-core" }
 gravel-frontend-fltk = { path = "../gravel-frontend-fltk" }
 gravel-provider-calculator = { path = "../gravel-provider-calculator" }

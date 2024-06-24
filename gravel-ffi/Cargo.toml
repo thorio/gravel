@@ -1,0 +1,13 @@
+[package]
+name = "gravel-ffi"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+abi_stable.workspace = true
+figment = { workspace = true, features = ["yaml"] }
+log.workspace = true
+serde.workspace = true
+
+[lints]
+workspace = true

@@ -41,7 +41,7 @@ fn get_hostname() -> String {
 	match hostname::get() {
 		Ok(h) => h.to_string_lossy().into_owned(),
 		Err(e) => {
-			log::error!("unable to get hostname, falling back to 'default'. error: {e}");
+			log::warn!("unable to get hostname, falling back to 'default'. error: {e}");
 			String::from("default")
 		}
 	}
