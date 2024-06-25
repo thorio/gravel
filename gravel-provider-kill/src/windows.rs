@@ -74,7 +74,7 @@ fn get_last_error() -> KillError {
 pub fn kill_process(pid: Pid) -> Result<(), KillError> {
 	let handle = open_process(winnt::PROCESS_TERMINATE, pid)?;
 
-	if unsafe { processthreadsapi::TerminateProcess(handle.handle, 1) } != 0 {
+	if unsafe { processthreadsapi::TerminateProcess(handle.handle, 1) } == 0 {
 		return Err(get_last_error());
 	}
 
