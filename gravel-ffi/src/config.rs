@@ -1,6 +1,6 @@
 #![allow(single_use_lifetimes)]
 
-use abi_stable::std_types::RString;
+use abi_stable::std_types::{RString, RVec};
 use abi_stable::StableAbi;
 use figment::providers::{Format, Yaml};
 use figment::Figment;
@@ -9,21 +9,32 @@ use serde::Deserialize;
 #[repr(C)]
 #[derive(StableAbi)]
 pub struct ConfigManager {
-	// TODO information on where to get config files
-	_placeholder: RString,
+	config: RVec<ConfigLayer>,
 }
 
 impl ConfigManager {
-	pub fn new(placeholder: impl Into<RString>) -> Self {
+	pub fn new(placeholder: impl Into<RVec<ConfigLayer>>) -> Self {
 		Self {
-			_placeholder: placeholder.into(),
+			config: placeholder.into(),
 		}
 	}
 
 	// I'd really like to keep the figment and re-use it for plugins,
 	// but unfortunately it can't pass through FFI-boundaries.
 	pub(crate) fn figment(&self) -> Figment {
-		Figment::new()
+		fn fold(figment: Figment, ConfigLayer(source, strategy): &ConfigLayer) -> Figment {
+			let source = match source {
+				ConfigSource::String(s) => Yaml::string(s.as_str()),
+				ConfigSource::File(f) => Yaml::file(f.as_str()),
+			};
+
+			match strategy {
+				MergeStrategy::Merge => figment.merge(source),
+				MergeStrategy::AdMerge => figment.admerge(source),
+			}
+		}
+
+		self.config.iter().fold(Figment::new(), fold)
 	}
 
 	pub fn root<'a, T: Deserialize<'a>>(&self) -> T {
@@ -42,6 +53,24 @@ impl ConfigManager {
 			manager: self,
 		}
 	}
+}
+
+#[repr(C)]
+#[derive(StableAbi)]
+pub struct ConfigLayer(pub ConfigSource, pub MergeStrategy);
+
+#[repr(u8)]
+#[derive(StableAbi)]
+pub enum MergeStrategy {
+	Merge,
+	AdMerge,
+}
+
+#[repr(u8)]
+#[derive(StableAbi)]
+pub enum ConfigSource {
+	String(RString),
+	File(RString),
 }
 
 /// Allows a plugin to deserialize its config without

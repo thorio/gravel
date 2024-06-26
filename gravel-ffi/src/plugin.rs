@@ -4,7 +4,7 @@ use abi_stable::{std_types::RString, StableAbi};
 pub type ProviderFactory = extern "C" fn(&PluginConfigAdapter<'_>) -> BoxDynProvider;
 pub type FrontendFactory = extern "C" fn(BoxDynQueryEngine, &PluginConfigAdapter<'_>) -> BoxDynFrontend;
 
-#[repr(C)]
+#[repr(u8)]
 #[derive(StableAbi)]
 pub enum PluginFactory {
 	Provider(extern "C" fn(&PluginConfigAdapter<'_>) -> BoxDynProvider),

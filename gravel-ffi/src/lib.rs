@@ -12,7 +12,7 @@ mod hit;
 mod plugin;
 mod provider;
 
-pub use config::{ConfigManager, PluginConfigAdapter};
+pub use config::{ConfigLayer, ConfigManager, ConfigSource, MergeStrategy, PluginConfigAdapter};
 pub use engine::{BoxDynQueryEngine, QueryEngine, QueryEngineExt, QueryResult};
 pub use frontend::{BoxDynFrontend, Frontend, FrontendExitStatus, FrontendMessage};
 pub use hit::{ArcDynHit, Hit, HitExt, ScoredHit, SimpleHit};

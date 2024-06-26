@@ -8,7 +8,6 @@ gravel-ffi = { path = "../gravel-ffi" }
 
 abi_stable.workspace = true
 enumflags2.workspace = true
-figment.workspace = true
 fuzzy-matcher.workspace = true
 hotkey.workspace = true
 itertools.workspace = true

@@ -1,9 +1,7 @@
-use abi_stable::std_types::RString;
-use figment::providers::{Format, Yaml};
-use figment::Figment;
+use abi_stable::std_types::{RString, RVec};
 use gravel_core::config::DEFAULT_CONFIG;
 use gravel_core::paths::get_gravel_config_dir;
-use gravel_ffi::ConfigManager;
+use gravel_ffi::{ConfigLayer, ConfigManager, ConfigSource, MergeStrategy};
 use std::env::consts;
 
 /// Reads and deserializes the configuration from multiple sources:
@@ -18,13 +16,11 @@ use std::env::consts;
 pub fn config() -> ConfigManager {
 	log::trace!("loading config");
 
-	let _figment = get_figment();
-
-	ConfigManager::new(RString::from(""))
+	ConfigManager::new(get_sources())
 }
 
 /// Initializes up the [`ConfigBuilder`] with all sources.
-fn get_figment() -> Figment {
+fn get_sources() -> RVec<ConfigLayer> {
 	let user_config_dir = get_gravel_config_dir();
 	let user_config_path = user_config_dir.join("config.yml");
 	let platform_config_path = user_config_dir.join(format!("platform/{}.yml", consts::OS));
@@ -32,11 +28,18 @@ fn get_figment() -> Figment {
 
 	log::debug!("reading configs from {user_config_path:?}; {platform_config_path:?}; {host_config_path:?}");
 
-	Figment::new()
-		.merge(Yaml::string(DEFAULT_CONFIG))
-		.merge(Yaml::file(user_config_path))
-		.admerge(Yaml::file(platform_config_path))
-		.admerge(Yaml::file(host_config_path))
+	let user_config_path = RString::from(user_config_path.to_string_lossy());
+	let platform_config_path = RString::from(platform_config_path.to_string_lossy());
+	let host_config_path = RString::from(host_config_path.to_string_lossy());
+
+	use {ConfigSource as C, MergeStrategy as S};
+	vec![
+		ConfigLayer(C::String(RString::from(DEFAULT_CONFIG)), S::Merge),
+		ConfigLayer(C::File(user_config_path), S::Merge),
+		ConfigLayer(C::File(platform_config_path), S::AdMerge),
+		ConfigLayer(C::File(host_config_path), S::AdMerge),
+	]
+	.into()
 }
 
 fn get_hostname() -> String {

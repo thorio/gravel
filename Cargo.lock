@@ -619,7 +619,6 @@ dependencies = [
  "color-eyre",
  "exec",
  "fern",
- "figment",
  "file-rotate",
  "gravel-core",
  "gravel-ffi",
@@ -636,7 +635,6 @@ version = "0.0.0-dev"
 dependencies = [
  "abi_stable",
  "enumflags2",
- "figment",
  "fuzzy-matcher",
  "gravel-ffi",
  "hotkey",
