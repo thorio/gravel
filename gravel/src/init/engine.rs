@@ -1,23 +1,27 @@
-use gravel_core::plugin::{PluginRegistry, ProviderFactory};
-use gravel_core::{config::ConfigManager, FrontendMessage, QueryEngine};
-use std::sync::mpsc::Sender;
+use abi_stable::external_types::crossbeam_channel::RSender;
+use gravel_core::{
+	config::{RootConfig, PROVIDERS},
+	engine::QueryEngine,
+	plugin::PluginRegistry,
+};
+use gravel_ffi::{ConfigManager, FrontendMessage};
 
 /// Initializes the configured [`Provider`]s and the [`QueryEngine`].
 ///
 /// If a configured provider cannot be found, an error is logged
 /// and the provider is skipped.
-pub fn engine(sender: Sender<FrontendMessage>, registry: &PluginRegistry, config: &ConfigManager) -> QueryEngine {
+pub fn engine(sender: RSender<FrontendMessage>, registry: &PluginRegistry, config: &ConfigManager) -> QueryEngine {
 	log::trace!("initializing query engine");
 
 	let mut engine = QueryEngine::new(sender);
 
-	for (index, provider_config) in config.root.providers.iter().enumerate() {
+	for (index, provider_config) in config.root::<RootConfig>().providers.iter().enumerate() {
 		let plugin_name = &provider_config.plugin;
 
 		log::debug!("initializing provider '{plugin_name}' with index '{index}'");
 
-		let adapter = config.get_provider_adapter(index);
-		let factory = get_provider_factory(registry, plugin_name);
+		let adapter = config.adapt(format!("{PROVIDERS}.{index}"));
+		let factory = registry.get(plugin_name).and_then(|p| p.factory.provider());
 
 		let Some(factory) = factory else {
 			log::warn!("provider '{}' not found, skipping", plugin_name);
@@ -29,8 +33,4 @@ pub fn engine(sender: Sender<FrontendMessage>, registry: &PluginRegistry, config
 	}
 
 	engine
-}
-
-fn get_provider_factory<'a>(registry: &'a PluginRegistry, name: &str) -> Option<&'a ProviderFactory> {
-	registry.get(name)?.factory.provider()
 }

@@ -1,7 +1,9 @@
+use abi_stable::std_types::RString;
 use figment::providers::{Format, Yaml};
 use figment::Figment;
-use gravel_core::config::{ConfigManager, DEFAULT_CONFIG};
+use gravel_core::config::DEFAULT_CONFIG;
 use gravel_core::paths::get_gravel_config_dir;
+use gravel_ffi::ConfigManager;
 use std::env::consts;
 
 /// Reads and deserializes the configuration from multiple sources:
@@ -16,9 +18,9 @@ use std::env::consts;
 pub fn config() -> ConfigManager {
 	log::trace!("loading config");
 
-	let figment = get_figment();
+	let _figment = get_figment();
 
-	ConfigManager::new(figment)
+	ConfigManager::new(RString::from(""))
 }
 
 /// Initializes up the [`ConfigBuilder`] with all sources.

@@ -35,6 +35,12 @@ pub struct ScoredHit {
 	pub score: u32,
 }
 
+impl ScoredHit {
+	pub fn from(hit: ArcDynHit, score: u32) -> Self {
+		Self { hit, score }
+	}
+}
+
 #[repr(C)]
 #[derive(StableAbi, Debug)]
 pub struct SimpleHit {

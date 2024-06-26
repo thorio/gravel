@@ -4,6 +4,9 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
+gravel-ffi = { path = "../gravel-ffi" }
+
+abi_stable.workspace = true
 enumflags2.workspace = true
 figment.workspace = true
 fuzzy-matcher.workspace = true

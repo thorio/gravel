@@ -13,9 +13,9 @@ mod plugin;
 mod provider;
 
 pub use config::{ConfigManager, PluginConfigAdapter};
-pub use engine::{BoxDynQueryEngine, QueryEngine, QueryResult};
+pub use engine::{BoxDynQueryEngine, QueryEngine, QueryEngineExt, QueryResult};
 pub use frontend::{BoxDynFrontend, Frontend, FrontendExitStatus, FrontendMessage};
-pub use hit::{ArcDynHit, Hit, HitExt, SimpleHit};
+pub use hit::{ArcDynHit, Hit, HitExt, ScoredHit, SimpleHit};
 pub use plugin::{plugin, PluginDefinition};
 pub use provider::{BoxDynProvider, Provider, ProviderExt, ProviderResult};
 

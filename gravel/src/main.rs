@@ -4,9 +4,11 @@
 // Without this, windows will open an additional console window for the application
 #![windows_subsystem = "windows"]
 
+use abi_stable::external_types::crossbeam_channel;
 use anyhow::{Context, Result};
-use gravel_core::{performance::Stopwatch, FrontendExitStatus, FrontendMessage};
-use std::{env, path::Path, sync::mpsc};
+use gravel_core::{config::RootConfig, performance::Stopwatch};
+use gravel_ffi::{FrontendExitStatus, FrontendMessage};
+use std::{env, path::Path};
 
 mod init;
 
@@ -36,15 +38,15 @@ fn run() -> Result<()> {
 
 	let config = init::config();
 
-	let single_instance = init::single_instance(config.root.single_instance.as_deref());
+	let single_instance = init::single_instance(config.root::<RootConfig>().single_instance.as_deref());
 
 	let registry = init::plugins();
 
-	let (sender, receiver) = mpsc::channel::<FrontendMessage>();
+	let (sender, receiver) = crossbeam_channel::bounded::<FrontendMessage>(8);
 	let engine = init::engine(sender.clone(), &registry, &config);
 	let mut frontend = init::frontend(&registry, engine, &config);
 
-	init::hotkeys(&config.root.hotkeys, sender);
+	init::hotkeys(&config.root::<RootConfig>().hotkeys, sender);
 
 	log::info!("initialization complete, took {stopwatch}");
 	log::trace!("starting frontend");

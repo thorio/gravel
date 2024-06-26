@@ -1,58 +1,28 @@
-use crate::frontend::FrontendMessage;
 use crate::performance::Stopwatch;
-use crate::{scoring, scoring::ScoredHit, Hit, Provider};
+use crate::scoring;
+use abi_stable::{external_types::crossbeam_channel::RSender, std_types::RStr, traits::IntoReprRust};
+use gravel_ffi::{ArcDynHit, BoxDynProvider, FrontendMessage, QueryResult};
 use itertools::Itertools;
-use std::sync::mpsc::Sender;
 
 /// Holds a [`Provider`] and some additional metadata.
 struct ProviderInfo {
-	pub provider: Box<dyn Provider>,
+	pub provider: BoxDynProvider,
 	pub keyword: Option<String>,
 }
 
 pub struct QueryEngine {
 	providers: Vec<ProviderInfo>,
-	sender: Sender<FrontendMessage>,
+	sender: RSender<FrontendMessage>,
 }
 
-#[derive(Debug)]
-pub struct QueryResult {
-	pub hits: Vec<ScoredHit>,
-}
-
-impl QueryResult {
-	pub fn new(hits: Vec<ScoredHit>) -> Self {
-		Self { hits }
-	}
-
-	pub fn empty() -> Self {
-		Self::new(vec![])
-	}
-}
-
-/// Aggregates and scores hits from the given [`Provider`]s.
-impl QueryEngine {
-	pub fn new(sender: Sender<FrontendMessage>) -> Self {
-		Self {
-			providers: vec![],
-			sender,
-		}
-	}
-
-	/// Adds the provider to the engine's collection.
-	pub fn register(&mut self, provider: Box<dyn Provider>, keyword: Option<String>) -> &mut Self {
-		let info = ProviderInfo { provider, keyword };
-
-		self.providers.push(info);
-		self
-	}
-
-	/// Queries all providers with the given query.
-	pub fn query(&self, query: &str) -> QueryResult {
+impl gravel_ffi::QueryEngine for QueryEngine {
+	fn query(&self, query: RStr<'_>) -> QueryResult where {
 		let stopwatch = Stopwatch::start();
 
+		let query = query.into_rust();
+
 		if query.trim().is_empty() {
-			return QueryResult { hits: vec![] };
+			return QueryResult::empty();
 		}
 
 		log::trace!("starting query '{query}'");
@@ -68,8 +38,26 @@ impl QueryEngine {
 		result
 	}
 
-	pub fn run_hit_action(&self, hit: &dyn Hit) {
+	fn run_hit_action(&self, hit: ArcDynHit) {
 		hit.action(&self.sender);
+	}
+}
+
+/// Aggregates and scores hits from the given [`Provider`]s.
+impl QueryEngine {
+	pub fn new(sender: RSender<FrontendMessage>) -> Self {
+		Self {
+			providers: vec![],
+			sender,
+		}
+	}
+
+	/// Adds the provider to the engine's collection.
+	pub fn register(&mut self, provider: BoxDynProvider, keyword: Option<String>) -> &mut Self {
+		let info = ProviderInfo { provider, keyword };
+
+		self.providers.push(info);
+		self
 	}
 
 	/// Runs the query against all available providers.
@@ -109,7 +97,7 @@ impl QueryEngine {
 fn inner_query(providers: &[&ProviderInfo], query: &str) -> QueryResult {
 	let hits = providers
 		.iter()
-		.flat_map(|p| p.provider.query(query).hits)
+		.flat_map(|p| p.provider.query(query.into()).hits)
 		.collect_vec();
 
 	let hits = match query.trim() {
@@ -117,5 +105,5 @@ fn inner_query(providers: &[&ProviderInfo], query: &str) -> QueryResult {
 		_ => scoring::get_scored_hits(hits, query),
 	};
 
-	QueryResult { hits }
+	QueryResult::new(hits)
 }

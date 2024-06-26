@@ -1,10 +1,12 @@
+use abi_stable::external_types::crossbeam_channel::RSender;
+use abi_stable::std_types::RString;
 use gravel_core::config::{HotkeyAction, HotkeyConfig};
-use gravel_core::{hotkeys::Listener, FrontendMessage};
-use std::sync::mpsc::Sender;
+use gravel_core::hotkeys::Listener;
+use gravel_ffi::FrontendMessage;
 
 /// Initializes a hotkey listener on a different thread.
 /// See [`Listener`].
-pub fn hotkeys(hotkeys: &[HotkeyConfig], sender: Sender<FrontendMessage>) {
+pub fn hotkeys(hotkeys: &[HotkeyConfig], sender: RSender<FrontendMessage>) {
 	log::trace!("initializing hotkeys");
 
 	let mut listener = Listener::<FrontendMessage>::default();
@@ -27,6 +29,6 @@ fn get_control_message(hotkey: &HotkeyConfig) -> FrontendMessage {
 		HotkeyAction::ShowHide => FrontendMessage::ShowOrHide,
 		HotkeyAction::Show => FrontendMessage::Show,
 		HotkeyAction::Hide => FrontendMessage::Hide,
-		HotkeyAction::ShowWith(query) => FrontendMessage::ShowWithQuery(query.clone()),
+		HotkeyAction::ShowWith(query) => FrontendMessage::ShowWithQuery(RString::from(query.as_str())),
 	}
 }

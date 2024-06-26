@@ -1,6 +1,6 @@
+use abi_stable::external_types::crossbeam_channel::RSender;
 use enumflags2::BitFlags;
 use std::fmt::Debug;
-use std::sync::mpsc::Sender;
 
 pub use self::{parsing::ParseError, structs::*};
 
@@ -48,7 +48,7 @@ impl<T: 'static + Send + Clone + Debug> Listener<T> {
 	}
 
 	/// Spawns the listener with the registered hotkeys.
-	pub fn spawn_listener(&mut self, sender: Sender<T>) -> &mut Self {
+	pub fn spawn_listener(&mut self, sender: RSender<T>) -> &mut Self {
 		let hotkeys = self.hotkeys.clone();
 
 		// run the listener on another thread to avoid blocking the current one
@@ -70,7 +70,7 @@ impl<T: 'static + Send + Clone + Debug> Default for Listener<T> {
 /// Registers the given hotkeys with a new [`hotkey::Listener`] and returns it.
 ///
 /// If a hotkey cannot be registered, a warning is logged and the hotkey is skipped.
-fn init_hotkeys<T: 'static + Clone + Debug>(sender: &Sender<T>, hotkeys: Vec<Hotkey<T>>) -> hotkey::Listener {
+fn init_hotkeys<T: 'static + Clone + Debug>(sender: &RSender<T>, hotkeys: Vec<Hotkey<T>>) -> hotkey::Listener {
 	let mut hk = hotkey::Listener::new();
 
 	for hotkey in hotkeys {
