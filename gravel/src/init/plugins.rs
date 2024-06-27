@@ -16,8 +16,8 @@ fn register_externals(_registry: &mut PluginRegistry) {
 }
 
 /// Registers plugins directly compiled into the binary.
-fn register_builtins(_registry: &mut PluginRegistry) {
-	// gravel_frontend_fltk::register_plugins(registry);
+fn register_builtins(registry: &mut PluginRegistry) {
+	registry.register(gravel_frontend_fltk::get_plugin());
 
 	// gravel_provider_calculator::register_plugins(registry);
 	// gravel_provider_kill::register_plugins(registry);

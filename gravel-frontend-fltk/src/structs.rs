@@ -1,6 +1,6 @@
 use crate::scrollbar::Scrollbar;
 use fltk::{app::App, app::Receiver, app::Sender, frame::Frame, group::Group, input::Input, window::Window};
-use gravel_core::FrontendMessage;
+use gravel_ffi::FrontendMessage;
 
 /// Holds all necessary elements of the FLTK app.
 pub struct Ui {
@@ -9,8 +9,8 @@ pub struct Ui {
 	pub input: Input,
 	pub scrollbar: Scrollbar,
 	pub hits: Vec<HitUi>,
-	pub receiver: Receiver<Message>,
-	pub sender: Sender<Message>,
+	pub receiver: Receiver<Event>,
+	pub sender: Sender<Event>,
 }
 
 /// Holds UI elements for displaying a single hit.
@@ -22,7 +22,7 @@ pub struct HitUi {
 
 /// Represents Actions the UI should carry out.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Message {
+pub enum Event {
 	Query,
 	ForceQuery,
 	Confirm,
@@ -41,16 +41,17 @@ pub enum Message {
 	Restart,
 }
 
-impl From<FrontendMessage> for Message {
+impl From<FrontendMessage> for Event {
 	fn from(message: FrontendMessage) -> Self {
+		use FrontendMessage as M;
 		match message {
-			FrontendMessage::ShowOrHide => Self::ShowOrHideWindow,
-			FrontendMessage::Show => Self::ShowWindow,
-			FrontendMessage::Hide => Self::HideWindow,
-			FrontendMessage::ShowWithQuery(query) => Self::ShowWithQuery(query),
-			FrontendMessage::Refresh => Self::ForceQuery,
-			FrontendMessage::Exit => Self::Exit,
-			FrontendMessage::Restart => Self::Restart,
+			M::ShowOrHide => Self::ShowOrHideWindow,
+			M::Show => Self::ShowWindow,
+			M::Hide => Self::HideWindow,
+			M::ShowWithQuery(query) => Self::ShowWithQuery(query.into()),
+			M::Refresh => Self::ForceQuery,
+			M::Exit => Self::Exit,
+			M::Restart => Self::Restart,
 		}
 	}
 }

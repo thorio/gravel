@@ -3,6 +3,18 @@ use abi_stable::{external_types::crossbeam_channel::RReceiver, sabi_trait, Stabl
 
 pub type BoxDynFrontend = Frontend_TO<'static, RBox<()>>;
 
+// can't implement From<T> because Provider_TO is generated into a different module
+pub trait FrontendExt: Frontend + 'static {
+	fn into_dyn(self) -> BoxDynFrontend
+	where
+		Self: Sized,
+	{
+		BoxDynFrontend::from_value(self, sabi_trait::TD_Opaque)
+	}
+}
+
+impl<T: Frontend + 'static> FrontendExt for T {}
+
 #[sabi_trait]
 pub trait Frontend {
 	fn run(&mut self, receiver: RReceiver<FrontendMessage>) -> FrontendExitStatus;

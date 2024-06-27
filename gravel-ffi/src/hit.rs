@@ -8,7 +8,7 @@ use std::fmt::Debug;
 
 pub type ArcDynHit = Hit_TO<'static, RArc<()>>;
 
-// can't implement From<T> because Hit_TO is generated into a different module
+// can't implement directly because Hit_TO is generated into a different module
 pub trait HitExt: Hit + 'static {
 	fn into_dyn(self) -> ArcDynHit
 	where
@@ -19,6 +19,17 @@ pub trait HitExt: Hit + 'static {
 }
 
 impl<T: Hit + 'static> HitExt for T {}
+
+// can't implement directly because Hit_TO is generated into a different module
+pub trait CloneHit {
+	fn clone(&self) -> ArcDynHit;
+}
+
+impl CloneHit for ArcDynHit {
+	fn clone(&self) -> ArcDynHit {
+		Self::from_sabi(self.obj.shallow_clone())
+	}
+}
 
 #[sabi_trait]
 pub trait Hit: Sync + Send + Debug {

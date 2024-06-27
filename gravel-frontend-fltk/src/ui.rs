@@ -1,16 +1,16 @@
 use crate::config::Config;
-use crate::structs::{HitUi, Message, Ui};
+use crate::structs::{Event, HitUi, Ui};
 use crate::{builder, native, scroll::Scroll};
+use abi_stable::external_types::crossbeam_channel::RReceiver;
+use abi_stable::std_types::RStr;
 use fltk::{enums::FrameType, prelude::*};
-use gravel_core::scoring::ScoredHit;
-use gravel_core::{Frontend, FrontendExitStatus, FrontendMessage, QueryEngine, QueryResult};
-use std::sync::mpsc::Receiver;
+use gravel_ffi::{BoxDynQueryEngine, Frontend, FrontendExitStatus, FrontendMessage, QueryResult, ScoredHit};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 pub struct FltkFrontend {
 	config: Config,
 	ui: Ui,
-	engine: QueryEngine,
+	engine: BoxDynQueryEngine,
 	result: QueryResult,
 	scroll: Scroll,
 	visible: bool,
@@ -18,7 +18,7 @@ pub struct FltkFrontend {
 }
 
 impl Frontend for FltkFrontend {
-	fn run(&mut self, receiver: Receiver<FrontendMessage>) -> FrontendExitStatus {
+	fn run(&mut self, receiver: RReceiver<FrontendMessage>) -> FrontendExitStatus {
 		self.handle_frontend_messages(receiver);
 		self.update_window_position();
 
@@ -27,7 +27,7 @@ impl Frontend for FltkFrontend {
 }
 
 impl FltkFrontend {
-	pub fn new(engine: QueryEngine, config: Config) -> Self {
+	pub fn new(engine: BoxDynQueryEngine, config: Config) -> Self {
 		let ui = builder::build(&config);
 		let max_view_size = config.layout.max_hits;
 		let visible = !config.behaviour.start_hidden;
@@ -63,23 +63,23 @@ impl FltkFrontend {
 		FrontendExitStatus::Exit
 	}
 
-	fn handle_message(&mut self, message: Message) -> Option<FrontendExitStatus> {
+	fn handle_message(&mut self, message: Event) -> Option<FrontendExitStatus> {
 		match message {
-			Message::Query => self.query(),
-			Message::ForceQuery => self.force_query(),
-			Message::Confirm => self.confirm(),
-			Message::CursorUp => self.cursor_up(),
-			Message::CursorDown => self.cursor_down(),
-			Message::CursorPageUp => self.cursor_page_up(),
-			Message::CursorPageDown => self.cursor_page_down(),
-			Message::CursorTop => self.cursor_top(),
-			Message::CursorBottom => self.cursor_bottom(),
-			Message::ShowWindow => self.show(),
-			Message::Cancel | Message::HideWindow => self.hide(),
-			Message::ShowOrHideWindow => self.show_or_hide(),
-			Message::ShowWithQuery(query) => self.show_with(&query),
-			Message::Exit => return Some(FrontendExitStatus::Exit),
-			Message::Restart => return Some(FrontendExitStatus::Restart),
+			Event::Query => self.query(),
+			Event::ForceQuery => self.force_query(),
+			Event::Confirm => self.confirm(),
+			Event::CursorUp => self.cursor_up(),
+			Event::CursorDown => self.cursor_down(),
+			Event::CursorPageUp => self.cursor_page_up(),
+			Event::CursorPageDown => self.cursor_page_down(),
+			Event::CursorTop => self.cursor_top(),
+			Event::CursorBottom => self.cursor_bottom(),
+			Event::ShowWindow => self.show(),
+			Event::Cancel | Event::HideWindow => self.hide(),
+			Event::ShowOrHideWindow => self.show_or_hide(),
+			Event::ShowWithQuery(query) => self.show_with(&query),
+			Event::Exit => return Some(FrontendExitStatus::Exit),
+			Event::Restart => return Some(FrontendExitStatus::Restart),
 		};
 
 		None
@@ -87,7 +87,7 @@ impl FltkFrontend {
 
 	/// Registers a recurring timeout that forwards [`FrontendMessage`]s on
 	/// the given [`Receiver`] to the frontend's own channel.
-	fn handle_frontend_messages(&mut self, receiver: Receiver<FrontendMessage>) {
+	fn handle_frontend_messages(&mut self, receiver: RReceiver<FrontendMessage>) {
 		let own_sender = self.ui.sender.clone();
 
 		fltk::app::add_timeout3(0.01, move |handle| {
@@ -109,7 +109,7 @@ impl FltkFrontend {
 
 	fn hide(&mut self) {
 		if self.config.behaviour.exit_on_hide {
-			self.ui.sender.send(Message::Exit);
+			self.ui.sender.send(Event::Exit);
 			return;
 		}
 
@@ -172,7 +172,8 @@ impl FltkFrontend {
 
 	/// Queries the [`QueryEngine`].
 	fn force_query(&mut self) {
-		self.result = self.engine.query(&self.ui.input.value());
+		let input = self.ui.input.value();
+		self.result = self.engine.query(RStr::from_str(&input));
 		self.ui.input.clear_changed();
 
 		self.update_window_height();
@@ -184,7 +185,7 @@ impl FltkFrontend {
 		if !self.result.hits.is_empty() {
 			let cursor = self.scroll.cursor();
 			let hit = &self.result.hits[cursor as usize];
-			self.engine.run_hit_action(&*hit.hit);
+			self.engine.run_hit_action(&hit.hit);
 		}
 	}
 
@@ -274,8 +275,8 @@ impl FltkFrontend {
 ///
 /// `selected` highlights the hit.
 fn update_hit(hit_ui: &mut HitUi, hit: Option<&ScoredHit>, selected: bool, show_score: bool) {
-	let title = hit.map_or("", |h| h.hit.get_title());
-	let subtitle = hit.map_or("", |h| h.hit.get_subtitle());
+	let title = hit.map_or("", |h| h.hit.get_title().as_str());
+	let subtitle = hit.map_or("", |h| h.hit.get_subtitle().as_str());
 
 	hit_ui.title.set_label(title);
 

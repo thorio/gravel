@@ -285,6 +285,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4b82cf0babdbd58558212896d1a4272303a57bdb245c2bf1147185fb45640e70"
 
 [[package]]
+name = "cmake"
+version = "0.1.50"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a31c789563b815f77f4250caee12365734369f942439b7defd71e18a48197130"
+dependencies = [
+ "cc",
+]
+
+[[package]]
 name = "color-eyre"
 version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -483,6 +492,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "fltk"
+version = "1.4.32"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e13e98701200fb73f4fac8f07a73cb2adcb4758599727e5d758ec3961e4b54d1"
+dependencies = [
+ "bitflags 2.5.0",
+ "crossbeam-channel",
+ "fltk-sys",
+ "once_cell",
+ "paste",
+ "ttf-parser",
+]
+
+[[package]]
+name = "fltk-sys"
+version = "1.4.32"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "28e102f461c6701a1fdb745421693ad68fe19ad80734ad4d5941d9325207bd13"
+dependencies = [
+ "cmake",
+]
+
+[[package]]
 name = "futures"
 version = "0.3.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -622,6 +654,7 @@ dependencies = [
  "file-rotate",
  "gravel-core",
  "gravel-ffi",
+ "gravel-frontend-fltk",
  "hostname",
  "log",
  "single-instance",
@@ -655,6 +688,18 @@ dependencies = [
  "figment",
  "log",
  "serde",
+]
+
+[[package]]
+name = "gravel-frontend-fltk"
+version = "0.0.0-dev"
+dependencies = [
+ "abi_stable",
+ "fltk",
+ "gravel-ffi",
+ "log",
+ "serde",
+ "winapi",
 ]
 
 [[package]]
@@ -1317,6 +1362,12 @@ name = "tstr_proc_macros"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e78122066b0cb818b8afd08f7ed22f7fdbc3e90815035726f0840d0d26c0747a"
+
+[[package]]
+name = "ttf-parser"
+version = "0.21.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2c591d83f69777866b9126b24c6dd9a18351f177e49d625920d19f989fd31cf8"
 
 [[package]]
 name = "typed-arena"

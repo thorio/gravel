@@ -21,7 +21,7 @@ impl<T: QueryEngine + 'static> QueryEngineExt for T {}
 pub trait QueryEngine {
 	/// Queries all providers with the given query.
 	fn query(&self, query: RStr<'_>) -> QueryResult;
-	fn run_hit_action(&self, hit: ArcDynHit);
+	fn run_hit_action(&self, hit: &ArcDynHit);
 }
 
 #[repr(C)]

@@ -1,7 +1,7 @@
 use crate::config::Config;
 use crate::scrollbar::Scrollbar;
-use crate::structs::{HitUi, Message, Ui};
-use fltk::enums::{Align, Event, FrameType, Key};
+use crate::structs::{Event, HitUi, Ui};
+use fltk::enums::{Align, Event as FltkEvent, FrameType, Key};
 use fltk::{app, app::Sender, frame::Frame, group::Group, input::Input, prelude::*, window::Window};
 
 const WINDOW_TITLE: &str = "Gravel";
@@ -22,7 +22,7 @@ pub fn build(config: &Config) -> Ui {
 	let app = app::App::default().with_scheme(app::Scheme::Gtk);
 	app::set_visible_focus(false);
 
-	let (sender, receiver) = app::channel::<Message>();
+	let (sender, receiver) = app::channel::<Event>();
 
 	let mut window = build_window(config);
 	let mut input = build_input(config);
@@ -45,7 +45,7 @@ pub fn build(config: &Config) -> Ui {
 		// HACK: hiding the window right after it's created doesn't work on linux
 		// and causes high cpu usage on windows, so wait a bit and then hide it.
 		let sender_clone = sender.clone();
-		app::add_timeout3(0.05, move |_handle| sender_clone.send(Message::HideWindow));
+		app::add_timeout3(0.05, move |_handle| sender_clone.send(Event::HideWindow));
 	}
 
 	Ui {
@@ -127,38 +127,38 @@ fn build_hit(i: i32, config: &Config) -> HitUi {
 }
 
 /// Handles events on the window.
-fn window_event(event: Event, sender: &Sender<Message>, do_auto_hide: bool) -> bool {
+fn window_event(event: FltkEvent, sender: &Sender<Event>, do_auto_hide: bool) -> bool {
 	match event {
-		Event::Unfocus if do_auto_hide => window_unfocus(sender),
+		FltkEvent::Unfocus if do_auto_hide => window_unfocus(sender),
 		_ => false,
 	}
 }
 
-fn window_unfocus(sender: &Sender<Message>) -> bool {
-	sender.send(Message::HideWindow);
+fn window_unfocus(sender: &Sender<Event>) -> bool {
+	sender.send(Event::HideWindow);
 
 	true
 }
 
 /// Handles events on the input.
-fn input_event(event: Event, sender: &Sender<Message>) -> bool {
+fn input_event(event: FltkEvent, sender: &Sender<Event>) -> bool {
 	match event {
-		Event::KeyDown | Event::Paste => input_keydown(app::event_key(), sender),
+		FltkEvent::KeyDown | FltkEvent::Paste => input_keydown(app::event_key(), sender),
 		_ => false,
 	}
 }
 
-fn input_keydown(key: Key, sender: &Sender<Message>) -> bool {
+fn input_keydown(key: Key, sender: &Sender<Event>) -> bool {
 	let message = match key {
-		Key::Escape => Message::Cancel,
-		Key::Enter | Key::KPEnter => Message::Confirm,
-		Key::Up => Message::CursorUp,
-		Key::Down => Message::CursorDown,
-		Key::PageUp => Message::CursorPageUp,
-		Key::PageDown => Message::CursorPageDown,
-		Key::Home if ctrl_down() => Message::CursorTop,
-		Key::End if ctrl_down() => Message::CursorBottom,
-		_ => Message::Query,
+		Key::Escape => Event::Cancel,
+		Key::Enter | Key::KPEnter => Event::Confirm,
+		Key::Up => Event::CursorUp,
+		Key::Down => Event::CursorDown,
+		Key::PageUp => Event::CursorPageUp,
+		Key::PageDown => Event::CursorPageDown,
+		Key::Home if ctrl_down() => Event::CursorTop,
+		Key::End if ctrl_down() => Event::CursorBottom,
+		_ => Event::Query,
 	};
 
 	sender.send(message);

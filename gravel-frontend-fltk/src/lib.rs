@@ -1,8 +1,7 @@
 //! gravel's default frontend, based on fltk.
 
-use gravel_core::config::PluginConfigAdapter;
-use gravel_core::plugin::{plugin, PluginRegistry};
-use gravel_core::{Frontend, QueryEngine};
+use abi_stable::sabi_extern_fn;
+use gravel_ffi::{plugin, BoxDynFrontend, BoxDynQueryEngine, FrontendExt, PluginConfigAdapter, PluginDefinition};
 use ui::FltkFrontend;
 
 mod builder;
@@ -16,12 +15,11 @@ mod ui;
 #[cfg_attr(windows, path = "native/windows.rs")]
 mod native;
 
-pub fn register_plugins(registry: &mut PluginRegistry) {
-	let definition = plugin("fltk").with_frontend(Box::new(get_frontend));
-
-	registry.register(definition);
+pub fn get_plugin() -> PluginDefinition {
+	plugin("fltk").with_frontend(get_frontend)
 }
 
-fn get_frontend(engine: QueryEngine, config: &PluginConfigAdapter<'_>) -> Box<dyn Frontend> {
-	Box::new(FltkFrontend::new(engine, config::get(config)))
+#[sabi_extern_fn]
+fn get_frontend(engine: BoxDynQueryEngine, config: &PluginConfigAdapter<'_>) -> BoxDynFrontend {
+	FltkFrontend::new(engine, config::get(config)).into_dyn()
 }

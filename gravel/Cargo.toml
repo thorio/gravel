@@ -11,7 +11,7 @@ repository = "https://github.com/thorio/gravel"
 [dependencies]
 gravel-core = { path = "../gravel-core" }
 gravel-ffi = { path = "../gravel-ffi" }
-# gravel-frontend-fltk = { path = "../gravel-frontend-fltk" }
+gravel-frontend-fltk = { path = "../gravel-frontend-fltk" }
 # gravel-provider-calculator = { path = "../gravel-provider-calculator" }
 # gravel-provider-exec = { path = "../gravel-provider-exec" }
 # gravel-provider-kill = { path = "../gravel-provider-kill" }

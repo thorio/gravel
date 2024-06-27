@@ -38,7 +38,7 @@ impl gravel_ffi::QueryEngine for QueryEngine {
 		result
 	}
 
-	fn run_hit_action(&self, hit: ArcDynHit) {
+	fn run_hit_action(&self, hit: &ArcDynHit) {
 		hit.action(&self.sender);
 	}
 }

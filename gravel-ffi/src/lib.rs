@@ -14,8 +14,8 @@ mod provider;
 
 pub use config::{ConfigLayer, ConfigManager, ConfigSource, MergeStrategy, PluginConfigAdapter};
 pub use engine::{BoxDynQueryEngine, QueryEngine, QueryEngineExt, QueryResult};
-pub use frontend::{BoxDynFrontend, Frontend, FrontendExitStatus, FrontendMessage};
-pub use hit::{ArcDynHit, Hit, HitExt, ScoredHit, SimpleHit};
+pub use frontend::{BoxDynFrontend, Frontend, FrontendExitStatus, FrontendExt, FrontendMessage};
+pub use hit::{ArcDynHit, CloneHit, Hit, HitExt, ScoredHit, SimpleHit};
 pub use plugin::{plugin, PluginDefinition};
 pub use provider::{BoxDynProvider, Provider, ProviderExt, ProviderResult};
 
