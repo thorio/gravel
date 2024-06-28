@@ -101,8 +101,8 @@ fn inner_query(providers: &[&ProviderInfo], query: &str) -> QueryResult {
 		.collect_vec();
 
 	let hits = match query.trim() {
-		"*" => scoring::get_unscored_hits(hits),
-		_ => scoring::get_scored_hits(hits, query),
+		"*" => scoring::to_unscored(hits),
+		_ => scoring::to_scored(hits, query),
 	};
 
 	QueryResult::new(hits)

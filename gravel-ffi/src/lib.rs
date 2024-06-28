@@ -1,6 +1,7 @@
 #![allow(clippy::empty_docs, unused_qualifications, clippy::used_underscore_binding)]
 
 use abi_stable::library::{LibraryError, RootModule};
+use abi_stable::std_types::RVec;
 use abi_stable::{package_version_strings, sabi_types::VersionStrings, StableAbi};
 use std::path::Path;
 
@@ -9,6 +10,7 @@ mod engine;
 mod fns;
 mod frontend;
 mod hit;
+pub mod paths;
 mod plugin;
 mod provider;
 
@@ -16,7 +18,7 @@ pub use config::{ConfigLayer, ConfigManager, ConfigSource, MergeStrategy, Plugin
 pub use engine::{BoxDynQueryEngine, QueryEngine, QueryEngineExt, QueryResult};
 pub use frontend::{BoxDynFrontend, Frontend, FrontendExitStatus, FrontendExt, FrontendMessage};
 pub use hit::{ArcDynHit, Hit, HitExt, ScoredHit, SimpleHit};
-pub use plugin::{plugin, PluginDefinition};
+pub use plugin::{PluginDefinition, PluginMetadata};
 pub use provider::{BoxDynProvider, Provider, ProviderExt, ProviderResult};
 
 pub const MAX_SCORE: u32 = u32::MAX;
@@ -47,7 +49,7 @@ pub struct GravelPluginLib {
 	/// at which point it would be moved to the last field at the time.
 	///
 	#[sabi(last_prefix_field)]
-	pub get_plugin: extern "C" fn() -> PluginDefinition,
+	pub plugins: extern "C" fn() -> RVec<PluginDefinition>,
 }
 
 #[allow(clippy::use_self)]

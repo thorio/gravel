@@ -1,5 +1,7 @@
 //! For an explanation of the config, see `config.yml` in the crate's root.
 
+use abi_stable::std_types::RString;
+use gravel_ffi::FrontendMessage;
 use nameof::name_of;
 use serde::Deserialize;
 
@@ -27,6 +29,17 @@ pub enum HotkeyAction {
 	Show,
 	Hide,
 	ShowWith(String),
+}
+
+impl From<&HotkeyAction> for FrontendMessage {
+	fn from(value: &HotkeyAction) -> Self {
+		match value {
+			HotkeyAction::ShowHide => Self::ShowOrHide,
+			HotkeyAction::Show => Self::Show,
+			HotkeyAction::Hide => Self::Hide,
+			HotkeyAction::ShowWith(query) => Self::ShowWithQuery(RString::from(query.as_str())),
+		}
+	}
 }
 
 #[derive(Debug, Deserialize)]

@@ -5,8 +5,8 @@
 
 use abi_stable::{external_types::crossbeam_channel::RSender, sabi_extern_fn, std_types::RStr};
 use gravel_ffi::{
-	plugin, BoxDynProvider, FrontendMessage, HitExt, PluginConfigAdapter, PluginDefinition, Provider, ProviderExt,
-	ProviderResult, SimpleHit, MIN_SCORE,
+	BoxDynProvider, FrontendMessage, Hit, HitExt, PluginConfigAdapter, PluginDefinition, PluginMetadata, Provider,
+	ProviderExt, ProviderResult, SimpleHit, MIN_SCORE,
 };
 use serde::Deserialize;
 
@@ -17,7 +17,7 @@ mod implementation;
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
 pub fn get_plugin() -> PluginDefinition {
-	plugin("exec").with_provider(get_provider)
+	PluginMetadata::new("exec").with_provider(get_provider)
 }
 
 #[sabi_extern_fn]
@@ -34,16 +34,14 @@ pub struct ExecProvider {
 
 impl Provider for ExecProvider {
 	fn query(&self, query: RStr<'_>) -> ProviderResult {
-		let query_owned = query.to_string();
-		let hit =
-			SimpleHit::new(query, &*self.config.subtitle, move |s| run_command(&query_owned, s)).with_score(MIN_SCORE);
+		let hit = SimpleHit::new(query, &*self.config.subtitle, run_command).with_score(MIN_SCORE);
 
 		ProviderResult::single(hit.into_dyn())
 	}
 }
 
-fn run_command(query: &str, sender: &RSender<FrontendMessage>) {
-	if let Err(err) = implementation::run_command(query) {
+fn run_command(hit: &SimpleHit, sender: &RSender<FrontendMessage>) {
+	if let Err(err) = implementation::run_command(hit.title().as_str()) {
 		log::error!("{err}");
 	}
 

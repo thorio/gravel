@@ -46,6 +46,11 @@ pub struct PluginMetadata {
 
 impl PluginMetadata {
 	#[must_use]
+	pub fn new(name: impl Into<RString>) -> Self {
+		Self { name: name.into() }
+	}
+
+	#[must_use]
 	pub fn with_provider(self, factory: ProviderFactory) -> PluginDefinition {
 		PluginDefinition {
 			meta: self,
@@ -60,9 +65,4 @@ impl PluginMetadata {
 			factory: PluginFactory::Frontend(factory),
 		}
 	}
-}
-
-#[must_use]
-pub fn plugin(name: impl Into<RString>) -> PluginMetadata {
-	PluginMetadata { name: name.into() }
 }

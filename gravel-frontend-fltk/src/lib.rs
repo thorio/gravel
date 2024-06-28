@@ -1,7 +1,9 @@
 //! gravel's default frontend, based on fltk.
 
 use abi_stable::sabi_extern_fn;
-use gravel_ffi::{plugin, BoxDynFrontend, BoxDynQueryEngine, FrontendExt, PluginConfigAdapter, PluginDefinition};
+use gravel_ffi::{
+	BoxDynFrontend, BoxDynQueryEngine, FrontendExt, PluginConfigAdapter, PluginDefinition, PluginMetadata,
+};
 use ui::FltkFrontend;
 
 mod builder;
@@ -16,7 +18,7 @@ mod ui;
 mod native;
 
 pub fn get_plugin() -> PluginDefinition {
-	plugin("fltk").with_frontend(get_frontend)
+	PluginMetadata::new("fltk").with_frontend(get_frontend)
 }
 
 #[sabi_extern_fn]

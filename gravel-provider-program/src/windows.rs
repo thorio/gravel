@@ -22,7 +22,7 @@ pub fn get_program(path: &Path) -> Option<SimpleHit> {
 	let name = path.file_stem()?.to_string_lossy();
 	let path = path.to_str()?.to_owned();
 
-	Some(SimpleHit::new(name, path.clone(), move |s| run_program(&path, s)))
+	Some(SimpleHit::new(name, path.clone(), move |_h, s| run_program(&path, s)))
 }
 
 /// Passes the link's path to explorer, which then launches the application.

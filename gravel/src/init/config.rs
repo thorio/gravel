@@ -1,30 +1,30 @@
 use abi_stable::std_types::{RString, RVec};
 use gravel_core::config::DEFAULT_CONFIG;
-use gravel_core::paths::get_gravel_config_dir;
+use gravel_core::paths::config_dir;
 use gravel_ffi::{ConfigLayer, ConfigManager, ConfigSource, MergeStrategy};
 use std::env::consts;
 
 /// Reads and deserializes the configuration from multiple sources:
 /// - baked-in default config (config.yml in crate root)
-/// - user config file in `$XDG_CONFIG_HOME/gravel/user.yml`
+/// - user config file in `$XDG_CONFIG_HOME/gravel/config.yml`
 /// - platform-specific user config file in e.g.
 ///   `$XDG_CONFIG_HOME/gravel/platform/linux.yml`
 /// - host-specific user config file in e.g.
-///   `$XDG_CONFIG_HOME/gravel/host/elster.yml`
+///   `$XDG_CONFIG_HOME/gravel/host/yourhostname.yml`
 ///
 /// Each layer can override the values of the previous layers.
 pub fn config() -> ConfigManager {
 	log::trace!("loading config");
 
-	ConfigManager::new(get_sources())
+	ConfigManager::new(sources())
 }
 
 /// Initializes up the [`ConfigBuilder`] with all sources.
-fn get_sources() -> RVec<ConfigLayer> {
-	let user_config_dir = get_gravel_config_dir();
+fn sources() -> RVec<ConfigLayer> {
+	let user_config_dir = config_dir();
 	let user_config_path = user_config_dir.join("config.yml");
 	let platform_config_path = user_config_dir.join(format!("platform/{}.yml", consts::OS));
-	let host_config_path = user_config_dir.join(format!("host/{}.yml", get_hostname()));
+	let host_config_path = user_config_dir.join(format!("host/{}.yml", hostname()));
 
 	log::debug!("reading configs from {user_config_path:?}; {platform_config_path:?}; {host_config_path:?}");
 
@@ -42,7 +42,7 @@ fn get_sources() -> RVec<ConfigLayer> {
 	.into()
 }
 
-fn get_hostname() -> String {
+fn hostname() -> String {
 	match hostname::get() {
 		Ok(h) => h.to_string_lossy().into_owned(),
 		Err(e) => {

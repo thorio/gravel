@@ -6,15 +6,15 @@
 use abi_stable::std_types::RStr;
 use abi_stable::{external_types::crossbeam_channel::RSender, sabi_extern_fn};
 use gravel_ffi::{
-	plugin, BoxDynProvider, FrontendMessage, HitExt, PluginConfigAdapter, PluginDefinition, Provider, ProviderExt,
-	ProviderResult, SimpleHit, MIN_SCORE,
+	BoxDynProvider, FrontendMessage, Hit, HitExt, PluginConfigAdapter, PluginDefinition, PluginMetadata, Provider,
+	ProviderExt, ProviderResult, SimpleHit, MIN_SCORE,
 };
 use serde::Deserialize;
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
 pub fn get_plugin() -> PluginDefinition {
-	plugin("websearch").with_provider(get_provider)
+	PluginMetadata::new("websearch").with_provider(get_provider)
 }
 
 #[sabi_extern_fn]
@@ -34,11 +34,8 @@ pub struct WebsearchProvider {
 
 impl Provider for WebsearchProvider {
 	fn query(&self, query: RStr<'_>) -> ProviderResult {
-		let owned_query = query.to_string();
-		let url_pattern = self.url_pattern;
-
-		let hit = SimpleHit::new(query, &*self.config.subtitle, move |s| {
-			do_search(url_pattern, &owned_query, s);
+		let hit = SimpleHit::new(query, &*self.config.subtitle, |hit, sender| {
+			do_search(self.url_pattern, hit.title().as_str(), sender);
 		})
 		.with_score(MIN_SCORE);
 

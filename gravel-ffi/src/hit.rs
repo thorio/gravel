@@ -24,9 +24,9 @@ impl<T: Hit + 'static> HitExt for T {}
 
 #[sabi_trait]
 pub trait Hit: Sync + Send + Debug {
-	fn get_title(&self) -> RStr<'_>;
-	fn get_subtitle(&self) -> RStr<'_>;
-	fn get_override_score(&self) -> ROption<u32>;
+	fn title(&self) -> RStr<'_>;
+	fn subtitle(&self) -> RStr<'_>;
+	fn override_score(&self) -> ROption<u32>;
 	fn action(&self, sender: &RSender<FrontendMessage>);
 }
 
@@ -49,7 +49,7 @@ pub struct SimpleHit {
 	pub title: RString,
 	pub subtitle: RString,
 	pub override_score: ROption<u32>,
-	pub action: RBoxFn<RSender<FrontendMessage>, ()>,
+	pub action: RBoxFn<Self, RSender<FrontendMessage>, ()>,
 }
 
 impl SimpleHit {
@@ -58,7 +58,7 @@ impl SimpleHit {
 	pub fn new(
 		title: impl Into<RString>,
 		subtitle: impl Into<RString>,
-		func: impl Fn(&RSender<FrontendMessage>) + Send + Sync + 'static,
+		func: impl Fn(&Self, &RSender<FrontendMessage>) + Send + Sync + 'static,
 	) -> Self {
 		Self {
 			title: title.into(),
@@ -77,21 +77,21 @@ impl SimpleHit {
 
 impl Hit for SimpleHit {
 	fn action(&self, sender: &RSender<FrontendMessage>) {
-		self.action.call(sender);
+		self.action.call(self, sender);
 	}
 
 	#[must_use]
-	fn get_title(&self) -> RStr<'_> {
+	fn title(&self) -> RStr<'_> {
 		self.title.as_rstr()
 	}
 
 	#[must_use]
-	fn get_subtitle(&self) -> RStr<'_> {
+	fn subtitle(&self) -> RStr<'_> {
 		self.subtitle.as_rstr()
 	}
 
 	#[must_use]
-	fn get_override_score(&self) -> ROption<u32> {
+	fn override_score(&self) -> ROption<u32> {
 		self.override_score
 	}
 }

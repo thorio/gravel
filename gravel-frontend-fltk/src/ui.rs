@@ -275,8 +275,8 @@ impl FltkFrontend {
 ///
 /// `selected` highlights the hit.
 fn update_hit(hit_ui: &mut HitUi, hit: Option<&ScoredHit>, selected: bool, show_score: bool) {
-	let title = hit.map_or("", |h| h.hit.get_title().as_str());
-	let subtitle = hit.map_or("", |h| h.hit.get_subtitle().as_str());
+	let title = hit.map_or("", |h| h.hit.title().as_str());
+	let subtitle = hit.map_or("", |h| h.hit.subtitle().as_str());
 
 	hit_ui.title.set_label(title);
 

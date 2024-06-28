@@ -12,6 +12,7 @@ pub struct ConfigManager {
 	config: RVec<ConfigLayer>,
 }
 
+// TODO: cache root config and move as much of this out of gravel-ffi as possible
 impl ConfigManager {
 	pub fn new(placeholder: impl Into<RVec<ConfigLayer>>) -> Self {
 		Self {

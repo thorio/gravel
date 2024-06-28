@@ -16,7 +16,7 @@
 use abi_stable::{sabi_extern_fn, std_types::RStr};
 use glob::{glob, Paths};
 use gravel_ffi::{
-	plugin, ArcDynHit, BoxDynProvider, HitExt, PluginConfigAdapter, PluginDefinition, Provider, ProviderExt,
+	ArcDynHit, BoxDynProvider, HitExt, PluginConfigAdapter, PluginDefinition, PluginMetadata, Provider, ProviderExt,
 	ProviderResult,
 };
 use itertools::Itertools;
@@ -29,7 +29,7 @@ mod implementation;
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
 pub fn get_plugin() -> PluginDefinition {
-	plugin("program").with_provider(get_provider)
+	PluginMetadata::new("program").with_provider(get_provider)
 }
 
 #[sabi_extern_fn]

@@ -3,8 +3,8 @@
 
 use abi_stable::{external_types::crossbeam_channel::RSender, sabi_extern_fn, std_types::RStr};
 use gravel_ffi::{
-	plugin, BoxDynProvider, FrontendMessage, HitExt, PluginConfigAdapter, PluginDefinition, Provider, ProviderExt,
-	ProviderResult, SimpleHit,
+	BoxDynProvider, FrontendMessage, HitExt, PluginConfigAdapter, PluginDefinition, PluginMetadata, Provider,
+	ProviderExt, ProviderResult, SimpleHit,
 };
 use implementation::Pid;
 use itertools::Itertools;
@@ -14,7 +14,7 @@ use itertools::Itertools;
 mod implementation;
 
 pub fn get_plugin() -> PluginDefinition {
-	plugin("kill").with_provider(get_provider)
+	PluginMetadata::new("kill").with_provider(get_provider)
 }
 
 #[sabi_extern_fn]
@@ -42,7 +42,7 @@ impl Provider for KillProvider {
 pub(crate) fn get_hit(name: &str, pid: Pid, cmdline: &str) -> SimpleHit {
 	let title = format!("{name} - {pid}");
 
-	SimpleHit::new(title, cmdline, move |s| do_kill(s, pid))
+	SimpleHit::new(title, cmdline, move |_h, s| do_kill(s, pid))
 }
 
 fn do_kill(sender: &RSender<FrontendMessage>, pid: Pid) {

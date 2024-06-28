@@ -10,8 +10,8 @@ use abi_stable::sabi_extern_fn;
 use abi_stable::std_types::RStr;
 use arboard::Clipboard;
 use gravel_ffi::{
-	plugin, BoxDynProvider, FrontendMessage, HitExt, PluginConfigAdapter, PluginDefinition, Provider, ProviderExt,
-	ProviderResult, SimpleHit, MAX_SCORE,
+	BoxDynProvider, FrontendMessage, Hit, HitExt, PluginConfigAdapter, PluginDefinition, PluginMetadata, Provider,
+	ProviderExt, ProviderResult, SimpleHit, MAX_SCORE,
 };
 use mexprp::Answer;
 use serde::Deserialize;
@@ -21,7 +21,7 @@ use std::sync::{Arc, Mutex};
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
 pub fn get_plugin() -> PluginDefinition {
-	plugin("calculator").with_provider(get_provider)
+	PluginMetadata::new("calculator").with_provider(get_provider)
 }
 
 #[sabi_extern_fn]
@@ -70,10 +70,9 @@ impl Provider for CalculatorProvider {
 		}
 
 		let clipboard = self.get_clipboard();
-		let result_owned = result.clone();
 
-		let hit = SimpleHit::new(result, self.config.subtitle.clone(), move |s| {
-			do_copy(clipboard.clone(), &result_owned, s);
+		let hit = SimpleHit::new(result, self.config.subtitle.clone(), move |h, s| {
+			do_copy(clipboard.clone(), h.title().as_str(), s);
 		})
 		.with_score(MAX_SCORE);
 
