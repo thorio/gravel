@@ -1,7 +1,8 @@
-use crate::ArcDynHit;
 use abi_stable::sabi_trait;
 use abi_stable::std_types::{RBox, RStr, RVec};
 use abi_stable::StableAbi;
+
+use crate::hit::ArcDynHit;
 
 pub type BoxDynProvider = Provider_TO<'static, RBox<()>>;
 

@@ -1,7 +1,7 @@
 use abi_stable::std_types::{RString, RVec};
 use gravel_core::config::DEFAULT_CONFIG;
 use gravel_core::paths::config_dir;
-use gravel_ffi::{ConfigLayer, ConfigManager, ConfigSource, MergeStrategy};
+use gravel_ffi::prelude::*;
 use std::env::consts;
 
 /// Reads and deserializes the configuration from multiple sources:

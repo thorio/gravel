@@ -1,7 +1,7 @@
 use crate::performance::Stopwatch;
 use crate::scoring;
 use abi_stable::{external_types::crossbeam_channel::RSender, std_types::RStr, traits::IntoReprRust};
-use gravel_ffi::{ArcDynHit, BoxDynProvider, FrontendMessage, QueryResult};
+use gravel_ffi::prelude::*;
 use itertools::Itertools;
 
 /// Holds a [`Provider`] and some additional metadata.
@@ -10,12 +10,12 @@ struct ProviderInfo {
 	pub keyword: Option<String>,
 }
 
-pub struct QueryEngine {
+pub struct QueryEngineImpl {
 	providers: Vec<ProviderInfo>,
 	sender: RSender<FrontendMessage>,
 }
 
-impl gravel_ffi::QueryEngine for QueryEngine {
+impl QueryEngine for QueryEngineImpl {
 	fn query(&self, query: RStr<'_>) -> QueryResult where {
 		let stopwatch = Stopwatch::start();
 
@@ -44,7 +44,7 @@ impl gravel_ffi::QueryEngine for QueryEngine {
 }
 
 /// Aggregates and scores hits from the given [`Provider`]s.
-impl QueryEngine {
+impl QueryEngineImpl {
 	pub fn new(sender: RSender<FrontendMessage>) -> Self {
 		Self {
 			providers: vec![],

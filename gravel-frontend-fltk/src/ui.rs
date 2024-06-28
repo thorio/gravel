@@ -4,7 +4,7 @@ use crate::{builder, native, scroll::Scroll};
 use abi_stable::external_types::crossbeam_channel::RReceiver;
 use abi_stable::std_types::RStr;
 use fltk::{enums::FrameType, prelude::*};
-use gravel_ffi::{BoxDynQueryEngine, Frontend, FrontendExitStatus, FrontendMessage, QueryResult, ScoredHit};
+use gravel_ffi::prelude::*;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 pub struct FltkFrontend {

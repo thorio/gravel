@@ -5,10 +5,7 @@
 
 use abi_stable::std_types::RStr;
 use abi_stable::{external_types::crossbeam_channel::RSender, sabi_extern_fn};
-use gravel_ffi::{
-	BoxDynProvider, FrontendMessage, Hit, HitExt, PluginConfigAdapter, PluginDefinition, PluginMetadata, Provider,
-	ProviderExt, ProviderResult, SimpleHit, MIN_SCORE,
-};
+use gravel_ffi::prelude::*;
 use serde::Deserialize;
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));

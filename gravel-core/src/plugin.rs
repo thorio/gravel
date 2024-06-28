@@ -1,4 +1,4 @@
-use gravel_ffi::PluginDefinition;
+use gravel_ffi::prelude::*;
 use std::collections::HashMap;
 
 /// Facilitates registering and finding plugins.

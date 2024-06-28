@@ -1,7 +1,7 @@
 //! For an explanation of the config, see `config.yml` in the crate's root.
 
 use abi_stable::std_types::RString;
-use gravel_ffi::FrontendMessage;
+use gravel_ffi::prelude::*;
 use nameof::name_of;
 use serde::Deserialize;
 

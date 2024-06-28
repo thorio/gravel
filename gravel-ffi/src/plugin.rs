@@ -1,4 +1,7 @@
-use crate::{config::PluginConfigAdapter, BoxDynFrontend, BoxDynProvider, BoxDynQueryEngine};
+use crate::config::PluginConfigAdapter;
+use crate::engine::BoxDynQueryEngine;
+use crate::frontend::BoxDynFrontend;
+use crate::provider::BoxDynProvider;
 use abi_stable::{std_types::RString, StableAbi};
 
 pub type ProviderFactory = extern "C" fn(&PluginConfigAdapter<'_>) -> BoxDynProvider;

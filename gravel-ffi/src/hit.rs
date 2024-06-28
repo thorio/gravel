@@ -1,5 +1,5 @@
 use crate::fns::RBoxFn;
-use crate::FrontendMessage;
+use crate::frontend::FrontendMessage;
 use abi_stable::external_types::crossbeam_channel::RSender;
 use abi_stable::sabi_trait;
 use abi_stable::std_types::{RArc, RBox, ROption, RStr, RString};

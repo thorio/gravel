@@ -3,6 +3,7 @@
 use abi_stable::library::{LibraryError, RootModule};
 use abi_stable::std_types::RVec;
 use abi_stable::{package_version_strings, sabi_types::VersionStrings, StableAbi};
+use plugin::PluginDefinition;
 use std::path::Path;
 
 mod config;
@@ -14,15 +15,18 @@ pub mod paths;
 mod plugin;
 mod provider;
 
-pub use config::{ConfigLayer, ConfigManager, ConfigSource, MergeStrategy, PluginConfigAdapter};
-pub use engine::{BoxDynQueryEngine, QueryEngine, QueryEngineExt, QueryResult};
-pub use frontend::{BoxDynFrontend, Frontend, FrontendExitStatus, FrontendExt, FrontendMessage};
-pub use hit::{ArcDynHit, Hit, HitExt, ScoredHit, SimpleHit};
-pub use plugin::{PluginDefinition, PluginMetadata};
-pub use provider::{BoxDynProvider, Provider, ProviderExt, ProviderResult};
+pub mod prelude {
+	pub use crate::config::{ConfigLayer, ConfigManager, ConfigSource, MergeStrategy, PluginConfigAdapter};
+	pub use crate::engine::{BoxDynQueryEngine, QueryEngine, QueryEngineExt, QueryResult};
+	pub use crate::frontend::{BoxDynFrontend, Frontend, FrontendExitStatus, FrontendExt, FrontendMessage};
+	pub use crate::hit::{ArcDynHit, Hit, HitExt, ScoredHit, SimpleHit};
+	pub use crate::plugin::{PluginDefinition, PluginMetadata};
+	pub use crate::provider::{BoxDynProvider, Provider, ProviderExt, ProviderResult};
+	pub use crate::{PluginLib, PluginLibRef};
 
-pub const MAX_SCORE: u32 = u32::MAX;
-pub const MIN_SCORE: u32 = u32::MIN;
+	pub const MAX_SCORE: u32 = u32::MAX;
+	pub const MIN_SCORE: u32 = u32::MIN;
+}
 
 /// This struct is the root module,
 /// which must be converted to `ExampleLib_Ref` to be passed through ffi.
@@ -36,9 +40,9 @@ pub const MIN_SCORE: u32 = u32::MIN;
 /// the field is inaccessible.
 #[repr(C)]
 #[derive(StableAbi)]
-#[sabi(kind(Prefix(prefix_ref = GravelPluginLibRef)))]
+#[sabi(kind(Prefix(prefix_ref = PluginLibRef)))]
 #[sabi(missing_field(panic))]
-pub struct GravelPluginLib {
+pub struct PluginLib {
 	/// The `#[sabi(last_prefix_field)]` attribute here means that this is the last
 	/// field in this struct that was defined in the first compatible version of the library
 	/// (0.1.0, 0.2.0, 0.3.0, 1.0.0, 2.0.0 ,etc),
@@ -53,8 +57,8 @@ pub struct GravelPluginLib {
 }
 
 #[allow(clippy::use_self)]
-impl RootModule for GravelPluginLibRef {
-	abi_stable::declare_root_module_statics! {GravelPluginLibRef}
+impl RootModule for PluginLibRef {
+	abi_stable::declare_root_module_statics! {PluginLibRef}
 
 	const BASE_NAME: &'static str = "example_library";
 	const NAME: &'static str = "example_library";
@@ -62,6 +66,6 @@ impl RootModule for GravelPluginLibRef {
 }
 
 /// This loads the root from the library in the `directory` folder.
-pub fn load_root_module_in_directory(directory: &Path) -> Result<GravelPluginLibRef, LibraryError> {
-	GravelPluginLibRef::load_from_file(&directory.join("libgravel_plugin_test.so"))
+pub fn load_root_module_in_directory(directory: &Path) -> Result<PluginLibRef, LibraryError> {
+	PluginLibRef::load_from_file(&directory.join("libgravel_plugin_test.so"))
 }

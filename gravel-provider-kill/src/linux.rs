@@ -1,5 +1,5 @@
 use anyhow::Result;
-use gravel_ffi::SimpleHit;
+use gravel_ffi::prelude::*;
 use nix::sys::signal::{kill, Signal};
 use procfs::process::Process;
 

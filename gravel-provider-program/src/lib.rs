@@ -15,10 +15,7 @@
 
 use abi_stable::{sabi_extern_fn, std_types::RStr};
 use glob::{glob, Paths};
-use gravel_ffi::{
-	ArcDynHit, BoxDynProvider, HitExt, PluginConfigAdapter, PluginDefinition, PluginMetadata, Provider, ProviderExt,
-	ProviderResult,
-};
+use gravel_ffi::prelude::*;
 use itertools::Itertools;
 use serde::Deserialize;
 

@@ -1,5 +1,5 @@
 use anyhow::Result;
-use gravel_ffi::SimpleHit;
+use gravel_ffi::prelude::*;
 use itertools::Itertools;
 use sysinfo::{Process, System};
 use thiserror::Error;

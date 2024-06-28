@@ -1,4 +1,4 @@
-use crate::{hit::ScoredHit, ArcDynHit};
+use crate::hit::{ArcDynHit, ScoredHit};
 use abi_stable::std_types::{RBox, RStr, RVec};
 use abi_stable::{sabi_trait, StableAbi};
 

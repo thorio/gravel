@@ -3,10 +3,7 @@
 
 use abi_stable::{sabi_extern_fn, std_types::RStr};
 use anyhow::Result;
-use gravel_ffi::{
-	ArcDynHit, BoxDynProvider, FrontendMessage, Hit, HitExt, PluginConfigAdapter, PluginDefinition, PluginMetadata,
-	Provider, ProviderExt, ProviderResult, SimpleHit,
-};
+use gravel_ffi::prelude::*;
 use serde::Deserialize;
 use std::env;
 

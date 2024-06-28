@@ -9,10 +9,7 @@ use abi_stable::external_types::crossbeam_channel::RSender;
 use abi_stable::sabi_extern_fn;
 use abi_stable::std_types::RStr;
 use arboard::Clipboard;
-use gravel_ffi::{
-	BoxDynProvider, FrontendMessage, Hit, HitExt, PluginConfigAdapter, PluginDefinition, PluginMetadata, Provider,
-	ProviderExt, ProviderResult, SimpleHit, MAX_SCORE,
-};
+use gravel_ffi::prelude::*;
 use mexprp::Answer;
 use serde::Deserialize;
 use std::cell::OnceCell;

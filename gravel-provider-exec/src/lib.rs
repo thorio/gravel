@@ -4,10 +4,7 @@
 //! runs the command with the system shell.
 
 use abi_stable::{external_types::crossbeam_channel::RSender, sabi_extern_fn, std_types::RStr};
-use gravel_ffi::{
-	BoxDynProvider, FrontendMessage, Hit, HitExt, PluginConfigAdapter, PluginDefinition, PluginMetadata, Provider,
-	ProviderExt, ProviderResult, SimpleHit, MIN_SCORE,
-};
+use gravel_ffi::prelude::*;
 use serde::Deserialize;
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]

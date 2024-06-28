@@ -1,5 +1,5 @@
 use fltk::enums::Color;
-use gravel_ffi::PluginConfigAdapter;
+use gravel_ffi::prelude::*;
 use serde::Deserialize;
 
 pub const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
