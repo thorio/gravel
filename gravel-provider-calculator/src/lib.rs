@@ -5,30 +5,32 @@
 //!
 //! Selecting the hit copies the calculated value to the system's clipboard.
 
+use abi_stable::external_types::crossbeam_channel::RSender;
+use abi_stable::sabi_extern_fn;
+use abi_stable::std_types::RStr;
 use arboard::Clipboard;
-use gravel_core::plugin::{plugin, PluginRegistry};
-use gravel_core::{config::PluginConfigAdapter, scoring::MAX_SCORE};
-use gravel_core::{FrontendMessage, Hit, Provider, ProviderResult, SimpleHit};
+use gravel_ffi::{
+	plugin, BoxDynProvider, FrontendMessage, HitExt, PluginConfigAdapter, PluginDefinition, Provider, ProviderExt,
+	ProviderResult, SimpleHit, MAX_SCORE,
+};
 use mexprp::Answer;
 use serde::Deserialize;
 use std::cell::OnceCell;
-use std::sync::{mpsc::Sender, Arc, Mutex};
+use std::sync::{Arc, Mutex};
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
-pub fn register_plugins(registry: &mut PluginRegistry) {
-	let definition = plugin("calculator").with_provider(Box::new(get_provider));
-
-	registry.register(definition);
+pub fn get_plugin() -> PluginDefinition {
+	plugin("calculator").with_provider(get_provider)
 }
 
-fn get_provider(config: &PluginConfigAdapter<'_>) -> Box<dyn Provider> {
-	let plugin_config = config.get::<Config>(DEFAULT_CONFIG);
-
-	Box::new(CalculatorProvider {
-		config: plugin_config,
+#[sabi_extern_fn]
+fn get_provider(config: &PluginConfigAdapter<'_>) -> BoxDynProvider {
+	CalculatorProvider {
+		config: config.get(DEFAULT_CONFIG),
 		clipboard: OnceCell::new(),
-	})
+	}
+	.into_dyn()
 }
 
 fn create_clipboard() -> Option<Arc<Mutex<Clipboard>>> {
@@ -55,7 +57,7 @@ impl CalculatorProvider {
 }
 
 impl Provider for CalculatorProvider {
-	fn query(&self, query: &str) -> ProviderResult {
+	fn query(&self, query: RStr<'_>) -> ProviderResult {
 		let query = query.trim();
 		let result = eval(query);
 
@@ -68,13 +70,14 @@ impl Provider for CalculatorProvider {
 		}
 
 		let clipboard = self.get_clipboard();
+		let result_owned = result.clone();
 
-		let hit = SimpleHit::new(result, self.config.subtitle.clone(), move |h, s| {
-			do_copy(clipboard.clone(), h, s);
+		let hit = SimpleHit::new(result, self.config.subtitle.clone(), move |s| {
+			do_copy(clipboard.clone(), &result_owned, s);
 		})
 		.with_score(MAX_SCORE);
 
-		ProviderResult::single(Arc::new(hit))
+		ProviderResult::single(hit.into_dyn())
 	}
 }
 
@@ -87,14 +90,13 @@ fn eval(expression: &str) -> Option<String> {
 	.map(|r| round(r, 10).to_string())
 }
 
-fn do_copy(clipboard: Option<Arc<Mutex<Clipboard>>>, hit: &SimpleHit, sender: &Sender<FrontendMessage>) {
-	let value = hit.get_title();
-	log::debug!("copying value to clipboard: {value}");
+fn do_copy(clipboard: Option<Arc<Mutex<Clipboard>>>, result: &str, sender: &RSender<FrontendMessage>) {
+	log::debug!("copying value to clipboard: {result}");
 
 	if let Some(clipboard_mutex) = clipboard {
 		let mut guard = clipboard_mutex.lock().expect("thread holding the mutex can't panic");
 		guard
-			.set_text(value)
+			.set_text(result)
 			.inspect_err(|e| log::error!("couldn't set clipboard: {e}"))
 			.ok();
 	}

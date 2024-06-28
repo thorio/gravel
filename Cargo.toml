@@ -6,18 +6,16 @@ edition = "2021"
 resolver = "2"
 
 members = [
-	"gravel-plugin-test",
-
 	"gravel",
 	"gravel-core",
 	"gravel-ffi",
 	"gravel-frontend-fltk",
-	# "gravel-provider-calculator",
-	# "gravel-provider-exec",
-	# "gravel-provider-kill",
-	# "gravel-provider-program",
-	# "gravel-provider-system",
-	# "gravel-provider-websearch",
+	"gravel-provider-calculator",
+	"gravel-provider-exec",
+	"gravel-provider-kill",
+	"gravel-provider-program",
+	"gravel-provider-system",
+	"gravel-provider-websearch",
 ]
 
 [workspace.dependencies]

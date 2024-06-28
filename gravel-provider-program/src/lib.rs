@@ -13,13 +13,14 @@
 //!
 //! Launches applications using explorer.
 
+use abi_stable::{sabi_extern_fn, std_types::RStr};
 use glob::{glob, Paths};
-use gravel_core::config::PluginConfigAdapter;
-use gravel_core::plugin::{plugin, PluginRegistry};
-use gravel_core::{Hit, Provider, ProviderResult};
+use gravel_ffi::{
+	plugin, ArcDynHit, BoxDynProvider, HitExt, PluginConfigAdapter, PluginDefinition, Provider, ProviderExt,
+	ProviderResult,
+};
 use itertools::Itertools;
 use serde::Deserialize;
-use std::sync::Arc;
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
 #[cfg_attr(windows, path = "windows.rs")]
@@ -27,19 +28,18 @@ mod implementation;
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
-pub fn register_plugins(registry: &mut PluginRegistry) {
-	let definition = plugin("program").with_provider(Box::new(get_provider));
-
-	registry.register(definition);
+pub fn get_plugin() -> PluginDefinition {
+	plugin("program").with_provider(get_provider)
 }
 
-fn get_provider(config_adapter: &PluginConfigAdapter<'_>) -> Box<dyn Provider> {
+#[sabi_extern_fn]
+fn get_provider(config_adapter: &PluginConfigAdapter<'_>) -> BoxDynProvider {
 	let config = config_adapter.get::<Config>(DEFAULT_CONFIG);
 
 	let program_paths = implementation::get_program_paths(&config);
 	log::debug!("determined program paths: {program_paths:?}");
 
-	Box::new(ProgramProvider { program_paths })
+	ProgramProvider { program_paths }.into_dyn()
 }
 
 struct ProgramProvider {
@@ -47,7 +47,7 @@ struct ProgramProvider {
 }
 
 impl Provider for ProgramProvider {
-	fn query(&self, _query: &str) -> ProviderResult {
+	fn query(&self, _query: RStr<'_>) -> ProviderResult {
 		let hits = get_programs(&self.program_paths);
 
 		ProviderResult::new(hits)
@@ -55,7 +55,7 @@ impl Provider for ProgramProvider {
 }
 
 /// Expands the path globs and returns hit representations of all programs it finds
-pub(crate) fn get_programs(paths: &[String]) -> Vec<Arc<dyn Hit>> {
+pub(crate) fn get_programs(paths: &[String]) -> Vec<ArcDynHit> {
 	paths
 		.iter()
 		.filter_map(expand_glob)
@@ -63,7 +63,7 @@ pub(crate) fn get_programs(paths: &[String]) -> Vec<Arc<dyn Hit>> {
 		.filter_map(Result::ok)
 		.unique_by(|p| p.file_name().map(ToOwned::to_owned))
 		.filter_map(|p| implementation::get_program(&p))
-		.map(|p| Arc::new(p) as _)
+		.map(HitExt::into_dyn)
 		.collect()
 }
 

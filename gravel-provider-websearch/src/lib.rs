@@ -3,29 +3,28 @@
 //! Always returns a hit with the minimum score that, when selected,
 //! opens the user's default browser and searches for the query.
 
-use gravel_core::plugin::{plugin, PluginRegistry};
-use gravel_core::{config::PluginConfigAdapter, scoring::MIN_SCORE};
-use gravel_core::{FrontendMessage, Hit, Provider, ProviderResult, SimpleHit};
+use abi_stable::std_types::RStr;
+use abi_stable::{external_types::crossbeam_channel::RSender, sabi_extern_fn};
+use gravel_ffi::{
+	plugin, BoxDynProvider, FrontendMessage, HitExt, PluginConfigAdapter, PluginDefinition, Provider, ProviderExt,
+	ProviderResult, SimpleHit, MIN_SCORE,
+};
 use serde::Deserialize;
-use std::sync::{mpsc::Sender, Arc};
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
-pub fn register_plugins(registry: &mut PluginRegistry) {
-	let definition = plugin("websearch").with_provider(Box::new(get_provider));
-
-	registry.register(definition);
+pub fn get_plugin() -> PluginDefinition {
+	plugin("websearch").with_provider(get_provider)
 }
 
-fn get_provider(config_adapter: &PluginConfigAdapter<'_>) -> Box<dyn Provider> {
+#[sabi_extern_fn]
+fn get_provider(config_adapter: &PluginConfigAdapter<'_>) -> BoxDynProvider {
 	let config = config_adapter.get::<Config>(DEFAULT_CONFIG);
 
 	// this avoids a clone on every keystroke
 	let url_pattern = Box::leak(Box::new(config.url_pattern.clone()));
 
-	let provider = WebsearchProvider { config, url_pattern };
-
-	Box::new(provider)
+	WebsearchProvider { config, url_pattern }.into_dyn()
 }
 
 pub struct WebsearchProvider {
@@ -34,16 +33,21 @@ pub struct WebsearchProvider {
 }
 
 impl Provider for WebsearchProvider {
-	fn query(&self, query: &str) -> ProviderResult {
-		let hit = SimpleHit::new(query, &*self.config.subtitle, |h, s| do_search(self.url_pattern, h, s))
-			.with_score(MIN_SCORE);
+	fn query(&self, query: RStr<'_>) -> ProviderResult {
+		let owned_query = query.to_string();
+		let url_pattern = self.url_pattern;
 
-		ProviderResult::single(Arc::new(hit))
+		let hit = SimpleHit::new(query, &*self.config.subtitle, move |s| {
+			do_search(url_pattern, &owned_query, s);
+		})
+		.with_score(MIN_SCORE);
+
+		ProviderResult::single(hit.into_dyn())
 	}
 }
 
-fn do_search(url_pattern: &str, hit: &SimpleHit, sender: &Sender<FrontendMessage>) {
-	let encoded = urlencoding::encode(hit.get_title());
+fn do_search(url_pattern: &str, query: &str, sender: &RSender<FrontendMessage>) {
+	let encoded = urlencoding::encode(query);
 	let url = url_pattern.replace("{}", &encoded);
 
 	log::debug!("opening URL '{url}'");

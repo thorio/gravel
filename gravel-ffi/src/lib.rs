@@ -15,9 +15,12 @@ mod provider;
 pub use config::{ConfigLayer, ConfigManager, ConfigSource, MergeStrategy, PluginConfigAdapter};
 pub use engine::{BoxDynQueryEngine, QueryEngine, QueryEngineExt, QueryResult};
 pub use frontend::{BoxDynFrontend, Frontend, FrontendExitStatus, FrontendExt, FrontendMessage};
-pub use hit::{ArcDynHit, CloneHit, Hit, HitExt, ScoredHit, SimpleHit};
+pub use hit::{ArcDynHit, Hit, HitExt, ScoredHit, SimpleHit};
 pub use plugin::{plugin, PluginDefinition};
 pub use provider::{BoxDynProvider, Provider, ProviderExt, ProviderResult};
+
+pub const MAX_SCORE: u32 = u32::MAX;
+pub const MIN_SCORE: u32 = u32::MIN;
 
 /// This struct is the root module,
 /// which must be converted to `ExampleLib_Ref` to be passed through ffi.

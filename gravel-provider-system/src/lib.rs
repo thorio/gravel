@@ -1,12 +1,14 @@
 //! System provider.
 //! Provides system commands such as shutdown, log out or exiting gravel.
 
+use abi_stable::{sabi_extern_fn, std_types::RStr};
 use anyhow::Result;
-use gravel_core::config::PluginConfigAdapter;
-use gravel_core::plugin::{plugin, PluginRegistry};
-use gravel_core::{FrontendMessage, Hit, Provider, ProviderResult, SimpleHit};
+use gravel_ffi::{
+	plugin, ArcDynHit, BoxDynProvider, FrontendMessage, HitExt, PluginConfigAdapter, PluginDefinition, Provider,
+	ProviderExt, ProviderResult, SimpleHit,
+};
 use serde::Deserialize;
-use std::{env, sync::Arc};
+use std::env;
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
 #[cfg_attr(windows, path = "windows.rs")]
@@ -14,22 +16,19 @@ mod implementation;
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
-pub fn register_plugins(registry: &mut PluginRegistry) {
-	let definition = plugin("system").with_provider(Box::new(get_provider));
-
-	registry.register(definition);
+pub fn get_plugin() -> PluginDefinition {
+	plugin("system").with_provider(get_provider)
 }
 
-fn get_provider(config: &PluginConfigAdapter<'_>) -> Box<dyn Provider> {
-	let plugin_config = config.get::<Config>(DEFAULT_CONFIG);
+#[sabi_extern_fn]
+fn get_provider(config_adapter: &PluginConfigAdapter<'_>) -> BoxDynProvider {
+	let plugin_config = config_adapter.get::<Config>(DEFAULT_CONFIG);
 
-	let provider = WebsearchProvider::new(plugin_config);
-
-	Box::new(provider)
+	WebsearchProvider::new(plugin_config).into_dyn()
 }
 
 pub struct WebsearchProvider {
-	hits: Box<[Arc<dyn Hit>]>,
+	hits: Box<[ArcDynHit]>,
 }
 
 impl WebsearchProvider {
@@ -49,32 +48,29 @@ impl WebsearchProvider {
 }
 
 impl Provider for WebsearchProvider {
-	fn query(&self, _query: &str) -> ProviderResult {
+	fn query(&self, _query: RStr<'_>) -> ProviderResult {
 		ProviderResult::new(self.hits.to_vec())
 	}
 }
 
-fn get_message_hit(config: CommandConfig, message: FrontendMessage) -> Arc<dyn Hit> {
-	let hit = SimpleHit::new(config.title, config.subtitle, move |_hit, sender| {
+fn get_message_hit(config: CommandConfig, message: FrontendMessage) -> ArcDynHit {
+	let hit = SimpleHit::new(config.title, config.subtitle, move |sender| {
 		sender.send(message.clone()).ok();
 	});
 
-	Arc::new(hit)
+	hit.into_dyn()
 }
 
-fn get_shell_hit(
-	config: ShellCommandConfig,
-	action: impl Fn(&str) -> Result<()> + Send + Sync + 'static,
-) -> Arc<SimpleHit> {
-	let hit = SimpleHit::new(config.title, config.subtitle, move |hit, sender| {
+fn get_shell_hit(config: ShellCommandConfig, action: impl Fn(&str) -> Result<()> + Send + Sync + 'static) -> ArcDynHit {
+	let hit = SimpleHit::new(config.title, config.subtitle, move |sender| {
 		if let Err(err) = action(&config.command_linux) {
-			log::error!("couldn't perform system operation {}: {err}", hit.get_title());
+			log::error!("couldn't perform system operation: {err}");
 		}
 
 		sender.send(FrontendMessage::Hide).ok();
 	});
 
-	Arc::new(hit)
+	hit.into_dyn()
 }
 
 #[derive(Clone, Deserialize, Debug)]

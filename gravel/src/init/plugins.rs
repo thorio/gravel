@@ -19,10 +19,10 @@ fn register_externals(_registry: &mut PluginRegistry) {
 fn register_builtins(registry: &mut PluginRegistry) {
 	registry.register(gravel_frontend_fltk::get_plugin());
 
-	// gravel_provider_calculator::register_plugins(registry);
-	// gravel_provider_kill::register_plugins(registry);
-	// gravel_provider_exec::register_plugins(registry);
-	// gravel_provider_program::register_plugins(registry);
-	// gravel_provider_system::register_plugins(registry);
-	// gravel_provider_websearch::register_plugins(registry);
+	registry.register(gravel_provider_calculator::get_plugin());
+	registry.register(gravel_provider_exec::get_plugin());
+	registry.register(gravel_provider_kill::get_plugin());
+	registry.register(gravel_provider_program::get_plugin());
+	registry.register(gravel_provider_system::get_plugin());
+	registry.register(gravel_provider_websearch::get_plugin());
 }

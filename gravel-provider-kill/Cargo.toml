@@ -4,8 +4,9 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-gravel-core = { path = "../gravel-core" }
+gravel-ffi = { path = "../gravel-ffi" }
 
+abi_stable.workspace = true
 anyhow.workspace = true
 itertools.workspace = true
 log.workspace = true

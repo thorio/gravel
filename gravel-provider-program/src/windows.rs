@@ -1,9 +1,9 @@
 use crate::Config;
-use gravel_core::{FrontendMessage, SimpleHit};
+use abi_stable::external_types::crossbeam_channel::RSender;
+use gravel_ffi::{FrontendMessage, SimpleHit};
 use std::borrow::Cow;
 use std::path::Path;
 use std::process::Command;
-use std::sync::mpsc::Sender;
 
 pub fn get_program_paths(config: &Config) -> Vec<String> {
 	config.windows.shortcut_paths.iter().filter_map(expand_path).collect()
@@ -22,11 +22,11 @@ pub fn get_program(path: &Path) -> Option<SimpleHit> {
 	let name = path.file_stem()?.to_string_lossy();
 	let path = path.to_str()?.to_owned();
 
-	Some(SimpleHit::new(name, path.clone(), move |h, s| run_program(&path, h, s)))
+	Some(SimpleHit::new(name, path.clone(), move |s| run_program(&path, s)))
 }
 
 /// Passes the link's path to explorer, which then launches the application.
-fn run_program(link_path: &str, _: &SimpleHit, sender: &Sender<FrontendMessage>) {
+fn run_program(link_path: &str, sender: &RSender<FrontendMessage>) {
 	log::debug!("starting application '{link_path}'");
 
 	Command::new("explorer")

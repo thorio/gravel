@@ -2,11 +2,12 @@ use crate::fns::RBoxFn;
 use crate::FrontendMessage;
 use abi_stable::external_types::crossbeam_channel::RSender;
 use abi_stable::sabi_trait;
-use abi_stable::std_types::{RArc, ROption, RStr, RString};
+use abi_stable::std_types::{RArc, RBox, ROption, RStr, RString};
 use abi_stable::StableAbi;
 use std::fmt::Debug;
 
-pub type ArcDynHit = Hit_TO<'static, RArc<()>>;
+// Double pointer because we *need* Clone on ArcDynHit
+pub type ArcDynHit = RArc<Hit_TO<'static, RBox<()>>>;
 
 // can't implement directly because Hit_TO is generated into a different module
 pub trait HitExt: Hit + 'static {
@@ -14,22 +15,12 @@ pub trait HitExt: Hit + 'static {
 	where
 		Self: Sized,
 	{
-		ArcDynHit::from_ptr(RArc::new(self), sabi_trait::TD_Opaque)
+		let hit_to = Hit_TO::from_value(self, sabi_trait::TD_Opaque);
+		RArc::new(hit_to)
 	}
 }
 
 impl<T: Hit + 'static> HitExt for T {}
-
-// can't implement directly because Hit_TO is generated into a different module
-pub trait CloneHit {
-	fn clone(&self) -> ArcDynHit;
-}
-
-impl CloneHit for ArcDynHit {
-	fn clone(&self) -> ArcDynHit {
-		Self::from_sabi(self.obj.shallow_clone())
-	}
-}
 
 #[sabi_trait]
 pub trait Hit: Sync + Send + Debug {

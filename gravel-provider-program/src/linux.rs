@@ -1,10 +1,33 @@
 use crate::Config;
-use gravel_core::paths::{get_xdg_data_dirs, get_xdg_data_home};
-use gravel_core::{FrontendMessage, SimpleHit};
+use abi_stable::external_types::crossbeam_channel::RSender;
+use gravel_ffi::{FrontendMessage, SimpleHit};
+use std::env;
 use std::iter::once;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
-use std::sync::mpsc::Sender;
+
+// TODO: temporary, move these
+fn get_xdg_data_dirs() -> Vec<PathBuf> {
+	if let Ok(path) = env::var("XDG_DATA_DIRS") {
+		return path.split(':').map(PathBuf::from).collect();
+	}
+
+	vec![PathBuf::from("/usr/local/share/"), PathBuf::from("/usr/share/")]
+}
+
+fn get_home() -> PathBuf {
+	let home = env::var("HOME").expect("$HOME should always be set");
+
+	PathBuf::from(home)
+}
+
+fn get_xdg_data_home() -> PathBuf {
+	if let Ok(path) = env::var("XDG_DATA_HOME") {
+		return path.into();
+	}
+
+	get_home().join(".local/share")
+}
 
 pub fn get_program_paths(_config: &Config) -> Vec<String> {
 	once(get_xdg_data_home())
@@ -33,13 +56,13 @@ pub fn get_program(path: &Path) -> Option<SimpleHit> {
 	let name = section.attr("Name").unwrap_or(filename);
 
 	let filename = filename.to_owned();
-	let hit = SimpleHit::new(name, path.to_string_lossy(), move |h, s| run_program(&filename, h, s));
+	let hit = SimpleHit::new(name, path.to_string_lossy(), move |s| run_program(&filename, s));
 
 	Some(hit)
 }
 
 /// Runs the given entry using gtk-launch.
-fn run_program(desktop_file: &str, _: &SimpleHit, sender: &Sender<FrontendMessage>) {
+fn run_program(desktop_file: &str, sender: &RSender<FrontendMessage>) {
 	log::debug!("starting application '{desktop_file}'");
 
 	Command::new("gtk-launch")

@@ -1,9 +1,7 @@
 use anyhow::Result;
-use gravel_core::Hit;
-use itertools::Itertools;
+use gravel_ffi::SimpleHit;
 use nix::sys::signal::{kill, Signal};
 use procfs::process::Process;
-use std::sync::Arc;
 
 pub type Pid = i32;
 
@@ -14,17 +12,16 @@ pub fn kill_process(pid: Pid) -> Result<()> {
 	Ok(())
 }
 
-pub fn query() -> Result<Vec<Arc<dyn Hit>>> {
+pub fn query() -> Result<impl Iterator<Item = SimpleHit>> {
 	let hits = procfs::process::all_processes()?
 		.filter_map(Result::ok)
 		.map(get_hit)
-		.filter_map(Result::ok)
-		.collect_vec();
+		.filter_map(Result::ok);
 
 	Ok(hits)
 }
 
-fn get_hit(process: Process) -> Result<Arc<dyn Hit>> {
+fn get_hit(process: Process) -> Result<SimpleHit> {
 	let args = process.cmdline()?;
 	let cmdline = args.join(" ").replace('\n', "\\n");
 	let name = get_cmdline_binary(&args)

@@ -3,11 +3,12 @@
 //! Always returns a hit with the minimum score that, when selected,
 //! runs the command with the system shell.
 
-use gravel_core::plugin::{plugin, PluginRegistry};
-use gravel_core::{config::PluginConfigAdapter, scoring::MIN_SCORE};
-use gravel_core::{FrontendMessage, Hit, Provider, ProviderResult, SimpleHit};
+use abi_stable::{external_types::crossbeam_channel::RSender, sabi_extern_fn, std_types::RStr};
+use gravel_ffi::{
+	plugin, BoxDynProvider, FrontendMessage, HitExt, PluginConfigAdapter, PluginDefinition, Provider, ProviderExt,
+	ProviderResult, SimpleHit, MIN_SCORE,
+};
 use serde::Deserialize;
-use std::sync::{mpsc::Sender, Arc};
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
 #[cfg_attr(windows, path = "windows.rs")]
@@ -15,18 +16,16 @@ mod implementation;
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
-pub fn register_plugins(registry: &mut PluginRegistry) {
-	let definition = plugin("exec").with_provider(Box::new(get_provider));
-
-	registry.register(definition);
+pub fn get_plugin() -> PluginDefinition {
+	plugin("exec").with_provider(get_provider)
 }
 
-fn get_provider(config_adapter: &PluginConfigAdapter<'_>) -> Box<dyn Provider> {
-	let config = config_adapter.get::<Config>(DEFAULT_CONFIG);
-
-	let provider = ExecProvider { config };
-
-	Box::new(provider)
+#[sabi_extern_fn]
+fn get_provider(config: &PluginConfigAdapter<'_>) -> BoxDynProvider {
+	ExecProvider {
+		config: config.get(DEFAULT_CONFIG),
+	}
+	.into_dyn()
 }
 
 pub struct ExecProvider {
@@ -34,15 +33,17 @@ pub struct ExecProvider {
 }
 
 impl Provider for ExecProvider {
-	fn query(&self, query: &str) -> ProviderResult {
-		let hit = SimpleHit::new(query, &*self.config.subtitle, run_command).with_score(MIN_SCORE);
+	fn query(&self, query: RStr<'_>) -> ProviderResult {
+		let query_owned = query.to_string();
+		let hit =
+			SimpleHit::new(query, &*self.config.subtitle, move |s| run_command(&query_owned, s)).with_score(MIN_SCORE);
 
-		ProviderResult::single(Arc::new(hit))
+		ProviderResult::single(hit.into_dyn())
 	}
 }
 
-fn run_command(hit: &SimpleHit, sender: &Sender<FrontendMessage>) {
-	if let Err(err) = implementation::run_command(hit.get_title()) {
+fn run_command(query: &str, sender: &RSender<FrontendMessage>) {
+	if let Err(err) = implementation::run_command(query) {
 		log::error!("{err}");
 	}
 

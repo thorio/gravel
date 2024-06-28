@@ -1,50 +1,51 @@
 //! gravel's process killer
 //! Lists running processes on your system and will allow you to kill them.
 
-use gravel_core::config::PluginConfigAdapter;
-use gravel_core::plugin::{plugin, PluginRegistry};
-use gravel_core::{FrontendMessage, Hit, Provider, ProviderResult, SimpleHit};
+use abi_stable::{external_types::crossbeam_channel::RSender, sabi_extern_fn, std_types::RStr};
+use gravel_ffi::{
+	plugin, BoxDynProvider, FrontendMessage, HitExt, PluginConfigAdapter, PluginDefinition, Provider, ProviderExt,
+	ProviderResult, SimpleHit,
+};
 use implementation::Pid;
-use std::sync::{mpsc::Sender, Arc};
+use itertools::Itertools;
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
 #[cfg_attr(windows, path = "windows.rs")]
 mod implementation;
 
-pub fn register_plugins(registry: &mut PluginRegistry) {
-	let definition = plugin("kill").with_provider(Box::new(get_provider));
-
-	registry.register(definition);
+pub fn get_plugin() -> PluginDefinition {
+	plugin("kill").with_provider(get_provider)
 }
 
-fn get_provider(_config: &PluginConfigAdapter<'_>) -> Box<dyn Provider> {
-	Box::new(KillProvider {})
+#[sabi_extern_fn]
+fn get_provider(_config: &PluginConfigAdapter<'_>) -> BoxDynProvider {
+	KillProvider {}.into_dyn()
 }
 
 pub struct KillProvider;
 
 impl Provider for KillProvider {
-	fn query(&self, _query: &str) -> ProviderResult {
+	fn query(&self, _query: RStr<'_>) -> ProviderResult {
 		let hits = match implementation::query() {
 			Ok(hits) => hits,
 			Err(err) => {
 				log::error!("couldn't query running processes: {err}");
-				vec![]
+				return ProviderResult::empty();
 			}
 		};
 
+		let hits = hits.map(HitExt::into_dyn).collect_vec();
 		ProviderResult::new(hits)
 	}
 }
 
-pub(crate) fn get_hit(name: &str, pid: Pid, cmdline: &str) -> Arc<dyn Hit> {
+pub(crate) fn get_hit(name: &str, pid: Pid, cmdline: &str) -> SimpleHit {
 	let title = format!("{name} - {pid}");
 
-	let hit = SimpleHit::new(title, cmdline, move |_, s| do_kill(s, pid));
-	Arc::new(hit)
+	SimpleHit::new(title, cmdline, move |s| do_kill(s, pid))
 }
 
-fn do_kill(sender: &Sender<FrontendMessage>, pid: Pid) {
+fn do_kill(sender: &RSender<FrontendMessage>, pid: Pid) {
 	log::debug!("attempting to kill PID {pid}");
 
 	if let Err(err) = implementation::kill_process(pid) {

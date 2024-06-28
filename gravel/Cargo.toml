@@ -12,12 +12,12 @@ repository = "https://github.com/thorio/gravel"
 gravel-core = { path = "../gravel-core" }
 gravel-ffi = { path = "../gravel-ffi" }
 gravel-frontend-fltk = { path = "../gravel-frontend-fltk" }
-# gravel-provider-calculator = { path = "../gravel-provider-calculator" }
-# gravel-provider-exec = { path = "../gravel-provider-exec" }
-# gravel-provider-kill = { path = "../gravel-provider-kill" }
-# gravel-provider-program = { path = "../gravel-provider-program" }
-# gravel-provider-system = { path = "../gravel-provider-system" }
-# gravel-provider-websearch = { path = "../gravel-provider-websearch" }
+gravel-provider-calculator = { path = "../gravel-provider-calculator" }
+gravel-provider-exec = { path = "../gravel-provider-exec" }
+gravel-provider-kill = { path = "../gravel-provider-kill" }
+gravel-provider-program = { path = "../gravel-provider-program" }
+gravel-provider-system = { path = "../gravel-provider-system" }
+gravel-provider-websearch = { path = "../gravel-provider-websearch" }
 
 abi_stable.workspace = true
 anyhow.workspace = true
