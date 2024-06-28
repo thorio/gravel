@@ -8,16 +8,29 @@ license = "GPL-3"
 authors = ["thorou"]
 repository = "https://github.com/thorio/gravel"
 
+[features]
+default = [ "builtins" ]
+
+builtins = [ "fltk", "calculator", "exec", "kill", "program", "system", "websearch" ]
+fltk = ["gravel-frontend-fltk"]
+calculator = ["gravel-provider-calculator"]
+exec = ["gravel-provider-exec"]
+kill = ["gravel-provider-kill"]
+program = ["gravel-provider-program"]
+system = ["gravel-provider-system"]
+websearch = ["gravel-provider-websearch"]
+
 [dependencies]
 gravel-core = { path = "../gravel-core" }
 gravel-ffi = { path = "../gravel-ffi" }
-gravel-frontend-fltk = { path = "../gravel-frontend-fltk" }
-gravel-provider-calculator = { path = "../gravel-provider-calculator" }
-gravel-provider-exec = { path = "../gravel-provider-exec" }
-gravel-provider-kill = { path = "../gravel-provider-kill" }
-gravel-provider-program = { path = "../gravel-provider-program" }
-gravel-provider-system = { path = "../gravel-provider-system" }
-gravel-provider-websearch = { path = "../gravel-provider-websearch" }
+
+gravel-frontend-fltk = { path = "../gravel-frontend-fltk", optional = true }
+gravel-provider-calculator = { path = "../gravel-provider-calculator", optional = true }
+gravel-provider-exec = { path = "../gravel-provider-exec", optional = true }
+gravel-provider-kill = { path = "../gravel-provider-kill", optional = true }
+gravel-provider-program = { path = "../gravel-provider-program", optional = true }
+gravel-provider-system = { path = "../gravel-provider-system", optional = true }
+gravel-provider-websearch = { path = "../gravel-provider-websearch", optional = true }
 
 abi_stable.workspace = true
 anyhow.workspace = true
