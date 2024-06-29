@@ -2,17 +2,18 @@ use crate::Config;
 use abi_stable::external_types::crossbeam_channel::RSender;
 use gravel_ffi::prelude::*;
 use std::borrow::Cow;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
-pub fn get_program_paths(config: &Config) -> Vec<String> {
-	config.windows.shortcut_paths.iter().filter_map(expand_path).collect()
+pub fn get_program_paths(config: &Config) -> impl Iterator<Item = PathBuf> + '_ {
+	config.windows.shortcut_paths.iter().filter_map(expand_path)
 }
 
-fn expand_path(path: &String) -> Option<String> {
+fn expand_path(path: &String) -> Option<PathBuf> {
 	shellexpand::env(path)
 		.map(Cow::into_owned)
-		.inspect_err(|err| log::error!("couldn't expand shortcut_path '{path}': {err}"))
+		.inspect_err(|e| log::error!("unable to expand shortcut_path '{path}': {e}"))
+		.map(PathBuf::from)
 		.ok()
 }
 

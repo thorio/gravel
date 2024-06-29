@@ -3,6 +3,12 @@ name = "gravel-provider-system"
 version.workspace = true
 edition.workspace = true
 
+[lib]
+crate-type = [ "cdylib", "rlib" ]
+
+[features]
+no-root = []
+
 [dependencies]
 gravel-ffi = { path = "../gravel-ffi" }
 

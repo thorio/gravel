@@ -1,18 +1,11 @@
 use crate::Config;
 use abi_stable::external_types::crossbeam_channel::RSender;
 use gravel_ffi::{paths, prelude::*};
-use std::iter::once;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
-pub fn get_program_paths(_config: &Config) -> Vec<String> {
-	once(paths::xdg_data_home())
-		.chain(paths::xdg_data_dirs())
-		.map(|mut p| {
-			p.push("applications/*.desktop");
-			p.to_string_lossy().into_owned()
-		})
-		.collect()
+pub fn get_program_paths(_config: &Config) -> impl Iterator<Item = PathBuf> {
+	paths::xdg_data_globs("applications/*.desktop")
 }
 
 /// Parses a desktop entry and returns a [`SimpleHit`] that represents it.

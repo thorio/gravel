@@ -27,6 +27,7 @@ pub trait Hit: Sync + Send + Debug {
 	fn title(&self) -> RStr<'_>;
 	fn subtitle(&self) -> RStr<'_>;
 	fn override_score(&self) -> ROption<u32>;
+	// TODO factor the sender out, provide a nicer interface
 	fn action(&self, sender: &RSender<FrontendMessage>);
 }
 

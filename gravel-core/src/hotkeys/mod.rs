@@ -79,16 +79,14 @@ fn init_hotkeys<T: 'static + Clone + Debug>(sender: &RSender<T>, hotkeys: Vec<Ho
 		let modifiers = hotkey.modifiers.iter().fold(0, |r, v| r | convert_modifier(v));
 		let key = convert_key(hotkey.key);
 
-		let result = hk.register_hotkey(modifiers, key, move || {
+		hk.register_hotkey(modifiers, key, move || {
 			sender_clone
 				.send(value_clone.clone())
-				.inspect_err(|e| log::error!("couldn't send hotkey action message: {e}"))
+				.inspect_err(|e| log::error!("unable to send hotkey action message: {e}"))
 				.ok();
-		});
-
-		if let Err(_error) = result {
-			log::warn!("failed to register hotkey {hotkey:?}, skipping");
-		}
+		})
+		.inspect_err(|e| log::warn!("failed to register hotkey {hotkey:?}: {e}"))
+		.ok();
 	}
 
 	hk

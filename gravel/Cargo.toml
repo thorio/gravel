@@ -24,13 +24,13 @@ websearch = ["gravel-provider-websearch"]
 gravel-core = { path = "../gravel-core" }
 gravel-ffi = { path = "../gravel-ffi" }
 
-gravel-frontend-fltk = { path = "../gravel-frontend-fltk", optional = true }
-gravel-provider-calculator = { path = "../gravel-provider-calculator", optional = true }
-gravel-provider-exec = { path = "../gravel-provider-exec", optional = true }
-gravel-provider-kill = { path = "../gravel-provider-kill", optional = true }
-gravel-provider-program = { path = "../gravel-provider-program", optional = true }
-gravel-provider-system = { path = "../gravel-provider-system", optional = true }
-gravel-provider-websearch = { path = "../gravel-provider-websearch", optional = true }
+gravel-frontend-fltk = { path = "../gravel-frontend-fltk", features = ["no-root"], optional = true }
+gravel-provider-calculator = { path = "../gravel-provider-calculator", features = ["no-root"], optional = true }
+gravel-provider-exec = { path = "../gravel-provider-exec", features = ["no-root"], optional = true }
+gravel-provider-kill = { path = "../gravel-provider-kill", features = ["no-root"], optional = true }
+gravel-provider-program = { path = "../gravel-provider-program", features = ["no-root"], optional = true }
+gravel-provider-system = { path = "../gravel-provider-system", features = ["no-root"], optional = true }
+gravel-provider-websearch = { path = "../gravel-provider-websearch", features = ["no-root"], optional = true }
 
 abi_stable.workspace = true
 anyhow.workspace = true
@@ -40,7 +40,9 @@ clap-verbosity-flag.workspace = true
 color-eyre.workspace = true
 fern.workspace = true
 file-rotate.workspace = true
+glob.workspace = true
 hostname.workspace = true
+itertools.workspace = true
 log.workspace = true
 single-instance.workspace = true
 stderrlog.workspace = true

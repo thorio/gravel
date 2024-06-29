@@ -6,6 +6,11 @@ use gravel_ffi::prelude::*;
 /// Initializes a hotkey listener on a different thread.
 /// See [`Listener`].
 pub fn hotkeys(hotkeys: &[HotkeyConfig], sender: RSender<FrontendMessage>) {
+	if hotkeys.is_empty() {
+		log::debug!("no hotkeys configured");
+		return;
+	}
+
 	log::trace!("initializing hotkeys");
 
 	let mut listener = Listener::<FrontendMessage>::default();
@@ -16,7 +21,7 @@ pub fn hotkeys(hotkeys: &[HotkeyConfig], sender: RSender<FrontendMessage>) {
 
 		match listener.register_emacs(binding, (&hotkey.action).into()) {
 			Ok(_) => log::debug!("registered hotkey '{binding}' with action '{action:?}'"),
-			Err(err) => log::warn!("invalid binding '{}', {err}. skipping", binding),
+			Err(e) => log::warn!("invalid binding '{}', {e}. skipping", binding),
 		};
 	}
 

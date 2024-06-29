@@ -1,4 +1,5 @@
 use gravel_ffi::paths;
+use lazy_static::lazy_static;
 use std::{env, path::PathBuf};
 
 const APP_NAME: &str = "gravel";
@@ -8,25 +9,27 @@ pub fn config_dir() -> PathBuf {
 		return path.into();
 	}
 
-	xdg_config_home().join(APP_NAME)
+	paths::xdg_config_home().join(APP_NAME)
 }
 
-pub fn gravel_log_path() -> PathBuf {
-	xdg_state_home().join(APP_NAME).join("gravel.log")
+pub fn log_path() -> PathBuf {
+	let mut path = paths::xdg_state_home();
+	path.push(APP_NAME);
+	path.push(APP_NAME);
+	path.set_extension("log");
+
+	path
 }
 
-fn xdg_config_home() -> PathBuf {
-	if let Ok(path) = env::var("XDG_CONFIG_HOME") {
-		return path.into();
+pub fn plugin_globs() -> impl Iterator<Item = PathBuf> {
+	#[cfg(windows)]
+	const PLUGIN_EXT: &str = "dll";
+	#[cfg(unix)]
+	const PLUGIN_EXT: &str = "so";
+
+	lazy_static! {
+		static ref PLUGIN_DIR: String = format!("{APP_NAME}/plugins/*.{PLUGIN_EXT}");
 	}
 
-	paths::home().join(".config")
-}
-
-fn xdg_state_home() -> PathBuf {
-	if let Ok(path) = env::var("XDG_STATE_HOME") {
-		return path.into();
-	}
-
-	paths::home().join(".local/state")
+	paths::xdg_data_globs(&PLUGIN_DIR)
 }

@@ -8,7 +8,7 @@ pub type ProviderFactory = extern "C" fn(&PluginConfigAdapter<'_>) -> BoxDynProv
 pub type FrontendFactory = extern "C" fn(BoxDynQueryEngine, &PluginConfigAdapter<'_>) -> BoxDynFrontend;
 
 #[repr(u8)]
-#[derive(StableAbi)]
+#[derive(StableAbi, Debug)]
 pub enum PluginFactory {
 	Provider(extern "C" fn(&PluginConfigAdapter<'_>) -> BoxDynProvider),
 	Frontend(extern "C" fn(BoxDynQueryEngine, &PluginConfigAdapter<'_>) -> BoxDynFrontend),
@@ -35,14 +35,14 @@ impl PluginFactory {
 /// Holds metadata about a frontend or provider, as well as
 /// a way to construct them.
 #[repr(C)]
-#[derive(StableAbi)]
+#[derive(StableAbi, Debug)]
 pub struct PluginDefinition {
 	pub meta: PluginMetadata,
 	pub factory: PluginFactory,
 }
 
 #[repr(C)]
-#[derive(StableAbi)]
+#[derive(StableAbi, Debug)]
 pub struct PluginMetadata {
 	pub name: RString,
 }

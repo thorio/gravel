@@ -36,6 +36,7 @@ pub enum FrontendMessage {
 	Restart,
 }
 
+// TODO: implement nonexhaustive for these two
 #[derive(StableAbi, Debug, Copy, Clone, PartialEq, Eq)]
 #[repr(u8)]
 pub enum FrontendExitStatus {

@@ -10,6 +10,14 @@ use itertools::Itertools;
 #[cfg_attr(windows, path = "windows.rs")]
 mod implementation;
 
+#[cfg(not(feature = "no-root"))]
+#[abi_stable::export_root_module]
+pub fn get_library() -> PluginLibRef {
+	use abi_stable::prefix_type::PrefixTypeTrait;
+	PluginLib { plugin: get_plugin }.leak_into_prefix()
+}
+
+#[sabi_extern_fn]
 pub fn get_plugin() -> PluginDefinition {
 	PluginMetadata::new("kill").with_provider(get_provider)
 }
@@ -26,7 +34,7 @@ impl Provider for KillProvider {
 		let hits = match implementation::query() {
 			Ok(hits) => hits,
 			Err(err) => {
-				log::error!("couldn't query running processes: {err}");
+				log::error!("unable to query running processes: {err}");
 				return ProviderResult::empty();
 			}
 		};
@@ -45,9 +53,9 @@ pub(crate) fn get_hit(name: &str, pid: Pid, cmdline: &str) -> SimpleHit {
 fn do_kill(sender: &RSender<FrontendMessage>, pid: Pid) {
 	log::debug!("attempting to kill PID {pid}");
 
-	if let Err(err) = implementation::kill_process(pid) {
-		log::error!("killing PID {pid} failed: {err}");
-	}
+	implementation::kill_process(pid)
+		.inspect_err(|e| log::error!("unable to kill PID {pid}: {e}"))
+		.ok();
 
 	sender.send(FrontendMessage::Refresh).ok();
 }

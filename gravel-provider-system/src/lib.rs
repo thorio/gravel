@@ -13,6 +13,14 @@ mod implementation;
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
+#[cfg(not(feature = "no-root"))]
+#[abi_stable::export_root_module]
+pub fn get_library() -> PluginLibRef {
+	use abi_stable::prefix_type::PrefixTypeTrait;
+	PluginLib { plugin: get_plugin }.leak_into_prefix()
+}
+
+#[sabi_extern_fn]
 pub fn get_plugin() -> PluginDefinition {
 	PluginMetadata::new("system").with_provider(get_provider)
 }
@@ -60,9 +68,9 @@ fn message_hit(config: CommandConfig, message: FrontendMessage) -> ArcDynHit {
 
 fn shell_hit(config: ShellCommandConfig, action: impl Fn(&str) -> Result<()> + Send + Sync + 'static) -> ArcDynHit {
 	let hit = SimpleHit::new(config.title, config.subtitle, move |hit, sender| {
-		if let Err(err) = action(&config.command_linux) {
-			log::error!("couldn't perform system operation {}: {err}", hit.title());
-		}
+		action(&config.command_linux)
+			.inspect_err(|e| log::error!("unable to perform system operation {}: {e}", hit.title()))
+			.ok();
 
 		sender.send(FrontendMessage::Hide).ok();
 	});

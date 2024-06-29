@@ -13,6 +13,14 @@ mod implementation;
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
+#[cfg(not(feature = "no-root"))]
+#[abi_stable::export_root_module]
+pub fn get_library() -> PluginLibRef {
+	use abi_stable::prefix_type::PrefixTypeTrait;
+	PluginLib { plugin: get_plugin }.leak_into_prefix()
+}
+
+#[sabi_extern_fn]
 pub fn get_plugin() -> PluginDefinition {
 	PluginMetadata::new("exec").with_provider(get_provider)
 }
@@ -38,9 +46,9 @@ impl Provider for ExecProvider {
 }
 
 fn run_command(hit: &SimpleHit, sender: &RSender<FrontendMessage>) {
-	if let Err(err) = implementation::run_command(hit.title().as_str()) {
-		log::error!("{err}");
-	}
+	implementation::run_command(hit.title().as_str())
+		.inspect_err(|e| log::error!("{e}"))
+		.ok();
 
 	sender.send(FrontendMessage::Hide).ok();
 }

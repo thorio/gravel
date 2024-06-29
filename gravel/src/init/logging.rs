@@ -3,7 +3,7 @@ use anyhow::Result;
 use chrono::Local;
 use fern::{Dispatch, FormatCallback};
 use file_rotate::{compression::Compression, suffix::AppendCount, ContentLimit, FileRotate};
-use gravel_core::paths::gravel_log_path;
+use gravel_core::paths::log_path;
 use log::{LevelFilter, Log, Record};
 use std::fmt::Arguments;
 use std::io::Write;
@@ -16,7 +16,7 @@ pub fn logging(args: LogArgs) -> Result<()> {
 		dispatch = chain_stderr(dispatch);
 	}
 
-	let log_path = &args.log_file.unwrap_or_else(gravel_log_path);
+	let log_path = &args.log_file.unwrap_or_else(log_path);
 	if log_path.to_str() != Some("off") {
 		dispatch = chain_file(dispatch, log_path);
 	}

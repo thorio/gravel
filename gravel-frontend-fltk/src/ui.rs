@@ -2,6 +2,7 @@ use crate::config::Config;
 use crate::structs::{Event, HitUi, Ui};
 use crate::{builder, native, scroll::Scroll};
 use abi_stable::external_types::crossbeam_channel::RReceiver;
+use abi_stable::sabi_extern_fn;
 use abi_stable::std_types::RStr;
 use fltk::{enums::FrameType, prelude::*};
 use gravel_ffi::prelude::*;
@@ -27,7 +28,9 @@ impl Frontend for FltkFrontend {
 }
 
 impl FltkFrontend {
-	pub fn new(engine: BoxDynQueryEngine, config: Config) -> Self {
+	#[sabi_extern_fn]
+	pub fn create(engine: BoxDynQueryEngine, config: &PluginConfigAdapter<'_>) -> BoxDynFrontend {
+		let config = crate::config::get(config);
 		let ui = builder::build(&config);
 		let max_view_size = config.layout.max_hits;
 		let visible = !config.behaviour.start_hidden;
@@ -45,6 +48,7 @@ impl FltkFrontend {
 			visible,
 			last_hide_time: UNIX_EPOCH,
 		}
+		.into_dyn()
 	}
 
 	/// Runs the FLTK event loop. Blocks until the app exits.

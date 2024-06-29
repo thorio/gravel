@@ -15,11 +15,14 @@ mod ui;
 #[cfg_attr(windows, path = "native/windows.rs")]
 mod native;
 
-pub fn get_plugin() -> PluginDefinition {
-	PluginMetadata::new("fltk").with_frontend(get_frontend)
+#[cfg(not(feature = "no-root"))]
+#[abi_stable::export_root_module]
+pub fn get_library() -> PluginLibRef {
+	use abi_stable::prefix_type::PrefixTypeTrait;
+	PluginLib { plugin: get_plugin }.leak_into_prefix()
 }
 
 #[sabi_extern_fn]
-fn get_frontend(engine: BoxDynQueryEngine, config: &PluginConfigAdapter<'_>) -> BoxDynFrontend {
-	FltkFrontend::new(engine, config::get(config)).into_dyn()
+pub fn get_plugin() -> PluginDefinition {
+	PluginMetadata::new("fltk").with_frontend(FltkFrontend::create)
 }

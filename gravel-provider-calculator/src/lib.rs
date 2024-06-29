@@ -17,29 +17,16 @@ use std::sync::{Arc, Mutex};
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
-pub fn get_plugin() -> PluginDefinition {
-	PluginMetadata::new("calculator").with_provider(get_provider)
+#[cfg(not(feature = "no-root"))]
+#[abi_stable::export_root_module]
+pub fn get_library() -> PluginLibRef {
+	use abi_stable::prefix_type::PrefixTypeTrait;
+	PluginLib { plugin: get_plugin }.leak_into_prefix()
 }
 
 #[sabi_extern_fn]
-fn get_provider(config: &PluginConfigAdapter<'_>) -> BoxDynProvider {
-	CalculatorProvider {
-		config: config.get(DEFAULT_CONFIG),
-		clipboard: OnceCell::new(),
-	}
-	.into_dyn()
-}
-
-fn create_clipboard() -> Option<Arc<Mutex<Clipboard>>> {
-	log::trace!("spawning clipboard instance");
-
-	match Clipboard::new() {
-		Err(err) => {
-			log::error!("unable to initialize clipboard: {err}");
-			None
-		}
-		Ok(clipboard) => Some(Arc::new(Mutex::new(clipboard))),
-	}
+pub fn get_plugin() -> PluginDefinition {
+	PluginMetadata::new("calculator").with_provider(CalculatorProvider::create)
 }
 
 struct CalculatorProvider {
@@ -48,6 +35,15 @@ struct CalculatorProvider {
 }
 
 impl CalculatorProvider {
+	#[sabi_extern_fn]
+	fn create(config: &PluginConfigAdapter<'_>) -> BoxDynProvider {
+		Self {
+			config: config.get(DEFAULT_CONFIG),
+			clipboard: OnceCell::new(),
+		}
+		.into_dyn()
+	}
+
 	fn get_clipboard(&self) -> Option<Arc<Mutex<Clipboard>>> {
 		self.clipboard.get_or_init(create_clipboard).clone()
 	}
@@ -77,6 +73,15 @@ impl Provider for CalculatorProvider {
 	}
 }
 
+fn create_clipboard() -> Option<Arc<Mutex<Clipboard>>> {
+	log::trace!("spawning clipboard instance");
+
+	Clipboard::new()
+		.inspect_err(|e| log::error!("unable to initialize clipboard: {e}"))
+		.ok()
+		.map(|c| Arc::new(Mutex::new(c)))
+}
+
 fn eval(expression: &str) -> Option<String> {
 	match mexprp::eval(expression) {
 		Ok(Answer::Single(result)) => Some(result),
@@ -87,15 +92,17 @@ fn eval(expression: &str) -> Option<String> {
 }
 
 fn do_copy(clipboard: Option<Arc<Mutex<Clipboard>>>, result: &str, sender: &RSender<FrontendMessage>) {
+	let Some(clipboard_mutex) = clipboard else {
+		return;
+	};
+
 	log::debug!("copying value to clipboard: {result}");
 
-	if let Some(clipboard_mutex) = clipboard {
-		let mut guard = clipboard_mutex.lock().expect("thread holding the mutex can't panic");
-		guard
-			.set_text(result)
-			.inspect_err(|e| log::error!("couldn't set clipboard: {e}"))
-			.ok();
-	}
+	let mut guard = clipboard_mutex.lock().expect("thread holding the mutex can't panic");
+	guard
+		.set_text(result)
+		.inspect_err(|e| log::error!("unable to set clipboard: {e}"))
+		.ok();
 
 	sender.send(FrontendMessage::Hide).ok();
 }

@@ -1,10 +1,8 @@
 #![allow(clippy::empty_docs, unused_qualifications, clippy::used_underscore_binding)]
 
-use abi_stable::library::{LibraryError, RootModule};
-use abi_stable::std_types::RVec;
+use abi_stable::library::RootModule;
 use abi_stable::{package_version_strings, sabi_types::VersionStrings, StableAbi};
 use plugin::PluginDefinition;
-use std::path::Path;
 
 mod config;
 mod engine;
@@ -53,9 +51,10 @@ pub struct PluginLib {
 	/// at which point it would be moved to the last field at the time.
 	///
 	#[sabi(last_prefix_field)]
-	pub plugins: extern "C" fn() -> RVec<PluginDefinition>,
+	pub plugin: extern "C" fn() -> PluginDefinition,
 }
 
+// TODO: make log crate work in dynamic libs
 #[allow(clippy::use_self)]
 impl RootModule for PluginLibRef {
 	abi_stable::declare_root_module_statics! {PluginLibRef}
@@ -63,9 +62,4 @@ impl RootModule for PluginLibRef {
 	const BASE_NAME: &'static str = "example_library";
 	const NAME: &'static str = "example_library";
 	const VERSION_STRINGS: VersionStrings = package_version_strings!();
-}
-
-/// This loads the root from the library in the `directory` folder.
-pub fn load_root_module_in_directory(directory: &Path) -> Result<PluginLibRef, LibraryError> {
-	PluginLibRef::load_from_file(&directory.join("libgravel_plugin_test.so"))
 }

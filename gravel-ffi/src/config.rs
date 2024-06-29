@@ -42,7 +42,7 @@ impl ConfigManager {
 		match self.figment().extract() {
 			Ok(root) => root,
 			Err(err) => {
-				log::error!("config: {err}");
+				log::error!("error in config: {err}");
 				std::process::exit(1);
 			}
 		}
@@ -98,7 +98,7 @@ impl PluginConfigAdapter<'_> {
 		match figment.extract() {
 			Ok(config) => config,
 			Err(err) => {
-				log::error!("plugin config {}: {err}", self.key);
+				log::error!("error in plugin config {}: {err}", self.key);
 				std::process::exit(1);
 			}
 		}

@@ -8,8 +8,8 @@ pub fn single_instance(name: Option<&str>) -> Option<SingleInstance> {
 	log::debug!("initializing single-instance with key {name}");
 
 	match SingleInstance::new(name) {
-		Err(err) => {
-			log::error!("unable to setup single-instance, error: {err}");
+		Err(e) => {
+			log::error!("unable to set up single-instance, error: {e}");
 			None
 		}
 		Ok(instance) if !instance.is_single() => {
