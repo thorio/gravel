@@ -1,4 +1,7 @@
-# NOTE: grep is super old on github actions windows-2022 so don't use it without LC_ALL=en_US.utf8
+[config]
+skip_core_tasks = true
+
+# NOTE: github actions windows-2022 has a super old grep version so don't use it without LC_ALL=en_US.utf8
 [tasks.patch-version]
 script_runner = "sh"
 script = '''
@@ -13,27 +16,32 @@ script = '''
 script_runner = "sh"
 script = "mkdir -p target/artifacts"
 
-[tasks.deb]
+[tasks.release-deb]
 dependencies = ["artifact-dropoff", "patch-version"]
+condition = { platforms = ["linux"] }
+script_runner = "sh"
 script = '''
 	cargo build --release
 	bash package/debian/build.sh
-	mv package/debian/*.deb target/artifacts/gravel-x86_64.deb
+	cp -a package/debian/*.deb target/artifacts/gravel-x86_64.deb
 '''
 
-[tasks.arch]
+[tasks.release-arch]
 dependencies = ["patch-version", "artifact-dropoff"]
+condition = { platforms = ["linux"] }
+script_runner = "sh"
 script = '''
 	cargo build --release
 	(cd package/arch && makepkg -Cf)
-	mv package/arch/*.pkg.tar.zst target/artifacts/gravel-x86_64.pkg.tar.zst
+	cp -a package/arch/*.pkg.tar.zst target/artifacts/gravel-x86_64.pkg.tar.zst
 '''
 
-[tasks.exe]
+[tasks.release-exe]
 dependencies = ["artifact-dropoff", "patch-version"]
+condition = { platforms = ["windows"] }
 script_runner = "sh"
 script = '''
 	cargo build --release
 	rcedit target/release/gravel.exe --set-icon package/icons/icon.ico
-	mv target/release/gravel.exe target/artifacts/gravel-x86_64.exe
+	cp -a target/release/gravel.exe target/artifacts/gravel-x86_64.exe
 '''

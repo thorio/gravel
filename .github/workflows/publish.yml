@@ -23,7 +23,7 @@ jobs:
           fetch-tags: true
 
       - name: build and package
-        run: cargo make --no-workspace deb
+        run: cargo make --no-workspace release-deb
 
       - name: upload packages
         uses: svenstaro/upload-release-action@v2
@@ -64,7 +64,7 @@ jobs:
 
       - name: build and package
         shell: sudo -u builder bash {0}
-        run: cargo make --no-workspace arch
+        run: cargo make --no-workspace release-arch
 
       - name: upload packages
         uses: svenstaro/upload-release-action@v2
@@ -90,7 +90,7 @@ jobs:
           fetch-tags: true
 
       - name: build and package
-        run: cargo make --no-workspace exe
+        run: cargo make --no-workspace release-exe
 
       - name: upload packages
         uses: svenstaro/upload-release-action@v2
