@@ -34,7 +34,7 @@ fn plugin(plugin_name: &str, with_fn_name: Ident) -> File {
 		#[cfg(not(feature = "no-root"))]
 		#[abi_stable::export_root_module]
 		pub fn __gravel_plugin_root() -> ::gravel_ffi::PluginLibRef {
-			let plugin = ::gravel_ffi::PluginLib { plugin: gravel_plugin };
+			let plugin = ::gravel_ffi::PluginLib { plugin: __gravel_plugin };
 			::abi_stable::prefix_type::PrefixTypeTrait::leak_into_prefix(plugin)
 		}
 

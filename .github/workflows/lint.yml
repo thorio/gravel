@@ -19,6 +19,9 @@ jobs:
       - name: lint
         run: cargo clippy -- -D warnings
 
+      - name: lint (dynamic plugins)
+        run: cargo clippy --no-default-features -- -D warnings
+
       - name: test
         run: cargo test --verbose
 
@@ -30,6 +33,9 @@ jobs:
 
       - name: lint
         run: cargo clippy -- -D warnings
+
+      - name: lint (dynamic plugins)
+        run: cargo clippy --no-default-features -- -D warnings
 
       - name: test
         run: cargo test --verbose

@@ -55,7 +55,7 @@ pub struct PluginLib {
 impl RootModule for PluginLibRef {
 	abi_stable::declare_root_module_statics! {PluginLibRef}
 
-	const BASE_NAME: &'static str = "example_library";
-	const NAME: &'static str = "example_library";
+	const BASE_NAME: &'static str = "gravel_ffi";
+	const NAME: &'static str = "gravel_ffi";
 	const VERSION_STRINGS: VersionStrings = package_version_strings!();
 }

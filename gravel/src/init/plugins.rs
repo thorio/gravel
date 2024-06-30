@@ -1,4 +1,7 @@
-use abi_stable::library::{lib_header_from_path, LibHeader};
+use abi_stable::{
+	library::{lib_header_from_path, LibHeader, LibraryError, RootModule},
+	sabi_types::VersionNumber,
+};
 use glob::{glob, Paths};
 use gravel_core::{paths, plugin::PluginRegistry};
 use gravel_ffi::PluginLibRef;
@@ -43,10 +46,32 @@ fn register_externals(registry: &mut PluginRegistry) {
 			.ok()
 	}
 
+	fn check_version<M>(header: &'static LibHeader) -> Result<&'static LibHeader, LibraryError>
+	where
+		M: RootModule,
+	{
+		let expected_version = VersionNumber::new(M::VERSION_STRINGS)?;
+		let actual_version = VersionNumber::new(header.version_strings())?;
+
+		if expected_version.major != actual_version.major
+			|| expected_version.minor < actual_version.minor
+			|| (expected_version.major == 0) && expected_version.minor > actual_version.minor
+		{
+			return Err(LibraryError::IncompatibleVersionNumber {
+				library_name: M::NAME,
+				expected_version,
+				actual_version,
+			});
+		}
+
+		Ok(header)
+	}
+
 	#[allow(clippy::print_stderr)]
 	fn load_lib(path: PathBuf) -> Option<PluginLibRef> {
 		lib_header_from_path(&path)
-			.and_then(LibHeader::init_root_module)
+			.and_then(check_version::<PluginLibRef>)
+			.and_then(LibHeader::check_layout)
 			.inspect_err(|e| {
 				// these errors tend to be huge, multiline monsters, so putting them in the logs would flood them
 				log::error!("unable to load plugin at {path:?}, writing diagnostics to stderr");
