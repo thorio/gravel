@@ -1,7 +1,6 @@
 //! System provider.
 //! Provides system commands such as shutdown, log out or exiting gravel.
 
-use abi_stable::{sabi_extern_fn, std_types::RStr};
 use anyhow::Result;
 use gravel_ffi::prelude::*;
 use serde::Deserialize;
@@ -13,31 +12,14 @@ mod implementation;
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
-#[cfg(not(feature = "no-root"))]
-#[abi_stable::export_root_module]
-pub fn get_library() -> PluginLibRef {
-	use abi_stable::prefix_type::PrefixTypeTrait;
-	PluginLib { plugin: get_plugin }.leak_into_prefix()
-}
-
-#[sabi_extern_fn]
-pub fn get_plugin() -> PluginDefinition {
-	PluginMetadata::new("system").with_provider(get_provider)
-}
-
-#[sabi_extern_fn]
-fn get_provider(config_adapter: &PluginConfigAdapter<'_>) -> BoxDynProvider {
-	let plugin_config = config_adapter.get::<Config>(DEFAULT_CONFIG);
-
-	WebsearchProvider::new(plugin_config).into_dyn()
-}
-
-pub struct WebsearchProvider {
+pub struct SystemProvider {
 	hits: Box<[ArcDynHit]>,
 }
 
-impl WebsearchProvider {
-	fn new(config: Config) -> Self {
+#[gravel_provider("system")]
+impl ProviderDef for SystemProvider {
+	fn new(config: &PluginConfigAdapter<'_>) -> Self {
+		let config = config.get::<Config>(DEFAULT_CONFIG);
 		let hits = vec![
 			message_hit(config.exit, FrontendMessage::Exit),
 			message_hit(config.reload, FrontendMessage::Restart),
@@ -50,11 +32,9 @@ impl WebsearchProvider {
 
 		Self { hits: hits.into() }
 	}
-}
 
-impl Provider for WebsearchProvider {
-	fn query(&self, _query: RStr<'_>) -> ProviderResult {
-		ProviderResult::new(self.hits.to_vec())
+	fn query(&self, _query: &str) -> ProviderResult {
+		ProviderResult::from_cached(&*self.hits)
 	}
 }
 
@@ -63,7 +43,7 @@ fn message_hit(config: CommandConfig, message: FrontendMessage) -> ArcDynHit {
 		sender.send(message.clone()).ok();
 	});
 
-	hit.into_dyn()
+	hit.into()
 }
 
 fn shell_hit(config: ShellCommandConfig, action: impl Fn(&str) -> Result<()> + Send + Sync + 'static) -> ArcDynHit {
@@ -75,7 +55,7 @@ fn shell_hit(config: ShellCommandConfig, action: impl Fn(&str) -> Result<()> + S
 		sender.send(FrontendMessage::Hide).ok();
 	});
 
-	hit.into_dyn()
+	hit.into()
 }
 
 #[derive(Clone, Deserialize, Debug)]

@@ -1,6 +1,6 @@
 use crate::performance::Stopwatch;
 use crate::scoring;
-use abi_stable::{external_types::crossbeam_channel::RSender, std_types::RStr, traits::IntoReprRust};
+use abi_stable::{external_types::crossbeam_channel::RSender, sabi_trait, std_types::RStr, traits::IntoReprRust};
 use gravel_ffi::prelude::*;
 use itertools::Itertools;
 
@@ -40,6 +40,12 @@ impl QueryEngine for QueryEngineImpl {
 
 	fn run_hit_action(&self, hit: &ArcDynHit) {
 		hit.action(&self.sender);
+	}
+}
+
+impl From<QueryEngineImpl> for BoxDynQueryEngine {
+	fn from(value: QueryEngineImpl) -> Self {
+		Self::from_value(value, sabi_trait::TD_Opaque)
 	}
 }
 

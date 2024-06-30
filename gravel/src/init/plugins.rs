@@ -20,23 +20,22 @@ pub fn plugins() -> PluginRegistry {
 #[allow(unused_variables)]
 fn register_builtins(registry: &mut PluginRegistry) {
 	#[cfg(feature = "fltk")]
-	registry.register(gravel_frontend_fltk::get_plugin());
+	registry.register(gravel_frontend_fltk::__gravel_plugin());
 
 	#[cfg(feature = "calculator")]
-	registry.register(gravel_provider_calculator::get_plugin());
+	registry.register(gravel_provider_calculator::__gravel_plugin());
 	#[cfg(feature = "exec")]
-	registry.register(gravel_provider_exec::get_plugin());
+	registry.register(gravel_provider_exec::__gravel_plugin());
 	#[cfg(feature = "kill")]
-	registry.register(gravel_provider_kill::get_plugin());
+	registry.register(gravel_provider_kill::__gravel_plugin());
 	#[cfg(feature = "program")]
-	registry.register(gravel_provider_program::get_plugin());
+	registry.register(gravel_provider_program::__gravel_plugin());
 	#[cfg(feature = "system")]
-	registry.register(gravel_provider_system::get_plugin());
+	registry.register(gravel_provider_system::__gravel_plugin());
 	#[cfg(feature = "websearch")]
-	registry.register(gravel_provider_websearch::get_plugin());
+	registry.register(gravel_provider_websearch::__gravel_plugin());
 }
 
-#[allow(unused)]
 fn register_externals(registry: &mut PluginRegistry) {
 	fn expand_glob(pattern: PathBuf) -> Option<Paths> {
 		glob(&pattern.to_string_lossy())

@@ -14,13 +14,12 @@ gravel-ffi = { path = "../gravel-ffi" }
 
 abi_stable.workspace = true
 anyhow.workspace = true
-itertools.workspace = true
 log.workspace = true
 
 [target.'cfg(windows)'.dependencies]
 sysinfo.workspace = true
-winapi.workspace = true
 thiserror.workspace = true
+winapi.workspace = true
 
 [target.'cfg(unix)'.dependencies]
 nix = { workspace = true, features = ["process", "signal"] }

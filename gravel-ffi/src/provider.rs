@@ -1,27 +1,20 @@
+use crate::config::PluginConfigAdapter;
+use crate::hit::{clone_hit_ptr, ArcDynHit};
 use abi_stable::sabi_trait;
 use abi_stable::std_types::{RBox, RStr, RVec};
 use abi_stable::StableAbi;
 
-use crate::hit::ArcDynHit;
-
 pub type BoxDynProvider = Provider_TO<'static, RBox<()>>;
-
-// can't implement From<T> because Provider_TO is generated into a different module
-pub trait ProviderExt: Provider + 'static {
-	fn into_dyn(self) -> BoxDynProvider
-	where
-		Self: Sized,
-	{
-		BoxDynProvider::from_value(self, sabi_trait::TD_Opaque)
-	}
-}
-
-impl<T: Provider + 'static> ProviderExt for T {}
 
 /// A provider takes a query and provides some relevant results.
 #[sabi_trait]
 pub trait Provider {
 	fn query(&self, query: RStr<'_>) -> ProviderResult;
+}
+
+pub trait ProviderDef {
+	fn new(config: &PluginConfigAdapter<'_>) -> Self;
+	fn query(&self, query: &str) -> ProviderResult;
 }
 
 /// A collection of hits.
@@ -33,17 +26,25 @@ pub struct ProviderResult {
 
 impl ProviderResult {
 	#[must_use]
-	pub fn new(hits: impl Into<RVec<ArcDynHit>>) -> Self {
-		Self { hits: hits.into() }
+	pub fn new(hits: impl IntoIterator<Item = impl Into<ArcDynHit>>) -> Self {
+		let hits = hits.into_iter().map(Into::into).collect();
+		Self { hits }
+	}
+
+	#[must_use]
+	pub fn from_cached<'a>(hits: impl IntoIterator<Item = &'a ArcDynHit>) -> Self {
+		let hits = hits.into_iter().map(clone_hit_ptr).collect();
+		Self { hits }
 	}
 
 	#[must_use]
 	pub fn empty() -> Self {
-		Self::new(vec![])
+		Self { hits: RVec::new() }
 	}
 
 	#[must_use]
-	pub fn single(hit: ArcDynHit) -> Self {
-		Self::new(vec![hit])
+	pub fn single(hit: impl Into<ArcDynHit>) -> Self {
+		let hits = vec![hit.into()].into();
+		Self { hits }
 	}
 }

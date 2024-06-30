@@ -1,8 +1,14 @@
-#![allow(clippy::empty_docs, unused_qualifications, clippy::used_underscore_binding)]
+// abi_stable derives generate code that doesn't gel with these lints
+// since you can't just slap these on generated code they're disabled for the whole crate
+#![allow(
+	clippy::empty_docs,
+	clippy::used_underscore_binding,
+	unused_qualifications,
+	single_use_lifetimes
+)]
 
 use abi_stable::library::RootModule;
 use abi_stable::{package_version_strings, sabi_types::VersionStrings, StableAbi};
-use plugin::PluginDefinition;
 
 mod config;
 mod engine;
@@ -15,16 +21,20 @@ mod provider;
 
 pub mod prelude {
 	pub use crate::config::{ConfigLayer, ConfigManager, ConfigSource, MergeStrategy, PluginConfigAdapter};
-	pub use crate::engine::{BoxDynQueryEngine, QueryEngine, QueryEngineExt, QueryResult};
-	pub use crate::frontend::{BoxDynFrontend, Frontend, FrontendExitStatus, FrontendExt, FrontendMessage};
-	pub use crate::hit::{ArcDynHit, Hit, HitExt, ScoredHit, SimpleHit};
+	pub use crate::engine::{BoxDynQueryEngine, QueryEngine, QueryResult};
+	pub use crate::frontend::{BoxDynFrontend, Frontend, FrontendDef, FrontendExitStatus, FrontendMessage};
+	pub use crate::hit::{ArcDynHit, Hit, ScoredHit, SimpleHit};
 	pub use crate::plugin::{PluginDefinition, PluginMetadata};
-	pub use crate::provider::{BoxDynProvider, Provider, ProviderExt, ProviderResult};
+	pub use crate::provider::{BoxDynProvider, Provider, ProviderDef, ProviderResult};
 	pub use crate::{PluginLib, PluginLibRef};
+
+	pub use gravel_ffi_macros::*;
 
 	pub const MAX_SCORE: u32 = u32::MAX;
 	pub const MIN_SCORE: u32 = u32::MIN;
 }
+
+pub use prelude::*;
 
 /// This struct is the root module,
 /// which must be converted to `ExampleLib_Ref` to be passed through ffi.
@@ -55,6 +65,7 @@ pub struct PluginLib {
 }
 
 // TODO: make log crate work in dynamic libs
+
 #[allow(clippy::use_self)]
 impl RootModule for PluginLibRef {
 	abi_stable::declare_root_module_statics! {PluginLibRef}

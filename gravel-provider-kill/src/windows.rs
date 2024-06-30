@@ -1,6 +1,5 @@
 use anyhow::Result;
 use gravel_ffi::prelude::*;
-use itertools::Itertools;
 use sysinfo::{Process, System};
 use thiserror::Error;
 use winapi::shared::minwindef::DWORD;
@@ -43,7 +42,7 @@ pub fn query() -> Result<impl Iterator<Item = SimpleHit>> {
 		.processes()
 		.iter()
 		.map(|(pid, process)| get_hit(*pid, process))
-		.collect_vec()
+		.collect::<Vec<_>>()
 		.into_iter();
 
 	Ok(hits)

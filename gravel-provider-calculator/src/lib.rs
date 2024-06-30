@@ -6,8 +6,6 @@
 //! Selecting the hit copies the calculated value to the system's clipboard.
 
 use abi_stable::external_types::crossbeam_channel::RSender;
-use abi_stable::sabi_extern_fn;
-use abi_stable::std_types::RStr;
 use arboard::Clipboard;
 use gravel_ffi::prelude::*;
 use mexprp::Answer;
@@ -17,40 +15,27 @@ use std::sync::{Arc, Mutex};
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
-#[cfg(not(feature = "no-root"))]
-#[abi_stable::export_root_module]
-pub fn get_library() -> PluginLibRef {
-	use abi_stable::prefix_type::PrefixTypeTrait;
-	PluginLib { plugin: get_plugin }.leak_into_prefix()
-}
-
-#[sabi_extern_fn]
-pub fn get_plugin() -> PluginDefinition {
-	PluginMetadata::new("calculator").with_provider(CalculatorProvider::create)
-}
-
 struct CalculatorProvider {
 	config: Config,
 	clipboard: OnceCell<Option<Arc<Mutex<Clipboard>>>>,
 }
 
 impl CalculatorProvider {
-	#[sabi_extern_fn]
-	fn create(config: &PluginConfigAdapter<'_>) -> BoxDynProvider {
-		Self {
-			config: config.get(DEFAULT_CONFIG),
-			clipboard: OnceCell::new(),
-		}
-		.into_dyn()
-	}
-
 	fn get_clipboard(&self) -> Option<Arc<Mutex<Clipboard>>> {
 		self.clipboard.get_or_init(create_clipboard).clone()
 	}
 }
 
-impl Provider for CalculatorProvider {
-	fn query(&self, query: RStr<'_>) -> ProviderResult {
+#[gravel_provider("calculator")]
+impl ProviderDef for CalculatorProvider {
+	fn new(config: &PluginConfigAdapter<'_>) -> Self {
+		Self {
+			config: config.get(DEFAULT_CONFIG),
+			clipboard: OnceCell::new(),
+		}
+	}
+
+	fn query(&self, query: &str) -> ProviderResult {
 		let query = query.trim();
 		let result = eval(query);
 
@@ -69,7 +54,7 @@ impl Provider for CalculatorProvider {
 		})
 		.with_score(MAX_SCORE);
 
-		ProviderResult::single(hit.into_dyn())
+		ProviderResult::single(hit)
 	}
 }
 

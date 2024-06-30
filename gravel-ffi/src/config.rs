@@ -1,5 +1,3 @@
-#![allow(single_use_lifetimes)]
-
 use abi_stable::std_types::{RString, RVec};
 use abi_stable::StableAbi;
 use figment::providers::{Format, Yaml};

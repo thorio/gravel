@@ -17,5 +17,5 @@ pub fn frontend(registry: &PluginRegistry, engine: QueryEngineImpl, config: &Con
 		std::process::exit(1);
 	};
 
-	factory(engine.into_dyn(), &config.adapt(FRONTEND))
+	factory(engine.into(), &config.adapt(FRONTEND))
 }

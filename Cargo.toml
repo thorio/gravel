@@ -9,6 +9,7 @@ members = [
 	"gravel",
 	"gravel-core",
 	"gravel-ffi",
+	"gravel-ffi-macros",
 	"gravel-frontend-fltk",
 	"gravel-provider-calculator",
 	"gravel-provider-exec",

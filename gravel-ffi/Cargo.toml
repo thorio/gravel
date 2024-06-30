@@ -4,6 +4,8 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
+gravel-ffi-macros = { path = "../gravel-ffi-macros" }
+
 abi_stable.workspace = true
 figment = { workspace = true, features = ["yaml"] }
 log.workspace = true

@@ -3,7 +3,7 @@
 //! Always returns a hit with the minimum score that, when selected,
 //! runs the command with the system shell.
 
-use abi_stable::{external_types::crossbeam_channel::RSender, sabi_extern_fn, std_types::RStr};
+use abi_stable::external_types::crossbeam_channel::RSender;
 use gravel_ffi::prelude::*;
 use serde::Deserialize;
 
@@ -13,35 +13,22 @@ mod implementation;
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
-#[cfg(not(feature = "no-root"))]
-#[abi_stable::export_root_module]
-pub fn get_library() -> PluginLibRef {
-	use abi_stable::prefix_type::PrefixTypeTrait;
-	PluginLib { plugin: get_plugin }.leak_into_prefix()
-}
-
-#[sabi_extern_fn]
-pub fn get_plugin() -> PluginDefinition {
-	PluginMetadata::new("exec").with_provider(get_provider)
-}
-
-#[sabi_extern_fn]
-fn get_provider(config: &PluginConfigAdapter<'_>) -> BoxDynProvider {
-	ExecProvider {
-		config: config.get(DEFAULT_CONFIG),
-	}
-	.into_dyn()
-}
-
 pub struct ExecProvider {
 	config: Config,
 }
 
-impl Provider for ExecProvider {
-	fn query(&self, query: RStr<'_>) -> ProviderResult {
+#[gravel_provider("exec")]
+impl ProviderDef for ExecProvider {
+	fn new(config: &PluginConfigAdapter<'_>) -> Self {
+		Self {
+			config: config.get(DEFAULT_CONFIG),
+		}
+	}
+
+	fn query(&self, query: &str) -> ProviderResult {
 		let hit = SimpleHit::new(query, &*self.config.subtitle, run_command).with_score(MIN_SCORE);
 
-		ProviderResult::single(hit.into_dyn())
+		ProviderResult::single(hit)
 	}
 }
 

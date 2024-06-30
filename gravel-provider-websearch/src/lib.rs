@@ -3,48 +3,35 @@
 //! Always returns a hit with the minimum score that, when selected,
 //! opens the user's default browser and searches for the query.
 
-use abi_stable::std_types::RStr;
-use abi_stable::{external_types::crossbeam_channel::RSender, sabi_extern_fn};
+use abi_stable::external_types::crossbeam_channel::RSender;
 use gravel_ffi::prelude::*;
 use serde::Deserialize;
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
-
-#[cfg(not(feature = "no-root"))]
-#[abi_stable::export_root_module]
-pub fn get_library() -> PluginLibRef {
-	use abi_stable::prefix_type::PrefixTypeTrait;
-	PluginLib { plugin: get_plugin }.leak_into_prefix()
-}
-
-#[sabi_extern_fn]
-pub fn get_plugin() -> PluginDefinition {
-	PluginMetadata::new("websearch").with_provider(get_provider)
-}
-
-#[sabi_extern_fn]
-fn get_provider(config_adapter: &PluginConfigAdapter<'_>) -> BoxDynProvider {
-	let config = config_adapter.get::<Config>(DEFAULT_CONFIG);
-
-	// this avoids a clone on every keystroke
-	let url_pattern = Box::leak(Box::new(config.url_pattern.clone()));
-
-	WebsearchProvider { config, url_pattern }.into_dyn()
-}
 
 pub struct WebsearchProvider {
 	config: Config,
 	url_pattern: &'static str,
 }
 
-impl Provider for WebsearchProvider {
-	fn query(&self, query: RStr<'_>) -> ProviderResult {
+#[gravel_provider("websearch")]
+impl ProviderDef for WebsearchProvider {
+	fn new(config: &PluginConfigAdapter<'_>) -> Self {
+		let config = config.get::<Config>(DEFAULT_CONFIG);
+
+		// this avoids a clone on every keystroke
+		let url_pattern = Box::leak(Box::new(config.url_pattern.clone()));
+
+		Self { config, url_pattern }
+	}
+
+	fn query(&self, query: &str) -> ProviderResult {
 		let hit = SimpleHit::new(query, &*self.config.subtitle, |hit, sender| {
 			do_search(self.url_pattern, hit.title().as_str(), sender);
 		})
 		.with_score(MIN_SCORE);
 
-		ProviderResult::single(hit.into_dyn())
+		ProviderResult::single(hit)
 	}
 }
 

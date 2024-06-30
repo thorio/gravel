@@ -2,25 +2,11 @@ use crate::fns::RBoxFn;
 use crate::frontend::FrontendMessage;
 use abi_stable::external_types::crossbeam_channel::RSender;
 use abi_stable::sabi_trait;
-use abi_stable::std_types::{RArc, RBox, ROption, RStr, RString};
+use abi_stable::std_types::{RArc, ROption, RStr, RString};
 use abi_stable::StableAbi;
 use std::fmt::Debug;
 
-// Double pointer because we *need* Clone on ArcDynHit
-pub type ArcDynHit = RArc<Hit_TO<'static, RBox<()>>>;
-
-// can't implement directly because Hit_TO is generated into a different module
-pub trait HitExt: Hit + 'static {
-	fn into_dyn(self) -> ArcDynHit
-	where
-		Self: Sized,
-	{
-		let hit_to = Hit_TO::from_value(self, sabi_trait::TD_Opaque);
-		RArc::new(hit_to)
-	}
-}
-
-impl<T: Hit + 'static> HitExt for T {}
+pub type ArcDynHit = Hit_TO<'static, RArc<()>>;
 
 #[sabi_trait]
 pub trait Hit: Sync + Send + Debug {
@@ -29,6 +15,10 @@ pub trait Hit: Sync + Send + Debug {
 	fn override_score(&self) -> ROption<u32>;
 	// TODO factor the sender out, provide a nicer interface
 	fn action(&self, sender: &RSender<FrontendMessage>);
+}
+
+pub fn clone_hit_ptr(hit: &ArcDynHit) -> ArcDynHit {
+	ArcDynHit::from_sabi(hit.obj.shallow_clone())
 }
 
 #[repr(C)]
@@ -73,6 +63,12 @@ impl SimpleHit {
 	pub fn with_score(mut self, score: u32) -> Self {
 		self.override_score = ROption::RSome(score);
 		self
+	}
+}
+
+impl From<SimpleHit> for ArcDynHit {
+	fn from(value: SimpleHit) -> Self {
+		Self::from_ptr(RArc::new(value), sabi_trait::TD_Opaque)
 	}
 }
 
