@@ -1,7 +1,7 @@
-use abi_stable::std_types::{RString, RVec};
-use gravel_core::config::DEFAULT_CONFIG;
+use abi_stable::std_types::RString;
+use gravel_core::config::{ConfigManager, DEFAULT_CONFIG};
 use gravel_core::paths::config_dir;
-use gravel_ffi::prelude::*;
+use gravel_ffi::config::{ConfigLayer, ConfigSource, MergeStrategy};
 use std::env::consts;
 
 /// Reads and deserializes the configuration from multiple sources:
@@ -20,7 +20,7 @@ pub fn config() -> ConfigManager {
 }
 
 /// Initializes up the [`ConfigBuilder`] with all sources.
-fn sources() -> RVec<ConfigLayer> {
+fn sources() -> Vec<ConfigLayer> {
 	let user_config_dir = config_dir();
 	let user_config_path = user_config_dir.join("config.yml");
 	let platform_config_path = user_config_dir.join(format!("platform/{}.yml", consts::OS));
@@ -39,7 +39,6 @@ fn sources() -> RVec<ConfigLayer> {
 		ConfigLayer(C::File(platform_config_path), S::AdMerge),
 		ConfigLayer(C::File(host_config_path), S::AdMerge),
 	]
-	.into()
 }
 
 fn hostname() -> String {

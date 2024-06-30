@@ -1,57 +1,25 @@
-use abi_stable::std_types::{RString, RVec};
+use abi_stable::std_types::{RSlice, RString};
 use abi_stable::StableAbi;
 use figment::providers::{Format, Yaml};
 use figment::Figment;
 use serde::Deserialize;
 
-#[repr(C)]
-#[derive(StableAbi)]
-pub struct ConfigManager {
-	config: RVec<ConfigLayer>,
-}
+// I'd really like to keep the app's figment and re-use it for plugins,
+// but unfortunately it can't safely pass through FFI-boundaries.
+pub fn create_figment(config_sources: &[ConfigLayer]) -> Figment {
+	fn fold(figment: Figment, ConfigLayer(source, strategy): &ConfigLayer) -> Figment {
+		let source = match source {
+			ConfigSource::String(s) => Yaml::string(s.as_str()),
+			ConfigSource::File(f) => Yaml::file(f.as_str()),
+		};
 
-// TODO: cache root config and move as much of this out of gravel-ffi as possible
-impl ConfigManager {
-	pub fn new(placeholder: impl Into<RVec<ConfigLayer>>) -> Self {
-		Self {
-			config: placeholder.into(),
+		match strategy {
+			MergeStrategy::Merge => figment.merge(source),
+			MergeStrategy::AdMerge => figment.admerge(source),
 		}
 	}
 
-	// I'd really like to keep the figment and re-use it for plugins,
-	// but unfortunately it can't pass through FFI-boundaries.
-	pub(crate) fn figment(&self) -> Figment {
-		fn fold(figment: Figment, ConfigLayer(source, strategy): &ConfigLayer) -> Figment {
-			let source = match source {
-				ConfigSource::String(s) => Yaml::string(s.as_str()),
-				ConfigSource::File(f) => Yaml::file(f.as_str()),
-			};
-
-			match strategy {
-				MergeStrategy::Merge => figment.merge(source),
-				MergeStrategy::AdMerge => figment.admerge(source),
-			}
-		}
-
-		self.config.iter().fold(Figment::new(), fold)
-	}
-
-	pub fn root<'a, T: Deserialize<'a>>(&self) -> T {
-		match self.figment().extract() {
-			Ok(root) => root,
-			Err(err) => {
-				log::error!("error in config: {err}");
-				std::process::exit(1);
-			}
-		}
-	}
-
-	pub fn adapt(&self, key: impl Into<RString>) -> PluginConfigAdapter<'_> {
-		PluginConfigAdapter {
-			key: key.into(),
-			manager: self,
-		}
-	}
+	config_sources.iter().fold(Figment::new(), fold)
 }
 
 #[repr(C)]
@@ -78,18 +46,20 @@ pub enum ConfigSource {
 #[derive(StableAbi)]
 pub struct PluginConfigAdapter<'a> {
 	key: RString,
-	manager: &'a ConfigManager,
+	config_sources: RSlice<'a, ConfigLayer>,
 }
 
-impl PluginConfigAdapter<'_> {
+impl<'a> PluginConfigAdapter<'a> {
+	pub fn from(key: RString, config_sources: RSlice<'a, ConfigLayer>) -> Self {
+		Self { key, config_sources }
+	}
+
 	/// Build and deserialize the plugin's config into the given type.
 	pub fn get<'de, T: Deserialize<'de>>(&self, default_config: &str) -> T {
 		log::trace!("reading plugin config for {}", self.key);
 
 		// layer the plugins' defaults under the provider's config section
-		let figment = self
-			.manager
-			.figment()
+		let figment = create_figment(&self.config_sources)
 			.focus(&format!("{}.config", self.key))
 			.join(Yaml::string(default_config));
 

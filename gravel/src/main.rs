@@ -6,7 +6,7 @@
 
 use abi_stable::external_types::crossbeam_channel;
 use anyhow::{Context, Result};
-use gravel_core::{config::RootConfig, performance::Stopwatch};
+use gravel_core::performance::Stopwatch;
 use gravel_ffi::prelude::*;
 use std::{env, path::Path};
 
@@ -38,7 +38,7 @@ fn run() -> Result<()> {
 
 	let config = init::config();
 
-	let single_instance = init::single_instance(config.root::<RootConfig>().single_instance.as_deref());
+	let single_instance = init::single_instance(config.root().single_instance.as_deref());
 
 	let registry = init::plugins();
 
@@ -46,7 +46,7 @@ fn run() -> Result<()> {
 	let engine = init::engine(sender.clone(), &registry, &config);
 	let mut frontend = init::frontend(&registry, engine, &config);
 
-	init::hotkeys(&config.root::<RootConfig>().hotkeys, sender);
+	init::hotkeys(&config.root().hotkeys, sender);
 
 	log::info!("initialization complete, took {stopwatch}");
 	log::trace!("starting frontend");

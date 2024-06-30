@@ -25,28 +25,6 @@ mod implementation;
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
-// #[cfg(not(feature = "no-root"))]
-// #[abi_stable::export_root_module]
-// pub fn get_library() -> PluginLibRef {
-// 	use abi_stable::prefix_type::PrefixTypeTrait;
-// 	PluginLib { plugin: get_plugin }.leak_into_prefix()
-// }
-
-// #[sabi_extern_fn]
-// pub fn get_plugin() -> PluginDefinition {
-// 	PluginMetadata::new("program").with_provider(get_provider)
-// }
-
-// #[sabi_extern_fn]
-// fn get_provider(config_adapter: &PluginConfigAdapter<'_>) -> BoxDynProvider {
-// 	let config = config_adapter.get::<Config>(DEFAULT_CONFIG);
-
-// 	let program_paths = implementation::get_program_paths(&config).collect_vec();
-// 	log::debug!("determined program paths: {program_paths:?}");
-
-// 	ProgramProvider { program_paths }.into_dyn()
-// }
-
 struct ProgramProvider {
 	program_paths: Vec<PathBuf>,
 }

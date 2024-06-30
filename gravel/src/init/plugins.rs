@@ -1,7 +1,7 @@
 use abi_stable::library::{lib_header_from_path, LibHeader};
 use glob::{glob, Paths};
 use gravel_core::{paths, plugin::PluginRegistry};
-use gravel_ffi::prelude::*;
+use gravel_ffi::PluginLibRef;
 use itertools::Itertools;
 use std::path::PathBuf;
 

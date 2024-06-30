@@ -19,7 +19,7 @@ pub fn hotkeys(hotkeys: &[HotkeyConfig], sender: RSender<FrontendMessage>) {
 		let binding = &hotkey.binding;
 		let action = &hotkey.action;
 
-		match listener.register_emacs(binding, (&hotkey.action).into()) {
+		match listener.register_emacs(binding, action.clone().into()) {
 			Ok(_) => log::debug!("registered hotkey '{binding}' with action '{action:?}'"),
 			Err(e) => log::warn!("invalid binding '{}', {e}. skipping", binding),
 		};
