@@ -20,20 +20,25 @@ mod plugin;
 mod provider;
 
 pub mod prelude {
-	pub use crate::config::PluginConfigAdapter;
-	pub use crate::engine::{BoxDynQueryEngine, QueryEngine, QueryResult};
-	pub use crate::frontend::{BoxDynFrontend, Frontend, FrontendDef, FrontendExitStatus, FrontendMessage};
-	pub use crate::hit::{ArcDynHit, Hit, ScoredHit, SimpleHit};
-	pub use crate::provider::{BoxDynProvider, Provider, ProviderDef, ProviderResult};
-
-	pub use gravel_ffi_macros::*;
-
-	pub const MAX_SCORE: u32 = u32::MAX;
-	pub const MIN_SCORE: u32 = u32::MIN;
+	pub use crate::{gravel_frontend, gravel_provider};
+	pub use crate::{ArcDynHit, Hit, ScoredHit, SimpleHit};
+	pub use crate::{BoxDynQueryEngine, QueryEngine, QueryResult};
+	pub use crate::{FrontendDef, FrontendExitStatus, FrontendMessage};
+	pub use crate::{PluginConfigAdapter, ProviderDef, ProviderResult};
+	pub use crate::{MAX_SCORE, MIN_SCORE};
 }
 
+pub use config::PluginConfigAdapter;
+pub use engine::{BoxDynQueryEngine, QueryEngine, QueryResult};
+pub use frontend::{BoxDynFrontend, Frontend, FrontendDef, FrontendExitStatus, FrontendMessage};
+pub use hit::{ArcDynHit, Hit, ScoredHit, SimpleHit};
 pub use plugin::{PluginDefinition, PluginMetadata};
-pub use prelude::*;
+pub use provider::{BoxDynProvider, Provider, ProviderDef, ProviderResult};
+
+pub use gravel_ffi_macros::*;
+
+pub const MAX_SCORE: u32 = u32::MAX;
+pub const MIN_SCORE: u32 = u32::MIN;
 
 #[repr(C)]
 #[derive(StableAbi)]

@@ -2,7 +2,7 @@
 
 use abi_stable::{std_types::RString, traits::IntoReprC};
 use gravel_ffi::config::{create_figment, ConfigLayer};
-use gravel_ffi::prelude::*;
+use gravel_ffi::{FrontendMessage, PluginConfigAdapter};
 use nameof::name_of;
 use serde::Deserialize;
 

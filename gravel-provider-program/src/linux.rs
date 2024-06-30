@@ -1,6 +1,6 @@
 use crate::Config;
 use abi_stable::external_types::crossbeam_channel::RSender;
-use gravel_ffi::{paths, prelude::*};
+use gravel_ffi::{paths, FrontendMessage, SimpleHit};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 

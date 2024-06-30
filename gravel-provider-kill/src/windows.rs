@@ -1,5 +1,5 @@
 use anyhow::Result;
-use gravel_ffi::prelude::*;
+use gravel_ffi::SimpleHit;
 use sysinfo::{Process, System};
 use thiserror::Error;
 use winapi::shared::minwindef::DWORD;

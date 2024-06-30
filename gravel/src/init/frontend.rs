@@ -1,6 +1,6 @@
 use gravel_core::config::ConfigManager;
 use gravel_core::{engine::QueryEngineImpl, plugin::PluginRegistry};
-use gravel_ffi::prelude::*;
+use gravel_ffi::BoxDynFrontend;
 
 /// Initializes the configured [`Frontend`].
 pub fn frontend(registry: &PluginRegistry, engine: QueryEngineImpl, config: &ConfigManager) -> BoxDynFrontend {

@@ -7,7 +7,7 @@
 use abi_stable::external_types::crossbeam_channel;
 use anyhow::{Context, Result};
 use gravel_core::performance::Stopwatch;
-use gravel_ffi::prelude::*;
+use gravel_ffi::{FrontendExitStatus, FrontendMessage};
 use std::{env, path::Path};
 
 mod init;

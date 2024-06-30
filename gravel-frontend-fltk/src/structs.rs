@@ -1,6 +1,6 @@
 use crate::scrollbar::Scrollbar;
 use fltk::{app::App, app::Receiver, app::Sender, frame::Frame, group::Group, input::Input, window::Window};
-use gravel_ffi::prelude::*;
+use gravel_ffi::FrontendMessage;
 
 /// Holds all necessary elements of the FLTK app.
 pub struct Ui {

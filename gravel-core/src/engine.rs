@@ -1,7 +1,7 @@
 use crate::performance::Stopwatch;
 use crate::scoring;
 use abi_stable::{external_types::crossbeam_channel::RSender, sabi_trait, std_types::RStr, traits::IntoReprRust};
-use gravel_ffi::prelude::*;
+use gravel_ffi::{ArcDynHit, BoxDynProvider, BoxDynQueryEngine, FrontendMessage, QueryEngine, QueryResult};
 use itertools::Itertools;
 
 /// Holds a [`Provider`] and some additional metadata.

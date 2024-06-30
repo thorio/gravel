@@ -1,7 +1,7 @@
 use abi_stable::traits::IntoReprRust;
 use fuzzy_matcher::skim::SkimMatcherV2;
 use fuzzy_matcher::FuzzyMatcher;
-use gravel_ffi::prelude::*;
+use gravel_ffi::{ArcDynHit, ScoredHit};
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use std::cmp::Ordering;
