@@ -51,7 +51,7 @@ impl FrontendDef for FltkFrontend {
 		}
 	}
 
-	fn run(&mut self, receiver: RReceiver<FrontendMessage>) -> FrontendExitStatus {
+	fn run(&mut self, receiver: RReceiver<FrontendMessageNe>) -> FrontendExitStatus {
 		self.handle_frontend_messages(receiver);
 		self.update_window_position();
 
@@ -100,12 +100,21 @@ impl FltkFrontend {
 
 	/// Registers a recurring timeout that forwards [`FrontendMessage`]s on
 	/// the given [`Receiver`] to the frontend's own channel.
-	fn handle_frontend_messages(&mut self, receiver: RReceiver<FrontendMessage>) {
+	fn handle_frontend_messages(&mut self, receiver: RReceiver<FrontendMessageNe>) {
+		fn try_recv(receiver: &RReceiver<FrontendMessageNe>) -> Option<Event> {
+			receiver
+				.try_recv()
+				.ok()?
+				.try_into()
+				.inspect_err(|e| log::warn!("unknown FrontendMessage, this plugin is out of date: {e}"))
+				.ok()
+		}
+
 		let own_sender = self.ui.sender.clone();
 
 		fltk::app::add_timeout3(0.01, move |handle| {
-			if let Ok(message) = receiver.try_recv() {
-				own_sender.send(message.into());
+			if let Some(message) = try_recv(&receiver) {
+				own_sender.send(message);
 			}
 
 			fltk::app::repeat_timeout3(0.01, handle);

@@ -7,7 +7,7 @@
 use abi_stable::external_types::crossbeam_channel;
 use anyhow::{Context, Result};
 use gravel_core::performance::Stopwatch;
-use gravel_ffi::{FrontendExitStatus, FrontendMessage};
+use gravel_ffi::{FrontendExitStatus, FrontendMessageNe};
 use std::{env, path::Path};
 
 mod init;
@@ -42,7 +42,7 @@ fn run() -> Result<()> {
 
 	let registry = init::plugins();
 
-	let (sender, receiver) = crossbeam_channel::bounded::<FrontendMessage>(8);
+	let (sender, receiver) = crossbeam_channel::bounded::<FrontendMessageNe>(8);
 	let engine = init::engine(sender.clone(), &registry, &config);
 	let mut frontend = init::frontend(&registry, engine, &config);
 
@@ -50,7 +50,10 @@ fn run() -> Result<()> {
 
 	log::info!("initialization complete, took {stopwatch}");
 	log::trace!("starting frontend");
-	let exit_status = frontend.run(receiver);
+	let exit_status = frontend
+		.run(receiver)
+		.into_enum()
+		.expect("plugin must not be newer than application");
 
 	drop(single_instance);
 

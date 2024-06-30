@@ -21,15 +21,15 @@ mod provider;
 pub mod prelude {
 	pub use crate::{
 		gravel_frontend, gravel_provider, ArcDynHit, BoxDynFrontendContext, BoxDynHitActionContext, FrontendContext,
-		FrontendDef, FrontendExitStatus, FrontendMessage, Hit, PluginConfigAdapter, ProviderDef, ProviderResult,
-		QueryResult, ScoredHit, SimpleHit, MAX_SCORE, MIN_SCORE,
+		FrontendDef, FrontendExitStatus, FrontendMessage, FrontendMessageNe, Hit, PluginConfigAdapter, ProviderDef,
+		ProviderResult, QueryResult, ScoredHit, SimpleHit, MAX_SCORE, MIN_SCORE,
 	};
 }
 
 pub use config::PluginConfigAdapter;
 pub use frontend::{
-	BoxDynFrontend, BoxDynFrontendContext, Frontend, FrontendContext, FrontendDef, FrontendExitStatus, FrontendMessage,
-	QueryResult,
+	BoxDynFrontend, BoxDynFrontendContext, Frontend, FrontendContext, FrontendDef, FrontendExitStatus,
+	FrontendExitStatusNe, FrontendMessage, FrontendMessageNe, QueryResult,
 };
 pub use hit::{ArcDynHit, BoxDynHitActionContext, Hit, HitActionContext, ScoredHit, SimpleHit};
 pub use plugin::{PluginDefinition, PluginMetadata};
@@ -49,6 +49,7 @@ pub struct PluginLib {
 }
 
 // TODO: make log crate work in dynamic libs
+// TODO: write a test to check for compatibility with older plugins
 
 #[allow(clippy::use_self)]
 impl RootModule for PluginLibRef {

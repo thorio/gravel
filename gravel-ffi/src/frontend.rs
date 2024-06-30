@@ -6,12 +6,12 @@ pub type BoxDynFrontend = Frontend_TO<'static, RBox<()>>;
 
 #[sabi_trait]
 pub trait Frontend {
-	fn run(&mut self, receiver: RReceiver<FrontendMessage>) -> FrontendExitStatus;
+	fn run(&mut self, receiver: RReceiver<FrontendMessageNe>) -> FrontendExitStatusNe;
 }
 
 pub trait FrontendDef {
 	fn new(engine: BoxDynFrontendContext, config: &PluginConfigAdapter<'_>) -> Self;
-	fn run(&mut self, receiver: RReceiver<FrontendMessage>) -> FrontendExitStatus;
+	fn run(&mut self, receiver: RReceiver<FrontendMessageNe>) -> FrontendExitStatus;
 }
 
 pub type BoxDynFrontendContext = FrontendContext_TO<'static, RBox<()>>;
@@ -42,12 +42,15 @@ impl QueryResult {
 	}
 }
 
+pub type FrontendMessageNe = FrontendMessage_NE;
+
 /// Represents actions the [`Frontend`] should take.
 ///
 /// These values are to be received by the frontend via a provided
 /// [`Receiver`] and must be handled.
-#[derive(StableAbi, Debug, Clone, PartialEq, Eq)]
 #[repr(u8)]
+#[derive(StableAbi, Debug, Clone, PartialEq, Eq)]
+#[sabi(kind(WithNonExhaustive(size = 40, traits(Debug, Clone))))]
 pub enum FrontendMessage {
 	ShowOrHide,
 	Show,
@@ -58,9 +61,11 @@ pub enum FrontendMessage {
 	Restart,
 }
 
-// TODO: implement nonexhaustive for these two
-#[derive(StableAbi, Debug, Copy, Clone, PartialEq, Eq)]
+pub type FrontendExitStatusNe = FrontendExitStatus_NE;
+
 #[repr(u8)]
+#[derive(StableAbi, Debug, Copy, Clone, PartialEq, Eq)]
+#[sabi(kind(WithNonExhaustive(size = 40, traits(Debug, Clone))))]
 pub enum FrontendExitStatus {
 	Exit,
 	Restart,

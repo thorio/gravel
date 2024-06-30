@@ -1,6 +1,7 @@
 use crate::scrollbar::Scrollbar;
+use abi_stable::nonexhaustive_enum::UnwrapEnumError;
 use fltk::{app::App, app::Receiver, app::Sender, frame::Frame, group::Group, input::Input, window::Window};
-use gravel_ffi::FrontendMessage;
+use gravel_ffi::{FrontendMessage, FrontendMessageNe};
 
 /// Holds all necessary elements of the FLTK app.
 pub struct Ui {
@@ -53,5 +54,13 @@ impl From<FrontendMessage> for Event {
 			M::Exit => Self::Exit,
 			M::Restart => Self::Restart,
 		}
+	}
+}
+
+impl TryFrom<FrontendMessageNe> for Event {
+	type Error = UnwrapEnumError<FrontendMessageNe>;
+
+	fn try_from(value: FrontendMessageNe) -> Result<Self, Self::Error> {
+		value.into_enum().map(Into::into)
 	}
 }

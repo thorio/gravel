@@ -55,8 +55,9 @@ pub fn gravel_frontend(attr: TokenStream1, item: TokenStream1) -> TokenStream1 {
 
 		let ast: File = parse_quote! {
 			impl ::gravel_ffi::Frontend for #frontend_type {
-				fn run(&mut self, receiver: RReceiver<FrontendMessage>) -> FrontendExitStatus {
-					::gravel_ffi::FrontendDef::run(self, receiver)
+				fn run(&mut self, receiver: ::abi_stable::external_types::crossbeam_channel::RReceiver<FrontendMessageNe>) -> ::gravel_ffi::FrontendExitStatusNe {
+					let status = ::gravel_ffi::FrontendDef::run(self, receiver);
+					::gravel_ffi::FrontendExitStatusNe::new(status)
 				}
 			}
 

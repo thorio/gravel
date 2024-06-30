@@ -1,8 +1,8 @@
 use crate::performance::Stopwatch;
 use crate::scoring;
 use abi_stable::{external_types::crossbeam_channel::RSender, sabi_trait, std_types::RStr, traits::IntoReprRust};
-use gravel_ffi::{ArcDynHit, BoxDynHitActionContext, HitActionContext};
-use gravel_ffi::{BoxDynFrontendContext, BoxDynProvider, FrontendContext, FrontendMessage, QueryResult};
+use gravel_ffi::{ArcDynHit, BoxDynHitActionContext, FrontendMessage, HitActionContext};
+use gravel_ffi::{BoxDynFrontendContext, BoxDynProvider, FrontendContext, FrontendMessageNe, QueryResult};
 use itertools::Itertools;
 
 /// Holds a [`Provider`] and some additional metadata.
@@ -54,7 +54,7 @@ impl From<QueryEngine> for BoxDynFrontendContext {
 
 /// Aggregates and scores hits from the given [`Provider`]s.
 impl QueryEngine {
-	pub fn new(sender: RSender<FrontendMessage>) -> Self {
+	pub fn new(sender: RSender<FrontendMessageNe>) -> Self {
 		Self {
 			providers: vec![],
 			action_context: ActionContext::new(sender).into(),
@@ -118,16 +118,16 @@ fn inner_query(providers: &[&ProviderInfo], query: &str) -> QueryResult {
 }
 
 struct ActionContext {
-	sender: RSender<FrontendMessage>,
+	sender: RSender<FrontendMessageNe>,
 }
 
 impl ActionContext {
-	pub fn new(sender: RSender<FrontendMessage>) -> Self {
+	pub fn new(sender: RSender<FrontendMessageNe>) -> Self {
 		Self { sender }
 	}
 
 	fn send(&self, message: FrontendMessage) {
-		self.sender.send(message).ok();
+		self.sender.send(FrontendMessageNe::new(message)).ok();
 	}
 }
 
