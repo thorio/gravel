@@ -1,8 +1,6 @@
 use crate::fns::RBoxFn;
-use crate::frontend::FrontendMessage;
-use abi_stable::external_types::crossbeam_channel::RSender;
 use abi_stable::sabi_trait;
-use abi_stable::std_types::{RArc, ROption, RStr, RString};
+use abi_stable::std_types::{RArc, RBox, ROption, RStr, RString};
 use abi_stable::StableAbi;
 use std::fmt::Debug;
 
@@ -13,8 +11,7 @@ pub trait Hit: Sync + Send + Debug {
 	fn title(&self) -> RStr<'_>;
 	fn subtitle(&self) -> RStr<'_>;
 	fn override_score(&self) -> ROption<u32>;
-	// TODO factor the sender out, provide a nicer interface
-	fn action(&self, sender: &RSender<FrontendMessage>);
+	fn action(&self, context: &BoxDynHitActionContext);
 }
 
 pub fn clone_hit_ptr(hit: &ArcDynHit) -> ArcDynHit {
@@ -35,12 +32,12 @@ impl ScoredHit {
 }
 
 #[repr(C)]
-#[derive(StableAbi, Debug)]
+#[derive(Debug)]
 pub struct SimpleHit {
 	pub title: RString,
 	pub subtitle: RString,
 	pub override_score: ROption<u32>,
-	pub action: RBoxFn<Self, RSender<FrontendMessage>, ()>,
+	pub action: RBoxFn<Self, BoxDynHitActionContext, ()>,
 }
 
 impl SimpleHit {
@@ -49,7 +46,7 @@ impl SimpleHit {
 	pub fn new(
 		title: impl Into<RString>,
 		subtitle: impl Into<RString>,
-		func: impl Fn(&Self, &RSender<FrontendMessage>) + Send + Sync + 'static,
+		func: impl Fn(&Self, &BoxDynHitActionContext) + Send + Sync + 'static,
 	) -> Self {
 		Self {
 			title: title.into(),
@@ -73,8 +70,8 @@ impl From<SimpleHit> for ArcDynHit {
 }
 
 impl Hit for SimpleHit {
-	fn action(&self, sender: &RSender<FrontendMessage>) {
-		self.action.call(self, sender);
+	fn action(&self, context: &BoxDynHitActionContext) {
+		self.action.call(self, context);
 	}
 
 	#[must_use]
@@ -91,4 +88,14 @@ impl Hit for SimpleHit {
 	fn override_score(&self) -> ROption<u32> {
 		self.override_score
 	}
+}
+
+pub type BoxDynHitActionContext = HitActionContext_TO<'static, RBox<()>>;
+
+#[sabi_trait]
+pub trait HitActionContext {
+	fn hide_frontend(&self);
+	fn refresh_frontend(&self);
+	fn exit(&self);
+	fn restart(&self);
 }

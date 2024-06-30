@@ -1,7 +1,8 @@
 use crate::performance::Stopwatch;
 use crate::scoring;
 use abi_stable::{external_types::crossbeam_channel::RSender, sabi_trait, std_types::RStr, traits::IntoReprRust};
-use gravel_ffi::{ArcDynHit, BoxDynProvider, BoxDynQueryEngine, FrontendMessage, QueryEngine, QueryResult};
+use gravel_ffi::{ArcDynHit, BoxDynHitActionContext, HitActionContext};
+use gravel_ffi::{BoxDynProvider, BoxDynQueryEngine, FrontendMessage, QueryEngine, QueryResult};
 use itertools::Itertools;
 
 /// Holds a [`Provider`] and some additional metadata.
@@ -12,7 +13,7 @@ struct ProviderInfo {
 
 pub struct QueryEngineImpl {
 	providers: Vec<ProviderInfo>,
-	sender: RSender<FrontendMessage>,
+	action_context: BoxDynHitActionContext,
 }
 
 impl QueryEngine for QueryEngineImpl {
@@ -39,7 +40,7 @@ impl QueryEngine for QueryEngineImpl {
 	}
 
 	fn run_hit_action(&self, hit: &ArcDynHit) {
-		hit.action(&self.sender);
+		hit.action(&self.action_context);
 	}
 }
 
@@ -54,7 +55,7 @@ impl QueryEngineImpl {
 	pub fn new(sender: RSender<FrontendMessage>) -> Self {
 		Self {
 			providers: vec![],
-			sender,
+			action_context: ActionContext::new(sender).into(),
 		}
 	}
 
@@ -112,4 +113,42 @@ fn inner_query(providers: &[&ProviderInfo], query: &str) -> QueryResult {
 	};
 
 	QueryResult::new(hits)
+}
+
+struct ActionContext {
+	sender: RSender<FrontendMessage>,
+}
+
+impl ActionContext {
+	pub fn new(sender: RSender<FrontendMessage>) -> Self {
+		Self { sender }
+	}
+
+	fn send(&self, message: FrontendMessage) {
+		self.sender.send(message).ok();
+	}
+}
+
+impl From<ActionContext> for BoxDynHitActionContext {
+	fn from(value: ActionContext) -> Self {
+		Self::from_value(value, sabi_trait::TD_Opaque)
+	}
+}
+
+impl HitActionContext for ActionContext {
+	fn hide_frontend(&self) {
+		self.send(FrontendMessage::Hide);
+	}
+
+	fn refresh_frontend(&self) {
+		self.send(FrontendMessage::Refresh);
+	}
+
+	fn exit(&self) {
+		self.send(FrontendMessage::Exit);
+	}
+
+	fn restart(&self) {
+		self.send(FrontendMessage::Restart);
+	}
 }

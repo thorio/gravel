@@ -1,7 +1,6 @@
 //! gravel's process killer
 //! Lists running processes on your system and will allow you to kill them.
 
-use abi_stable::external_types::crossbeam_channel::RSender;
 use gravel_ffi::prelude::*;
 use implementation::Pid;
 
@@ -33,15 +32,15 @@ impl ProviderDef for KillProvider {
 pub(crate) fn get_hit(name: &str, pid: Pid, cmdline: &str) -> SimpleHit {
 	let title = format!("{name} - {pid}");
 
-	SimpleHit::new(title, cmdline, move |_h, s| do_kill(s, pid))
+	SimpleHit::new(title, cmdline, move |_, ctx| do_kill(pid, ctx))
 }
 
-fn do_kill(sender: &RSender<FrontendMessage>, pid: Pid) {
+fn do_kill(pid: Pid, context: &BoxDynHitActionContext) {
 	log::debug!("attempting to kill PID {pid}");
 
 	implementation::kill_process(pid)
 		.inspect_err(|e| log::error!("unable to kill PID {pid}: {e}"))
 		.ok();
 
-	sender.send(FrontendMessage::Refresh).ok();
+	context.refresh_frontend();
 }

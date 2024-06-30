@@ -1,6 +1,5 @@
 use crate::Config;
-use abi_stable::external_types::crossbeam_channel::RSender;
-use gravel_ffi::{paths, FrontendMessage, SimpleHit};
+use gravel_ffi::{paths, BoxDynHitActionContext, SimpleHit};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
@@ -25,13 +24,13 @@ pub fn get_program(path: &Path) -> Option<SimpleHit> {
 	let name = section.attr("Name").unwrap_or(filename);
 
 	let filename = filename.to_owned();
-	let hit = SimpleHit::new(name, path.to_string_lossy(), move |_h, s| run_program(&filename, s));
+	let hit = SimpleHit::new(name, path.to_string_lossy(), move |_, ctx| run_program(&filename, ctx));
 
 	Some(hit)
 }
 
 /// Runs the given entry using gtk-launch.
-fn run_program(desktop_file: &str, sender: &RSender<FrontendMessage>) {
+fn run_program(desktop_file: &str, context: &BoxDynHitActionContext) {
 	log::debug!("starting application '{desktop_file}'");
 
 	Command::new("gtk-launch")
@@ -43,5 +42,5 @@ fn run_program(desktop_file: &str, sender: &RSender<FrontendMessage>) {
 		.spawn()
 		.expect("gtk-launch should be present");
 
-	sender.send(FrontendMessage::Hide).ok();
+	context.hide_frontend();
 }

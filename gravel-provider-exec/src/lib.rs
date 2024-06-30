@@ -3,7 +3,6 @@
 //! Always returns a hit with the minimum score that, when selected,
 //! runs the command with the system shell.
 
-use abi_stable::external_types::crossbeam_channel::RSender;
 use gravel_ffi::prelude::*;
 use serde::Deserialize;
 
@@ -32,12 +31,12 @@ impl ProviderDef for ExecProvider {
 	}
 }
 
-fn run_command(hit: &SimpleHit, sender: &RSender<FrontendMessage>) {
+fn run_command(hit: &SimpleHit, context: &BoxDynHitActionContext) {
 	implementation::run_command(hit.title().as_str())
 		.inspect_err(|e| log::error!("{e}"))
 		.ok();
 
-	sender.send(FrontendMessage::Hide).ok();
+	context.hide_frontend();
 }
 
 #[derive(Deserialize, Debug)]

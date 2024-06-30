@@ -5,7 +5,6 @@
 //!
 //! Selecting the hit copies the calculated value to the system's clipboard.
 
-use abi_stable::external_types::crossbeam_channel::RSender;
 use arboard::Clipboard;
 use gravel_ffi::prelude::*;
 use mexprp::Answer;
@@ -49,8 +48,8 @@ impl ProviderDef for CalculatorProvider {
 
 		let clipboard = self.get_clipboard();
 
-		let hit = SimpleHit::new(result, self.config.subtitle.clone(), move |h, s| {
-			do_copy(clipboard.clone(), h.title().as_str(), s);
+		let hit = SimpleHit::new(result, self.config.subtitle.clone(), move |hit, ctx| {
+			do_copy(clipboard.clone(), hit.title().as_str(), ctx);
 		})
 		.with_score(MAX_SCORE);
 
@@ -76,7 +75,7 @@ fn eval(expression: &str) -> Option<String> {
 	.map(|r| round(r, 10).to_string())
 }
 
-fn do_copy(clipboard: Option<Arc<Mutex<Clipboard>>>, result: &str, sender: &RSender<FrontendMessage>) {
+fn do_copy(clipboard: Option<Arc<Mutex<Clipboard>>>, result: &str, context: &BoxDynHitActionContext) {
 	let Some(clipboard_mutex) = clipboard else {
 		return;
 	};
@@ -89,7 +88,7 @@ fn do_copy(clipboard: Option<Arc<Mutex<Clipboard>>>, result: &str, sender: &RSen
 		.inspect_err(|e| log::error!("unable to set clipboard: {e}"))
 		.ok();
 
-	sender.send(FrontendMessage::Hide).ok();
+	context.hide_frontend();
 }
 
 fn round(number: f64, precision: u32) -> f64 {

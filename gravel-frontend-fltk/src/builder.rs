@@ -29,10 +29,10 @@ pub fn build(config: &Config) -> Ui {
 
 	let do_auto_hide = config.behaviour.auto_hide;
 	let sender_clone = sender.clone();
-	window.handle(move |_window, event| window_event(event, &sender_clone, do_auto_hide));
+	window.handle(move |_window, event| on_window_event(event, &sender_clone, do_auto_hide));
 
 	let sender_clone = sender.clone();
-	input.handle(move |_input, event| input_event(event, &sender_clone));
+	input.handle(move |_input, event| on_input_event(event, &sender_clone));
 
 	let hits = (0..config.layout.max_hits).map(|i| build_hit(i, config)).collect();
 
@@ -126,29 +126,27 @@ fn build_hit(i: i32, config: &Config) -> HitUi {
 	HitUi { group, title, subtitle }
 }
 
-/// Handles events on the window.
-fn window_event(event: FltkEvent, sender: &Sender<Event>, do_auto_hide: bool) -> bool {
-	match event {
-		FltkEvent::Unfocus if do_auto_hide => window_unfocus(sender),
-		_ => false,
-	}
-}
+fn on_window_event(event: FltkEvent, sender: &Sender<Event>, do_auto_hide: bool) -> bool {
+	let message = match event {
+		FltkEvent::Unfocus if do_auto_hide => Event::HideWindow,
+		_ => return false,
+	};
 
-fn window_unfocus(sender: &Sender<Event>) -> bool {
-	sender.send(Event::HideWindow);
+	sender.send(message);
 
 	true
 }
 
-/// Handles events on the input.
-fn input_event(event: FltkEvent, sender: &Sender<Event>) -> bool {
+fn on_input_event(event: FltkEvent, sender: &Sender<Event>) -> bool {
 	match event {
-		FltkEvent::KeyDown | FltkEvent::Paste => input_keydown(app::event_key(), sender),
-		_ => false,
-	}
+		FltkEvent::KeyDown | FltkEvent::Paste => on_input_keydown(app::event_key(), sender),
+		_ => return false,
+	};
+
+	true
 }
 
-fn input_keydown(key: Key, sender: &Sender<Event>) -> bool {
+fn on_input_keydown(key: Key, sender: &Sender<Event>) {
 	let message = match key {
 		Key::Escape => Event::Cancel,
 		Key::Enter | Key::KPEnter => Event::Confirm,
@@ -162,8 +160,6 @@ fn input_keydown(key: Key, sender: &Sender<Event>) -> bool {
 	};
 
 	sender.send(message);
-
-	true
 }
 
 fn ctrl_down() -> bool {

@@ -20,9 +20,10 @@ pub struct SystemProvider {
 impl ProviderDef for SystemProvider {
 	fn new(config: &PluginConfigAdapter<'_>) -> Self {
 		let config = config.get::<Config>(DEFAULT_CONFIG);
+		#[allow(clippy::redundant_closure_for_method_calls)]
 		let hits = vec![
-			message_hit(config.exit, FrontendMessage::Exit),
-			message_hit(config.reload, FrontendMessage::Restart),
+			context_hit(config.exit, |ctx| ctx.exit()),
+			context_hit(config.reload, |ctx| ctx.restart()),
 			shell_hit(config.lock, implementation::lock),
 			shell_hit(config.logout, implementation::logout),
 			shell_hit(config.restart, implementation::restart),
@@ -38,21 +39,19 @@ impl ProviderDef for SystemProvider {
 	}
 }
 
-fn message_hit(config: CommandConfig, message: FrontendMessage) -> ArcDynHit {
-	let hit = SimpleHit::new(config.title, config.subtitle, move |_hit, sender| {
-		sender.send(message.clone()).ok();
-	});
+fn context_hit(config: CommandConfig, action: impl Fn(&BoxDynHitActionContext) + Send + Sync + 'static) -> ArcDynHit {
+	let hit = SimpleHit::new(config.title, config.subtitle, move |_, ctx| action(ctx));
 
 	hit.into()
 }
 
 fn shell_hit(config: ShellCommandConfig, action: impl Fn(&str) -> Result<()> + Send + Sync + 'static) -> ArcDynHit {
-	let hit = SimpleHit::new(config.title, config.subtitle, move |hit, sender| {
+	let hit = SimpleHit::new(config.title, config.subtitle, move |hit, context| {
 		action(&config.command_linux)
 			.inspect_err(|e| log::error!("unable to perform system operation {}: {e}", hit.title()))
 			.ok();
 
-		sender.send(FrontendMessage::Hide).ok();
+		context.hide_frontend();
 	});
 
 	hit.into()

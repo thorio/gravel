@@ -1,6 +1,5 @@
 use crate::Config;
-use abi_stable::external_types::crossbeam_channel::RSender;
-use gravel_ffi::{FrontendMessage, SimpleHit};
+use gravel_ffi::{BoxDynHitActionContext, SimpleHit};
 use std::borrow::Cow;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -23,11 +22,13 @@ pub fn get_program(path: &Path) -> Option<SimpleHit> {
 	let name = path.file_stem()?.to_string_lossy();
 	let path = path.to_str()?.to_owned();
 
-	Some(SimpleHit::new(name, path.clone(), move |_h, s| run_program(&path, s)))
+	Some(SimpleHit::new(name, path.clone(), move |_, ctx| {
+		run_program(&path, ctx);
+	}))
 }
 
 /// Passes the link's path to explorer, which then launches the application.
-fn run_program(link_path: &str, sender: &RSender<FrontendMessage>) {
+fn run_program(link_path: &str, context: &BoxDynHitActionContext) {
 	log::debug!("starting application '{link_path}'");
 
 	Command::new("explorer")
@@ -35,5 +36,5 @@ fn run_program(link_path: &str, sender: &RSender<FrontendMessage>) {
 		.spawn()
 		.expect("running explorer should never fail");
 
-	sender.send(FrontendMessage::Hide).ok();
+	context.hide_frontend();
 }

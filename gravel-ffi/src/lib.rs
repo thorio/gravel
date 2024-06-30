@@ -21,7 +21,7 @@ mod provider;
 
 pub mod prelude {
 	pub use crate::{gravel_frontend, gravel_provider};
-	pub use crate::{ArcDynHit, Hit, ScoredHit, SimpleHit};
+	pub use crate::{ArcDynHit, BoxDynHitActionContext, Hit, ScoredHit, SimpleHit};
 	pub use crate::{BoxDynQueryEngine, QueryEngine, QueryResult};
 	pub use crate::{FrontendDef, FrontendExitStatus, FrontendMessage};
 	pub use crate::{PluginConfigAdapter, ProviderDef, ProviderResult};
@@ -31,7 +31,7 @@ pub mod prelude {
 pub use config::PluginConfigAdapter;
 pub use engine::{BoxDynQueryEngine, QueryEngine, QueryResult};
 pub use frontend::{BoxDynFrontend, Frontend, FrontendDef, FrontendExitStatus, FrontendMessage};
-pub use hit::{ArcDynHit, Hit, ScoredHit, SimpleHit};
+pub use hit::{ArcDynHit, BoxDynHitActionContext, Hit, HitActionContext, ScoredHit, SimpleHit};
 pub use plugin::{PluginDefinition, PluginMetadata};
 pub use provider::{BoxDynProvider, Provider, ProviderDef, ProviderResult};
 

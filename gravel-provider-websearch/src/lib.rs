@@ -3,7 +3,6 @@
 //! Always returns a hit with the minimum score that, when selected,
 //! opens the user's default browser and searches for the query.
 
-use abi_stable::external_types::crossbeam_channel::RSender;
 use gravel_ffi::prelude::*;
 use serde::Deserialize;
 
@@ -26,8 +25,8 @@ impl ProviderDef for WebsearchProvider {
 	}
 
 	fn query(&self, query: &str) -> ProviderResult {
-		let hit = SimpleHit::new(query, &*self.config.subtitle, |hit, sender| {
-			do_search(self.url_pattern, hit.title().as_str(), sender);
+		let hit = SimpleHit::new(query, &*self.config.subtitle, |hit, ctx| {
+			do_search(self.url_pattern, hit.title().as_str(), ctx);
 		})
 		.with_score(MIN_SCORE);
 
@@ -35,7 +34,7 @@ impl ProviderDef for WebsearchProvider {
 	}
 }
 
-fn do_search(url_pattern: &str, query: &str, sender: &RSender<FrontendMessage>) {
+fn do_search(url_pattern: &str, query: &str, context: &BoxDynHitActionContext) {
 	let encoded = urlencoding::encode(query);
 	let url = url_pattern.replace("{}", &encoded);
 
@@ -44,7 +43,7 @@ fn do_search(url_pattern: &str, query: &str, sender: &RSender<FrontendMessage>) 
 		.inspect_err(|e| log::error!("unable to open URL: {e}"))
 		.ok();
 
-	sender.send(FrontendMessage::Hide).ok();
+	context.hide_frontend();
 }
 
 #[derive(Deserialize, Debug)]
