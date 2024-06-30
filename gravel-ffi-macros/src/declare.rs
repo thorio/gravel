@@ -21,7 +21,7 @@ pub fn frontend(plugin_name: &str, impl_type: &Type) -> File {
 		#plugin
 
 		#[::abi_stable::sabi_extern_fn]
-		pub fn __gravel_plugin_get(engine: ::gravel_ffi::BoxDynQueryEngine, config: &::gravel_ffi::PluginConfigAdapter<'_>) -> ::gravel_ffi::BoxDynFrontend {
+		pub fn __gravel_plugin_get(engine: ::gravel_ffi::BoxDynFrontendContext, config: &::gravel_ffi::PluginConfigAdapter<'_>) -> ::gravel_ffi::BoxDynFrontend {
 			let value = <#impl_type as ::gravel_ffi::FrontendDef>::new(engine, config);
 			::gravel_ffi::BoxDynFrontend::from_value(value, ::abi_stable::sabi_trait::TD_Opaque)
 		}

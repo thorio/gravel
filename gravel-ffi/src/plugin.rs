@@ -1,17 +1,16 @@
-use crate::config::PluginConfigAdapter;
-use crate::engine::BoxDynQueryEngine;
 use crate::frontend::BoxDynFrontend;
 use crate::provider::BoxDynProvider;
+use crate::{config::PluginConfigAdapter, BoxDynFrontendContext};
 use abi_stable::{std_types::RString, StableAbi};
 
 pub type ProviderFactory = extern "C" fn(&PluginConfigAdapter<'_>) -> BoxDynProvider;
-pub type FrontendFactory = extern "C" fn(BoxDynQueryEngine, &PluginConfigAdapter<'_>) -> BoxDynFrontend;
+pub type FrontendFactory = extern "C" fn(BoxDynFrontendContext, &PluginConfigAdapter<'_>) -> BoxDynFrontend;
 
 #[repr(u8)]
 #[derive(StableAbi, Debug)]
 pub enum PluginFactory {
 	Provider(extern "C" fn(&PluginConfigAdapter<'_>) -> BoxDynProvider),
-	Frontend(extern "C" fn(BoxDynQueryEngine, &PluginConfigAdapter<'_>) -> BoxDynFrontend),
+	Frontend(extern "C" fn(BoxDynFrontendContext, &PluginConfigAdapter<'_>) -> BoxDynFrontend),
 }
 
 impl PluginFactory {

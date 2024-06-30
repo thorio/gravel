@@ -1,9 +1,9 @@
 use gravel_core::config::ConfigManager;
-use gravel_core::{engine::QueryEngineImpl, plugin::PluginRegistry};
+use gravel_core::{engine::QueryEngine, plugin::PluginRegistry};
 use gravel_ffi::BoxDynFrontend;
 
 /// Initializes the configured [`Frontend`].
-pub fn frontend(registry: &PluginRegistry, engine: QueryEngineImpl, config: &ConfigManager) -> BoxDynFrontend {
+pub fn frontend(registry: &PluginRegistry, engine: QueryEngine, config: &ConfigManager) -> BoxDynFrontend {
 	let root_config = config.root();
 
 	// fall back to the plugin name if no alias is configured

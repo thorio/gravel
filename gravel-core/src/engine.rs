@@ -2,7 +2,7 @@ use crate::performance::Stopwatch;
 use crate::scoring;
 use abi_stable::{external_types::crossbeam_channel::RSender, sabi_trait, std_types::RStr, traits::IntoReprRust};
 use gravel_ffi::{ArcDynHit, BoxDynHitActionContext, HitActionContext};
-use gravel_ffi::{BoxDynProvider, BoxDynQueryEngine, FrontendMessage, QueryEngine, QueryResult};
+use gravel_ffi::{BoxDynFrontendContext, BoxDynProvider, FrontendContext, FrontendMessage, QueryResult};
 use itertools::Itertools;
 
 /// Holds a [`Provider`] and some additional metadata.
@@ -11,12 +11,14 @@ struct ProviderInfo {
 	pub keyword: Option<String>,
 }
 
-pub struct QueryEngineImpl {
+pub struct QueryEngine {
 	providers: Vec<ProviderInfo>,
 	action_context: BoxDynHitActionContext,
 }
 
-impl QueryEngine for QueryEngineImpl {
+/// for now the `QueryEngine` _is_ the `FrontendContext`,
+/// but this can later be changed without breaking the interface
+impl FrontendContext for QueryEngine {
 	fn query(&self, query: RStr<'_>) -> QueryResult where {
 		let stopwatch = Stopwatch::start();
 
@@ -44,14 +46,14 @@ impl QueryEngine for QueryEngineImpl {
 	}
 }
 
-impl From<QueryEngineImpl> for BoxDynQueryEngine {
-	fn from(value: QueryEngineImpl) -> Self {
+impl From<QueryEngine> for BoxDynFrontendContext {
+	fn from(value: QueryEngine) -> Self {
 		Self::from_value(value, sabi_trait::TD_Opaque)
 	}
 }
 
 /// Aggregates and scores hits from the given [`Provider`]s.
-impl QueryEngineImpl {
+impl QueryEngine {
 	pub fn new(sender: RSender<FrontendMessage>) -> Self {
 		Self {
 			providers: vec![],

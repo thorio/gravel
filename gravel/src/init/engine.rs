@@ -1,16 +1,16 @@
 use abi_stable::external_types::crossbeam_channel::RSender;
 use gravel_core::config::ConfigManager;
-use gravel_core::{engine::QueryEngineImpl, plugin::PluginRegistry};
+use gravel_core::{engine::QueryEngine, plugin::PluginRegistry};
 use gravel_ffi::FrontendMessage;
 
 /// Initializes the configured [`Provider`]s and the [`QueryEngine`].
 ///
 /// If a configured provider cannot be found, an error is logged
 /// and the provider is skipped.
-pub fn engine(sender: RSender<FrontendMessage>, registry: &PluginRegistry, config: &ConfigManager) -> QueryEngineImpl {
+pub fn engine(sender: RSender<FrontendMessage>, registry: &PluginRegistry, config: &ConfigManager) -> QueryEngine {
 	log::trace!("initializing query engine");
 
-	let mut engine = QueryEngineImpl::new(sender);
+	let mut engine = QueryEngine::new(sender);
 
 	for (index, provider_config) in config.root().providers.iter().enumerate() {
 		let plugin_name = &provider_config.plugin;

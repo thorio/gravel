@@ -21,7 +21,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 pub struct FltkFrontend {
 	config: Config,
 	ui: Ui,
-	engine: BoxDynQueryEngine,
+	context: BoxDynFrontendContext,
 	result: QueryResult,
 	scroll: Scroll,
 	visible: bool,
@@ -30,7 +30,7 @@ pub struct FltkFrontend {
 
 #[gravel_frontend("fltk")]
 impl FrontendDef for FltkFrontend {
-	fn new(engine: BoxDynQueryEngine, config: &PluginConfigAdapter<'_>) -> Self {
+	fn new(context: BoxDynFrontendContext, config: &PluginConfigAdapter<'_>) -> Self {
 		let config = config::get(config);
 		let ui = builder::build(&config);
 		let max_view_size = config.layout.max_hits;
@@ -42,7 +42,7 @@ impl FrontendDef for FltkFrontend {
 
 		Self {
 			config,
-			engine,
+			context,
 			ui,
 			result: QueryResult::empty(),
 			scroll: Scroll::new(0, max_view_size),
@@ -186,7 +186,7 @@ impl FltkFrontend {
 	/// Queries the [`QueryEngine`].
 	fn force_query(&mut self) {
 		let input = self.ui.input.value();
-		self.result = self.engine.query(RStr::from_str(&input));
+		self.result = self.context.query(RStr::from_str(&input));
 		self.ui.input.clear_changed();
 
 		self.update_window_height();
@@ -197,8 +197,8 @@ impl FltkFrontend {
 	fn confirm(&self) {
 		if !self.result.hits.is_empty() {
 			let cursor = self.scroll.cursor();
-			let hit = &self.result.hits[cursor as usize];
-			self.engine.run_hit_action(&hit.hit);
+			let hit = &self.result.hits[cursor as usize].hit;
+			self.context.run_hit_action(hit);
 		}
 	}
 
