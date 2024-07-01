@@ -1,7 +1,5 @@
-use abi_stable::{
-	library::{lib_header_from_path, LibHeader, LibraryError, RootModule},
-	sabi_types::VersionNumber,
-};
+use abi_stable::library::{lib_header_from_path, LibHeader, LibraryError, RootModule};
+use abi_stable::sabi_types::VersionNumber;
 use glob::{glob, Paths};
 use gravel_core::{paths, plugin::PluginRegistry};
 use gravel_ffi::{logging::StaticLogTarget, PluginLibRef};

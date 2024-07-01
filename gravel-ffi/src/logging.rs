@@ -1,7 +1,3 @@
-// This warns that abi_stable::marker_type::NonOwningPhantom
-// is not FFI-safe, which I can only assume is a false positive
-#![allow(improper_ctypes_definitions)]
-
 use abi_stable::{sabi_trait, std_types::RBox};
 use log::{Log, Metadata, Record};
 use log_types::{RLevelFilter, RMetadata, RRecord};
@@ -67,13 +63,11 @@ impl Log for ForwardLogger {
 	}
 }
 
-// TODO: check if this is actually allocation free
-
 /// Contains FFI-safe wrappers and associated conversions for `log` types.
 mod log_types {
-	use abi_stable::std_types::{ROption, RStr};
+	use abi_stable::std_types::{ROption, RStr, RString};
 	use abi_stable::traits::{IntoReprC, IntoReprRust};
-	use abi_stable::{DynTrait, RRef, StableAbi};
+	use abi_stable::StableAbi;
 	use log::{Level, LevelFilter, Log, Metadata, Record, RecordBuilder};
 	use std::fmt::Arguments;
 
@@ -176,21 +170,14 @@ mod log_types {
 		}
 	}
 
-	// we only need Display and specifically don't want Sync/Send
-	#[repr(C)]
-	#[derive(StableAbi)]
-	#[sabi(impl_InterfaceType(Display))]
-	struct DisplayInterface;
-
-	/// FFI-safe wrapper around `std::fmt::Arguments`
-	type DynArguments<'a> = DynTrait<'a, RRef<'a, ()>, DisplayInterface>;
-
 	/// FFI-safe representation of `log::Record`
 	#[repr(C)]
 	#[derive(StableAbi)]
 	pub struct RRecord<'a> {
+		// you can do this without allocations using DynTrait,
+		// but I found it's a few hundred nanoseconds slower overall
+		args: RString,
 		metadata: RMetadata<'a>,
-		args: DynArguments<'a>,
 		module_path: ROption<RStr<'a>>,
 		file: ROption<RStr<'a>>,
 		line: ROption<u32>,
@@ -199,8 +186,8 @@ mod log_types {
 	impl<'a> From<&'a Record<'a>> for RRecord<'a> {
 		fn from(value: &'a Record<'a>) -> Self {
 			Self {
+				args: value.args().to_string().into_c(),
 				metadata: value.metadata().into(),
-				args: DynArguments::from_borrowing_ptr(value.args()),
 				module_path: value.module_path().map(IntoReprC::into_c).into_c(),
 				file: value.file().map(IntoReprC::into_c).into_c(),
 				line: value.line().into_c(),

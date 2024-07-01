@@ -33,7 +33,6 @@ pub use frontend::{
 	FrontendExitStatusNe, FrontendMessage, FrontendMessageNe, QueryResult,
 };
 pub use hit::{ArcDynHit, BoxDynHitActionContext, Hit, HitActionContext, ScoredHit, SimpleHit};
-use logging::BoxDynLogTarget;
 pub use plugin::{PluginDefinition, PluginMetadata};
 pub use provider::{BoxDynProvider, Provider, ProviderDef, ProviderResult};
 
@@ -47,7 +46,7 @@ pub const MIN_SCORE: u32 = u32::MIN;
 #[sabi(kind(Prefix(prefix_ref = PluginLibRef)))]
 pub struct PluginLib {
 	#[sabi(last_prefix_field)]
-	pub plugin: extern "C" fn(log_target: BoxDynLogTarget) -> PluginDefinition,
+	pub plugin: extern "C" fn(log_target: logging::BoxDynLogTarget) -> PluginDefinition,
 }
 
 // TODO: write a test to check for compatibility with older plugins
