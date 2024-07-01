@@ -23,18 +23,18 @@ pub fn create_figment(config_sources: &[ConfigLayer]) -> Figment {
 }
 
 #[repr(C)]
-#[derive(StableAbi)]
+#[derive(StableAbi, Debug)]
 pub struct ConfigLayer(pub ConfigSource, pub MergeStrategy);
 
 #[repr(u8)]
-#[derive(StableAbi)]
+#[derive(StableAbi, Debug)]
 pub enum MergeStrategy {
 	Merge,
 	AdMerge,
 }
 
 #[repr(u8)]
-#[derive(StableAbi)]
+#[derive(StableAbi, Debug)]
 pub enum ConfigSource {
 	String(RString),
 	File(RString),

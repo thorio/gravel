@@ -4,7 +4,7 @@ use abi_stable::{
 };
 use glob::{glob, Paths};
 use gravel_core::{paths, plugin::PluginRegistry};
-use gravel_ffi::PluginLibRef;
+use gravel_ffi::{logging::StaticLogTarget, PluginLibRef};
 use itertools::Itertools;
 use std::path::PathBuf;
 
@@ -23,20 +23,20 @@ pub fn plugins() -> PluginRegistry {
 #[allow(unused_variables)]
 fn register_builtins(registry: &mut PluginRegistry) {
 	#[cfg(feature = "fltk")]
-	registry.register(gravel_frontend_fltk::__gravel_plugin());
+	registry.register(gravel_frontend_fltk::__gravel_plugin_inner());
 
 	#[cfg(feature = "calculator")]
-	registry.register(gravel_provider_calculator::__gravel_plugin());
+	registry.register(gravel_provider_calculator::__gravel_plugin_inner());
 	#[cfg(feature = "exec")]
-	registry.register(gravel_provider_exec::__gravel_plugin());
+	registry.register(gravel_provider_exec::__gravel_plugin_inner());
 	#[cfg(feature = "kill")]
-	registry.register(gravel_provider_kill::__gravel_plugin());
+	registry.register(gravel_provider_kill::__gravel_plugin_inner());
 	#[cfg(feature = "program")]
-	registry.register(gravel_provider_program::__gravel_plugin());
+	registry.register(gravel_provider_program::__gravel_plugin_inner());
 	#[cfg(feature = "system")]
-	registry.register(gravel_provider_system::__gravel_plugin());
+	registry.register(gravel_provider_system::__gravel_plugin_inner());
 	#[cfg(feature = "websearch")]
-	registry.register(gravel_provider_websearch::__gravel_plugin());
+	registry.register(gravel_provider_websearch::__gravel_plugin_inner());
 }
 
 fn register_externals(registry: &mut PluginRegistry) {
@@ -86,7 +86,7 @@ fn register_externals(registry: &mut PluginRegistry) {
 		.filter_map(Result::ok)
 		.unique_by(|p| p.file_name().map(ToOwned::to_owned))
 		.filter_map(load_lib)
-		.map(|l| l.plugin()());
+		.map(|l| l.plugin()(StaticLogTarget::get()));
 
 	for definition in definitions {
 		registry.register(definition);

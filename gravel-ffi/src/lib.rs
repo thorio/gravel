@@ -14,6 +14,7 @@ pub mod config;
 mod fns;
 mod frontend;
 mod hit;
+pub mod logging;
 pub mod paths;
 mod plugin;
 mod provider;
@@ -32,6 +33,7 @@ pub use frontend::{
 	FrontendExitStatusNe, FrontendMessage, FrontendMessageNe, QueryResult,
 };
 pub use hit::{ArcDynHit, BoxDynHitActionContext, Hit, HitActionContext, ScoredHit, SimpleHit};
+use logging::BoxDynLogTarget;
 pub use plugin::{PluginDefinition, PluginMetadata};
 pub use provider::{BoxDynProvider, Provider, ProviderDef, ProviderResult};
 
@@ -45,10 +47,9 @@ pub const MIN_SCORE: u32 = u32::MIN;
 #[sabi(kind(Prefix(prefix_ref = PluginLibRef)))]
 pub struct PluginLib {
 	#[sabi(last_prefix_field)]
-	pub plugin: extern "C" fn() -> PluginDefinition,
+	pub plugin: extern "C" fn(log_target: BoxDynLogTarget) -> PluginDefinition,
 }
 
-// TODO: make log crate work in dynamic libs
 // TODO: write a test to check for compatibility with older plugins
 
 #[allow(clippy::use_self)]

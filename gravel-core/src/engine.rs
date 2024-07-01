@@ -127,7 +127,10 @@ impl ActionContext {
 	}
 
 	fn send(&self, message: FrontendMessage) {
-		self.sender.send(FrontendMessageNe::new(message)).ok();
+		self.sender
+			.send(FrontendMessageNe::new(message))
+			.inspect_err(|e| log::error!("unable to frontend message from hit action: {e}"))
+			.ok();
 	}
 }
 

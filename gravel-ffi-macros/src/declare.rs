@@ -39,7 +39,12 @@ fn plugin(plugin_name: &str, with_fn_name: Ident) -> File {
 		}
 
 		#[::abi_stable::sabi_extern_fn]
-		pub fn __gravel_plugin() -> ::gravel_ffi::PluginDefinition {
+		pub fn __gravel_plugin(log_target: ::gravel_ffi::logging::BoxDynLogTarget) -> ::gravel_ffi::PluginDefinition {
+			::gravel_ffi::logging::ForwardLogger::register(log_target);
+			__gravel_plugin_inner()
+		}
+
+		pub fn __gravel_plugin_inner() -> ::gravel_ffi::PluginDefinition {
 			::gravel_ffi::PluginMetadata::new(#plugin_name).#with_fn_name(__gravel_plugin_get)
 		}
 	}

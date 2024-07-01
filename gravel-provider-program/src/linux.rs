@@ -12,7 +12,7 @@ pub fn get_program(path: &Path) -> Option<SimpleHit> {
 	let filename = path.file_name()?.to_str()?;
 
 	let entry = freedesktop_entry_parser::parse_entry(path)
-		.inspect_err(|e| log::trace!("couldn't parse desktop entry {path:?}, ignoring: {e}"))
+		.inspect_err(|e| log::debug!("unable to parse desktop entry {path:?}: {e}"))
 		.ok()?;
 
 	let section = entry.section("Desktop Entry");

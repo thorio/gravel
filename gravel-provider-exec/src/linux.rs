@@ -16,5 +16,5 @@ pub fn run_command(cmd: &str) -> Result<()> {
 		.stderr(Stdio::null())
 		.spawn()
 		.map(drop)
-		.map_err(|e| anyhow!("couldn't invoke {SHELL}: {e}"))
+		.map_err(|e| anyhow!("unable to invoke {SHELL}: {e}"))
 }
