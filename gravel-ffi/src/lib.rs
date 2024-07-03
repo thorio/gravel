@@ -38,3 +38,10 @@ pub use gravel_ffi_macros::*;
 
 pub const MAX_SCORE: u32 = u32::MAX;
 pub const MIN_SCORE: u32 = u32::MIN;
+
+#[cfg(test)]
+mod clippy_shut_up {
+	// this has to be put *somewhere* so clippy doesn't complain that the crate is unused
+	// (even though it's used in the integration tests)
+	use mockall as _;
+}

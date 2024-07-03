@@ -1,0 +1,23 @@
+[package]
+name = "example-provider"
+version = "1.0.0"
+edition = "2021"
+
+# This bit is important to make sure we get a loadable .so/.dll.
+[lib]
+crate-type = [ "cdylib" ]
+
+# This feature can be used to statically link a plugin with the gravel binary
+[features]
+no-root = []
+
+[dependencies]
+# Contains definitions for creating a gravel plugin.
+gravel-ffi = { path = "../../gravel-ffi" }
+
+# Handles the FFI to make the plugin loadable.
+abi_stable = { version = "0.11.3", default-features = false }
+
+# Not strictly required, but most plugins will use these.
+log = "0.4.21"
+serde = { version = "1.0.203", features = ["derive"] }

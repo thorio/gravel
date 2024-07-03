@@ -38,6 +38,28 @@ impl LogTarget for StaticLogTarget {
 	}
 }
 
+pub struct NoOpLogTarget;
+
+impl NoOpLogTarget {
+	pub fn get() -> BoxDynLogTarget {
+		BoxDynLogTarget::from_value(Self, sabi_trait::TD_Opaque)
+	}
+}
+
+impl LogTarget for NoOpLogTarget {
+	fn enabled(&self, _metadata: RMetadata<'_>) -> bool {
+		false
+	}
+
+	fn log(&self, _record: RRecord<'_>) {}
+
+	fn flush(&self) {}
+
+	fn max_level(&self) -> RLevelFilter {
+		RLevelFilter::Off
+	}
+}
+
 pub struct ForwardLogger {
 	target: BoxDynLogTarget,
 }

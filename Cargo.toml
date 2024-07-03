@@ -17,6 +17,8 @@ members = [
 	"gravel-provider-program",
 	"gravel-provider-system",
 	"gravel-provider-websearch",
+
+	"examples/example-provider",
 ]
 
 [workspace.dependencies]
@@ -41,6 +43,7 @@ itertools = "0.13.0"
 lazy_static = "1.4.0"
 log = "0.4.21"
 mexprp = { version = "0.3.1", default-features = false }
+mockall = "0.12.1"
 nameof = "1.2.2"
 nix = "0.29.0"
 open = "5.1.4"

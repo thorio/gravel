@@ -11,5 +11,8 @@ figment = { workspace = true, features = ["yaml"] }
 log.workspace = true
 serde.workspace = true
 
+[dev-dependencies]
+mockall.workspace = true
+
 [lints]
 workspace = true
