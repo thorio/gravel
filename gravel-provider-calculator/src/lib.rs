@@ -75,7 +75,7 @@ fn eval(expression: &str) -> Option<String> {
 	.map(|r| round(r, 10).to_string())
 }
 
-fn do_copy(clipboard: Option<Arc<Mutex<Clipboard>>>, result: &str, context: &BoxDynHitActionContext) {
+fn do_copy(clipboard: Option<Arc<Mutex<Clipboard>>>, result: &str, context: RefDynHitActionContext<'_>) {
 	let Some(clipboard_mutex) = clipboard else {
 		return;
 	};

@@ -1,15 +1,8 @@
-use abi_stable::library::{lib_header_from_path, LibHeader, LibraryError, RootModule};
-use abi_stable::sabi_types::VersionNumber;
-use glob::{glob, Paths};
-use gravel_core::{paths, plugin::PluginRegistry};
-use gravel_ffi::{logging::StaticLogTarget, PluginLibRef};
-use itertools::Itertools;
-use std::path::PathBuf;
+use external::register_externals;
+use gravel_core::plugin::PluginRegistry;
 
 /// Initializes the [`PluginRegistry`] and registers built-in plugins.
 pub fn plugins() -> PluginRegistry {
-	log::trace!("loading plugins");
-
 	let mut registry = PluginRegistry::default();
 	register_builtins(&mut registry);
 	register_externals(&mut registry);
@@ -20,6 +13,8 @@ pub fn plugins() -> PluginRegistry {
 /// Registers plugins compiled directly into the binary.
 #[allow(unused_variables)]
 fn register_builtins(registry: &mut PluginRegistry) {
+	log::trace!("registering builtin plugins");
+
 	#[cfg(feature = "fltk")]
 	registry.register(gravel_frontend_fltk::__gravel_plugin_inner());
 
@@ -37,17 +32,38 @@ fn register_builtins(registry: &mut PluginRegistry) {
 	registry.register(gravel_provider_websearch::__gravel_plugin_inner());
 }
 
-fn register_externals(registry: &mut PluginRegistry) {
+mod external {
+	use abi_stable::library::{lib_header_from_path, LibHeader, LibraryError, RootModule};
+	use abi_stable::sabi_types::VersionNumber;
+	use glob::{glob, Paths};
+	use gravel_core::{paths, plugin::PluginRegistry};
+	use gravel_ffi::{logging::StaticLogTarget, PluginLibRef};
+	use itertools::Itertools;
+	use std::path::PathBuf;
+
+	pub fn register_externals(registry: &mut PluginRegistry) {
+		log::trace!("looking for external plugin libraries");
+
+		let definitions = paths::plugin_globs()
+			.filter_map(expand_glob)
+			.flatten()
+			.filter_map(Result::ok)
+			.unique_by(|p| p.file_name().map(ToOwned::to_owned))
+			.filter_map(load_lib)
+			.flat_map(|l| l.plugin()(StaticLogTarget::get()));
+
+		for definition in definitions {
+			registry.register(definition);
+		}
+	}
+
 	fn expand_glob(pattern: PathBuf) -> Option<Paths> {
 		glob(&pattern.to_string_lossy())
 			.inspect_err(|e| log::error!("unable to expand glob {pattern:?}: {e}"))
 			.ok()
 	}
 
-	fn check_version<M>(header: &'static LibHeader) -> Result<&'static LibHeader, LibraryError>
-	where
-		M: RootModule,
-	{
+	fn check_version<M: RootModule>(header: &'static LibHeader) -> Result<&'static LibHeader, LibraryError> {
 		let expected_version = VersionNumber::new(M::VERSION_STRINGS)?;
 		let actual_version = VersionNumber::new(header.version_strings())?;
 
@@ -67,6 +83,8 @@ fn register_externals(registry: &mut PluginRegistry) {
 
 	#[allow(clippy::print_stderr)]
 	fn load_lib(path: PathBuf) -> Option<PluginLibRef> {
+		log::trace!("attempting to load plugin library from {path:?}");
+
 		lib_header_from_path(&path)
 			.and_then(check_version::<PluginLibRef>)
 			.and_then(LibHeader::check_layout)
@@ -76,17 +94,5 @@ fn register_externals(registry: &mut PluginRegistry) {
 				eprintln!("{e}");
 			})
 			.ok()
-	}
-
-	let definitions = paths::plugin_globs()
-		.filter_map(expand_glob)
-		.flatten()
-		.filter_map(Result::ok)
-		.unique_by(|p| p.file_name().map(ToOwned::to_owned))
-		.filter_map(load_lib)
-		.map(|l| l.plugin()(StaticLogTarget::get()));
-
-	for definition in definitions {
-		registry.register(definition);
 	}
 }

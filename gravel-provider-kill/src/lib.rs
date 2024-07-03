@@ -35,7 +35,7 @@ pub(crate) fn get_hit(name: &str, pid: Pid, cmdline: &str) -> SimpleHit {
 	SimpleHit::new(title, cmdline, move |_, ctx| do_kill(pid, ctx))
 }
 
-fn do_kill(pid: Pid, context: &BoxDynHitActionContext) {
+fn do_kill(pid: Pid, context: RefDynHitActionContext<'_>) {
 	log::debug!("attempting to kill PID {pid}");
 
 	implementation::kill_process(pid)

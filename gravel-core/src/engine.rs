@@ -1,7 +1,7 @@
 use crate::performance::Stopwatch;
 use crate::scoring;
 use abi_stable::{external_types::crossbeam_channel::RSender, sabi_trait, std_types::RStr, traits::IntoReprRust};
-use gravel_ffi::{ArcDynHit, BoxDynHitActionContext, FrontendMessage, HitActionContext};
+use gravel_ffi::{ArcDynHit, FrontendMessage, HitActionContext, RefDynHitActionContext};
 use gravel_ffi::{BoxDynFrontendContext, BoxDynProvider, FrontendContext, FrontendMessageNe, QueryResult};
 use itertools::Itertools;
 
@@ -13,13 +13,13 @@ struct ProviderInfo {
 
 pub struct QueryEngine {
 	providers: Vec<ProviderInfo>,
-	action_context: BoxDynHitActionContext,
+	action_context: ActionContext,
 }
 
 /// for now the `QueryEngine` _is_ the `FrontendContext`,
 /// but this can later be changed without breaking the interface
 impl FrontendContext for QueryEngine {
-	fn query(&self, query: RStr<'_>) -> QueryResult where {
+	fn query(&self, query: RStr<'_>) -> QueryResult {
 		let stopwatch = Stopwatch::start();
 
 		let query = query.into_rust();
@@ -42,7 +42,7 @@ impl FrontendContext for QueryEngine {
 	}
 
 	fn run_hit_action(&self, hit: &ArcDynHit) {
-		hit.action(&self.action_context);
+		hit.action((&self.action_context).into());
 	}
 }
 
@@ -57,7 +57,7 @@ impl QueryEngine {
 	pub fn new(sender: RSender<FrontendMessageNe>) -> Self {
 		Self {
 			providers: vec![],
-			action_context: ActionContext::new(sender).into(),
+			action_context: ActionContext::new(sender),
 		}
 	}
 
@@ -134,9 +134,9 @@ impl ActionContext {
 	}
 }
 
-impl From<ActionContext> for BoxDynHitActionContext {
-	fn from(value: ActionContext) -> Self {
-		Self::from_value(value, sabi_trait::TD_Opaque)
+impl<'a> From<&'a ActionContext> for RefDynHitActionContext<'a> {
+	fn from(value: &'a ActionContext) -> Self {
+		Self::from_ptr(value, sabi_trait::TD_Opaque)
 	}
 }
 

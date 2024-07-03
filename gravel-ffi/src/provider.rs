@@ -1,5 +1,5 @@
 use crate::config::PluginConfigAdapter;
-use crate::hit::{clone_hit_ptr, ArcDynHit};
+use crate::hit::{clone_hit_arc, ArcDynHit};
 use abi_stable::sabi_trait;
 use abi_stable::std_types::{RBox, RStr, RVec};
 use abi_stable::StableAbi;
@@ -33,7 +33,7 @@ impl ProviderResult {
 
 	#[must_use]
 	pub fn from_cached<'a>(hits: impl IntoIterator<Item = &'a ArcDynHit>) -> Self {
-		let hits = hits.into_iter().map(clone_hit_ptr).collect();
+		let hits = hits.into_iter().map(clone_hit_arc).collect();
 		Self { hits }
 	}
 

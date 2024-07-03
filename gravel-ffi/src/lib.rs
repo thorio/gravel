@@ -7,23 +7,20 @@
 	single_use_lifetimes
 )]
 
-use abi_stable::library::RootModule;
-use abi_stable::{package_version_strings, sabi_types::VersionStrings, StableAbi};
-
 pub mod config;
-mod fns;
 mod frontend;
 mod hit;
 pub mod logging;
 pub mod paths;
 mod plugin;
+mod prefix;
 mod provider;
 
 pub mod prelude {
 	pub use crate::{
-		gravel_frontend, gravel_provider, ArcDynHit, BoxDynFrontendContext, BoxDynHitActionContext, FrontendContext,
-		FrontendDef, FrontendExitStatus, FrontendMessage, FrontendMessageNe, Hit, PluginConfigAdapter, ProviderDef,
-		ProviderResult, QueryResult, ScoredHit, SimpleHit, MAX_SCORE, MIN_SCORE,
+		gravel_frontend, gravel_provider, ArcDynHit, BoxDynFrontendContext, FrontendContext, FrontendDef,
+		FrontendExitStatus, FrontendMessage, FrontendMessageNe, Hit, PluginConfigAdapter, ProviderDef, ProviderResult,
+		QueryResult, RefDynHitActionContext, ScoredHit, SimpleHit, MAX_SCORE, MIN_SCORE,
 	};
 }
 
@@ -32,30 +29,12 @@ pub use frontend::{
 	BoxDynFrontend, BoxDynFrontendContext, Frontend, FrontendContext, FrontendDef, FrontendExitStatus,
 	FrontendExitStatusNe, FrontendMessage, FrontendMessageNe, QueryResult,
 };
-pub use hit::{ArcDynHit, BoxDynHitActionContext, Hit, HitActionContext, ScoredHit, SimpleHit};
+pub use hit::{ArcDynHit, Hit, HitActionContext, RefDynHitActionContext, ScoredHit, SimpleHit};
 pub use plugin::{PluginDefinition, PluginMetadata};
+pub use prefix::{PluginLib, PluginLibRef};
 pub use provider::{BoxDynProvider, Provider, ProviderDef, ProviderResult};
 
 pub use gravel_ffi_macros::*;
 
 pub const MAX_SCORE: u32 = u32::MAX;
 pub const MIN_SCORE: u32 = u32::MIN;
-
-#[repr(C)]
-#[derive(StableAbi)]
-#[sabi(kind(Prefix(prefix_ref = PluginLibRef)))]
-pub struct PluginLib {
-	#[sabi(last_prefix_field)]
-	pub plugin: extern "C" fn(log_target: logging::BoxDynLogTarget) -> PluginDefinition,
-}
-
-// TODO: write a test to check for compatibility with older plugins
-
-#[allow(clippy::use_self)]
-impl RootModule for PluginLibRef {
-	abi_stable::declare_root_module_statics! {PluginLibRef}
-
-	const BASE_NAME: &'static str = "gravel_ffi";
-	const NAME: &'static str = "gravel_ffi";
-	const VERSION_STRINGS: VersionStrings = package_version_strings!();
-}

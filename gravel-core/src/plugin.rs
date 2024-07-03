@@ -21,6 +21,8 @@ impl PluginRegistry {
 			return self;
 		}
 
+		log::trace!("registered plugin '{name}'");
+
 		self.plugins.insert(name.to_owned(), plugin);
 		self
 	}

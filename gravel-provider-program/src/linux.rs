@@ -1,5 +1,5 @@
 use crate::Config;
-use gravel_ffi::{paths, BoxDynHitActionContext, SimpleHit};
+use gravel_ffi::{paths, RefDynHitActionContext, SimpleHit};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
@@ -30,7 +30,7 @@ pub fn get_program(path: &Path) -> Option<SimpleHit> {
 }
 
 /// Runs the given entry using gtk-launch.
-fn run_program(desktop_file: &str, context: &BoxDynHitActionContext) {
+fn run_program(desktop_file: &str, context: RefDynHitActionContext<'_>) {
 	log::debug!("starting application '{desktop_file}'");
 
 	Command::new("gtk-launch")

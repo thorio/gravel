@@ -49,7 +49,7 @@ pub type FrontendMessageNe = FrontendMessage_NE;
 /// These values are to be received by the frontend via a provided
 /// [`Receiver`] and must be handled.
 #[repr(u8)]
-#[derive(StableAbi, Debug, Clone, PartialEq, Eq)]
+#[derive(StableAbi, Debug, Clone)]
 #[sabi(kind(WithNonExhaustive(size = 40, traits(Debug, Clone))))]
 pub enum FrontendMessage {
 	ShowOrHide,
@@ -64,7 +64,7 @@ pub enum FrontendMessage {
 pub type FrontendExitStatusNe = FrontendExitStatus_NE;
 
 #[repr(u8)]
-#[derive(StableAbi, Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(StableAbi, Debug, Copy, Clone)]
 #[sabi(kind(WithNonExhaustive(size = 40, traits(Debug, Clone))))]
 pub enum FrontendExitStatus {
 	Exit,

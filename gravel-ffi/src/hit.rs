@@ -1,7 +1,6 @@
-use crate::fns::RBoxFn;
-use abi_stable::sabi_trait;
-use abi_stable::std_types::{RArc, RBox, ROption, RStr, RString};
-use abi_stable::StableAbi;
+use abi_stable::pointer_trait::ImmutableRef;
+use abi_stable::std_types::{RArc, ROption, RStr, RString};
+use abi_stable::{sabi_trait, RRef, StableAbi};
 use std::fmt::Debug;
 
 pub type ArcDynHit = Hit_TO<'static, RArc<()>>;
@@ -11,10 +10,10 @@ pub trait Hit: Sync + Send + Debug {
 	fn title(&self) -> RStr<'_>;
 	fn subtitle(&self) -> RStr<'_>;
 	fn override_score(&self) -> ROption<u32>;
-	fn action(&self, context: &BoxDynHitActionContext);
+	fn action(&self, context: RefDynHitActionContext<'_>);
 }
 
-pub fn clone_hit_ptr(hit: &ArcDynHit) -> ArcDynHit {
+pub(crate) fn clone_hit_arc(hit: &ArcDynHit) -> ArcDynHit {
 	ArcDynHit::from_sabi(hit.obj.shallow_clone())
 }
 
@@ -32,12 +31,24 @@ impl ScoredHit {
 }
 
 #[repr(C)]
-#[derive(Debug)]
 pub struct SimpleHit {
 	pub title: RString,
 	pub subtitle: RString,
 	pub override_score: ROption<u32>,
-	pub action: RBoxFn<Self, BoxDynHitActionContext, ()>,
+
+	#[allow(clippy::type_complexity)]
+	pub action: Box<dyn Fn(&SimpleHit, RefDynHitActionContext<'_>) + Send + Sync>,
+}
+
+impl Debug for SimpleHit {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		f.debug_struct("SimpleHit")
+			.field("title", &self.title)
+			.field("subtitle", &self.subtitle)
+			.field("override_score", &self.override_score)
+			.field("action", &format_args!("Fn@{:p}", self.action.to_raw_ptr()))
+			.finish()
+	}
 }
 
 impl SimpleHit {
@@ -46,13 +57,13 @@ impl SimpleHit {
 	pub fn new(
 		title: impl Into<RString>,
 		subtitle: impl Into<RString>,
-		func: impl Fn(&Self, &BoxDynHitActionContext) + Send + Sync + 'static,
+		func: impl Fn(&Self, RefDynHitActionContext<'_>) + Send + Sync + 'static,
 	) -> Self {
 		Self {
 			title: title.into(),
 			subtitle: subtitle.into(),
 			override_score: ROption::RNone,
-			action: func.into(),
+			action: Box::new(func),
 		}
 	}
 
@@ -70,8 +81,8 @@ impl From<SimpleHit> for ArcDynHit {
 }
 
 impl Hit for SimpleHit {
-	fn action(&self, context: &BoxDynHitActionContext) {
-		self.action.call(self, context);
+	fn action(&self, context: RefDynHitActionContext<'_>) {
+		(self.action)(self, context);
 	}
 
 	#[must_use]
@@ -90,7 +101,7 @@ impl Hit for SimpleHit {
 	}
 }
 
-pub type BoxDynHitActionContext = HitActionContext_TO<'static, RBox<()>>;
+pub type RefDynHitActionContext<'a> = HitActionContext_TO<'static, RRef<'a, ()>>;
 
 #[sabi_trait]
 pub trait HitActionContext {

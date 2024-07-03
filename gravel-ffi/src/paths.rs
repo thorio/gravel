@@ -1,5 +1,8 @@
 use std::{env, iter::once, path::PathBuf};
 
+const XDG_DATA_HOME: &str = "XDG_DATA_HOME";
+const XDG_DATA_DIRS: &str = "XDG_DATA_DIRS";
+
 pub fn home() -> PathBuf {
 	#[cfg(unix)]
 	let home = env::var("HOME").expect("$HOME must always be set");
@@ -19,7 +22,7 @@ pub fn xdg_config_home() -> PathBuf {
 }
 
 pub fn xdg_data_dirs() -> Vec<PathBuf> {
-	if let Ok(path) = env::var("XDG_DATA_DIRS") {
+	if let Ok(path) = env::var(XDG_DATA_DIRS) {
 		return path.split(':').map(PathBuf::from).collect();
 	}
 
@@ -35,7 +38,7 @@ pub fn xdg_data_globs(path: &str) -> impl Iterator<Item = PathBuf> + '_ {
 }
 
 pub fn xdg_data_home() -> PathBuf {
-	if let Ok(path) = env::var("XDG_DATA_HOME") {
+	if let Ok(path) = env::var(XDG_DATA_HOME) {
 		return path.into();
 	}
 

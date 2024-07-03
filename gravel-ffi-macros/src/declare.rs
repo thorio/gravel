@@ -32,16 +32,16 @@ fn plugin(plugin_name: &str, with_fn_name: Ident) -> File {
 	parse_quote! {
 		// omitting the root_module allows more than one plugin to be statically linked
 		#[cfg(not(feature = "no-root"))]
-		#[abi_stable::export_root_module]
+		#[::abi_stable::export_root_module]
 		pub fn __gravel_plugin_root() -> ::gravel_ffi::PluginLibRef {
 			let plugin = ::gravel_ffi::PluginLib { plugin: __gravel_plugin };
 			::abi_stable::prefix_type::PrefixTypeTrait::leak_into_prefix(plugin)
 		}
 
 		#[::abi_stable::sabi_extern_fn]
-		pub fn __gravel_plugin(log_target: ::gravel_ffi::logging::BoxDynLogTarget) -> ::gravel_ffi::PluginDefinition {
-			::gravel_ffi::logging::ForwardLogger::register(log_target);
-			__gravel_plugin_inner()
+		pub fn __gravel_plugin(log_target: ::gravel_ffi::logging::BoxDynLogTarget) -> ::abi_stable::std_types::RVec<::gravel_ffi::PluginDefinition> {
+			::gravel_ffi::logging::ForwardLogger::register(log_target, env!("CARGO_PKG_NAME"));
+			::abi_stable::traits::IntoReprC::into_c(vec![__gravel_plugin_inner()])
 		}
 
 		pub fn __gravel_plugin_inner() -> ::gravel_ffi::PluginDefinition {

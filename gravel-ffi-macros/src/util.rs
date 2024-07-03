@@ -1,11 +1,10 @@
 use proc_macro::TokenStream as TokenStream1;
 use quote::ToTokens;
-use syn::{Error, LitStr};
+use syn::{parse::Parse, Error, LitStr};
 
-pub fn wrap_syn<P, F, R>(input: TokenStream1, f: F) -> TokenStream1
+pub fn wrap_syn<P, R>(input: TokenStream1, f: impl FnOnce(P) -> Result<R, Error>) -> TokenStream1
 where
-	P: syn::parse::Parse,
-	F: FnOnce(P) -> Result<R, Error>,
+	P: Parse,
 	R: ToTokens,
 {
 	syn::parse::<P>(input)

@@ -34,7 +34,7 @@ impl ProviderDef for WebsearchProvider {
 	}
 }
 
-fn do_search(url_pattern: &str, query: &str, context: &BoxDynHitActionContext) {
+fn do_search(url_pattern: &str, query: &str, context: RefDynHitActionContext<'_>) {
 	let encoded = urlencoding::encode(query);
 	let url = url_pattern.replace("{}", &encoded);
 

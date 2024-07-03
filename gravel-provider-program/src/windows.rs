@@ -1,5 +1,5 @@
 use crate::Config;
-use gravel_ffi::{BoxDynHitActionContext, SimpleHit};
+use gravel_ffi::{RefDynHitActionContext, SimpleHit};
 use std::borrow::Cow;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -28,7 +28,7 @@ pub fn get_program(path: &Path) -> Option<SimpleHit> {
 }
 
 /// Passes the link's path to explorer, which then launches the application.
-fn run_program(link_path: &str, context: &BoxDynHitActionContext) {
+fn run_program(link_path: &str, context: RefDynHitActionContext<'_>) {
 	log::debug!("starting application '{link_path}'");
 
 	Command::new("explorer")

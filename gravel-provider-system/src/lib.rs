@@ -20,7 +20,6 @@ pub struct SystemProvider {
 impl ProviderDef for SystemProvider {
 	fn new(config: &PluginConfigAdapter<'_>) -> Self {
 		let config = config.get::<Config>(DEFAULT_CONFIG);
-		#[allow(clippy::redundant_closure_for_method_calls)]
 		let hits = vec![
 			context_hit(config.exit, |ctx| ctx.exit()),
 			context_hit(config.reload, |ctx| ctx.restart()),
@@ -39,7 +38,10 @@ impl ProviderDef for SystemProvider {
 	}
 }
 
-fn context_hit(config: CommandConfig, action: impl Fn(&BoxDynHitActionContext) + Send + Sync + 'static) -> ArcDynHit {
+fn context_hit(
+	config: CommandConfig,
+	action: impl Fn(RefDynHitActionContext<'_>) + Send + Sync + 'static,
+) -> ArcDynHit {
 	let hit = SimpleHit::new(config.title, config.subtitle, move |_, ctx| action(ctx));
 
 	hit.into()

@@ -31,7 +31,7 @@ impl ProviderDef for ExecProvider {
 	}
 }
 
-fn run_command(hit: &SimpleHit, context: &BoxDynHitActionContext) {
+fn run_command(hit: &SimpleHit, context: RefDynHitActionContext<'_>) {
 	implementation::run_command(hit.title().as_str())
 		.inspect_err(|e| log::error!("{e}"))
 		.ok();

@@ -16,12 +16,12 @@ pub struct StaticLogTarget;
 
 impl StaticLogTarget {
 	pub fn get() -> BoxDynLogTarget {
-		BoxDynLogTarget::from_value(Self {}, sabi_trait::TD_Opaque)
+		BoxDynLogTarget::from_value(Self, sabi_trait::TD_Opaque)
 	}
 }
 
 impl LogTarget for StaticLogTarget {
-	fn enabled(&self, metadata: RMetadata<'_>) -> bool where {
+	fn enabled(&self, metadata: RMetadata<'_>) -> bool {
 		log::logger().enabled(&metadata.into())
 	}
 
@@ -43,9 +43,11 @@ pub struct ForwardLogger {
 }
 
 impl ForwardLogger {
-	pub fn register(target: BoxDynLogTarget) {
+	pub fn register(target: BoxDynLogTarget, crate_name: &'static str) {
 		log::set_max_level(target.max_level().into());
-		log::set_boxed_logger(Box::new(Self { target })).expect("logger must only be registered once per plugin");
+		log::set_logger(Box::leak(Box::new(Self { target }))).expect("logger must only be registered once per plugin");
+
+		log::trace!("initialized log forwarding for dynamic library '{crate_name}'");
 	}
 }
 
@@ -195,7 +197,7 @@ mod log_types {
 		}
 	}
 
-	impl<'a> RRecord<'a> {
+	impl RRecord<'_> {
 		pub fn log(self, logger: &dyn Log) {
 			fn inner<'a>(logger: &dyn Log, args: Arguments<'a>, mut builder: RecordBuilder<'a>) {
 				logger.log(&builder.args(args).build());

@@ -1,0 +1,20 @@
+use crate::{logging::BoxDynLogTarget, PluginDefinition};
+use abi_stable::{declare_root_module_statics, package_version_strings};
+use abi_stable::{library::RootModule, sabi_types::VersionStrings, std_types::RVec, StableAbi};
+
+#[repr(C)]
+#[derive(StableAbi)]
+#[sabi(kind(Prefix(prefix_ref = PluginLibRef)))]
+pub struct PluginLib {
+	#[sabi(last_prefix_field)]
+	pub plugin: extern "C" fn(log_target: BoxDynLogTarget) -> RVec<PluginDefinition>,
+}
+
+#[allow(clippy::use_self)]
+impl RootModule for PluginLibRef {
+	declare_root_module_statics! {PluginLibRef}
+
+	const BASE_NAME: &'static str = "gravel_ffi";
+	const NAME: &'static str = "gravel_ffi";
+	const VERSION_STRINGS: VersionStrings = package_version_strings!();
+}
