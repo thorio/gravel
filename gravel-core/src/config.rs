@@ -9,7 +9,7 @@ use serde::Deserialize;
 pub const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../config.yml"));
 
 pub struct ConfigManager {
-	root: RootConfig,
+	root: Config,
 	config_sources: Vec<ConfigLayer>,
 }
 
@@ -26,16 +26,16 @@ impl ConfigManager {
 		Self { config_sources, root }
 	}
 
-	pub fn root(&self) -> &RootConfig {
+	pub fn root(&self) -> &Config {
 		&self.root
 	}
 
 	pub fn adapt_provider(&self, index: usize) -> PluginConfigAdapter<'_> {
-		self.adapt(format!("{}.{index}", name_of!(providers in RootConfig)))
+		self.adapt(format!("{}.{index}", name_of!(providers in Config)))
 	}
 
 	pub fn adapt_frontend(&self) -> PluginConfigAdapter<'_> {
-		self.adapt(name_of!(frontend in RootConfig))
+		self.adapt(name_of!(frontend in Config))
 	}
 
 	fn adapt(&self, key: impl Into<RString>) -> PluginConfigAdapter<'_> {
@@ -44,24 +44,39 @@ impl ConfigManager {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct RootConfig {
+pub struct Config {
 	pub single_instance: Option<String>,
-	pub hotkeys: Vec<HotkeyConfig>,
-	pub frontend: FrontendConfig,
-	pub providers: Vec<ProviderConfig>,
+	pub external_plugins: ExternalPlugins,
+	pub hotkeys: Vec<Hotkey>,
+	pub frontend: Frontend,
+	pub providers: Vec<Provider>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct HotkeyConfig {
+#[serde(rename_all = "snake_case")]
+pub enum ExternalPlugins {
+	Disabled,
+	All,
+	Whitelist(Vec<String>),
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Hotkey {
 	pub binding: String,
 	pub action: HotkeyAction,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum HotkeyAction {
+	// TODO: remove aliases on next breaking
+	#[serde(alias = "ShowHide")]
 	ShowHide,
+	#[serde(alias = "Show")]
 	Show,
+	#[serde(alias = "Hide")]
 	Hide,
+	#[serde(alias = "ShowWith")]
 	ShowWith(String),
 }
 
@@ -77,13 +92,13 @@ impl From<HotkeyAction> for FrontendMessage {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct FrontendConfig {
+pub struct Frontend {
 	pub plugin: String,
 	pub alias: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct ProviderConfig {
+pub struct Provider {
 	pub plugin: String,
 	pub keyword: Option<String>,
 	// Technically expected here but is deserialized differently, see `gravel_ffi::PluginConfigAdapter`

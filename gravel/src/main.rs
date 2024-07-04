@@ -40,7 +40,7 @@ fn run() -> Result<()> {
 
 	let single_instance = init::single_instance(config.root().single_instance.as_deref());
 
-	let registry = init::plugins();
+	let registry = init::plugins(&config.root().external_plugins);
 
 	let (sender, receiver) = crossbeam_channel::bounded::<FrontendMessageNe>(8);
 	let engine = init::engine(sender.clone(), &registry, &config);

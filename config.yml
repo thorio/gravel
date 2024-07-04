@@ -17,6 +17,20 @@
 ## Set to null to disable.
 single_instance: gravel
 
+## Governs if external plugin libraries are loaded.
+## Libraries are discovered in ~/.local/share/gravel/plugins/*.{so,dll}
+## as well as in $XDG_DATA_DIRS with the same structure.
+##
+## Valid values are `disabled`, `all` and `whitelist` (see below)
+external_plugins: disabled
+
+## Filters libraries by their filename, sans extension. Absolute paths *do not*
+## work, the library must still be placed in one of the supported folders.
+# external_plugins:
+#   whitelist:
+#     - libgravel_provider_calculator
+#     - my_fancy_plugin
+
 ## Binds global hotkeys to actions.
 ## The hotkey is configured as an emacs-like binding, though note that some
 ## features, such as chords, are not supported.
@@ -31,14 +45,14 @@ single_instance: gravel
 hotkeys:
 
   ## Shows or hides the frontend. These actions are also available seperately,
-  ## as `Show` and `Hide`
+  ## as `show` and `hide`
   - binding: A-<Space>
-    action: ShowHide
+    action: show_hide
 
   ## Shows the frontend and pre-populates with the given query.
   # - binding: M-r
   #   action:
-  #     ShowWith: example
+  #     show_with: example
 
 ## Frontend, or UI, to use. This is responsible for the elements you
 ## interact with.
@@ -220,7 +234,7 @@ providers:
     #     command_linux: systemctl suspend
 
   ## Process killer.
-  ## Lists running processes on your system and will allow you to kill them.
+  ## Lists running processes on your system and allows you to kill them.
   ## There is currently no further configuration for this plugin.
   - plugin: kill
 

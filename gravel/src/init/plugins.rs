@@ -1,11 +1,11 @@
 use external::register_externals;
-use gravel_core::plugin::PluginRegistry;
+use gravel_core::{config::ExternalPlugins, plugin::PluginRegistry};
 
 /// Initializes the [`PluginRegistry`] and registers built-in plugins.
-pub fn plugins() -> PluginRegistry {
+pub fn plugins(config: &ExternalPlugins) -> PluginRegistry {
 	let mut registry = PluginRegistry::default();
 	register_builtins(&mut registry);
-	register_externals(&mut registry);
+	register_externals(&mut registry, config);
 
 	registry
 }
@@ -36,12 +36,20 @@ mod external {
 	use abi_stable::library::{lib_header_from_path, LibHeader, LibraryError, RootModule};
 	use abi_stable::sabi_types::VersionNumber;
 	use glob::{glob, Paths};
-	use gravel_core::{paths, plugin::PluginRegistry};
+	use gravel_core::{config::ExternalPlugins, paths, plugin::PluginRegistry};
 	use gravel_ffi::{logging::StaticLogTarget, PluginLibRef};
 	use itertools::Itertools;
 	use std::path::PathBuf;
 
-	pub fn register_externals(registry: &mut PluginRegistry) {
+	pub fn register_externals(registry: &mut PluginRegistry, config: &ExternalPlugins) {
+		const EMPTY: &[String] = &[];
+
+		let filter = match config {
+			ExternalPlugins::Disabled => return,
+			ExternalPlugins::All => EMPTY,
+			ExternalPlugins::Whitelist(names) => names,
+		};
+
 		log::trace!("looking for external plugin libraries");
 
 		let definitions = paths::plugin_globs()
@@ -49,11 +57,27 @@ mod external {
 			.flatten()
 			.filter_map(Result::ok)
 			.unique_by(|p| p.file_name().map(ToOwned::to_owned))
+			.filter(filter_libs(filter))
 			.filter_map(load_lib)
 			.flat_map(|l| l.plugin()(StaticLogTarget::get()));
 
 		for definition in definitions {
 			registry.register(definition);
+		}
+	}
+
+	fn filter_libs(names: &[String]) -> impl Fn(&PathBuf) -> bool + '_ {
+		|p| {
+			if names.is_empty() {
+				return true;
+			}
+
+			let stem = p
+				.file_stem()
+				.expect("was matched by glob, so must have a stem")
+				.to_string_lossy();
+
+			names.iter().any(|n| n == &stem)
 		}
 	}
 

@@ -28,6 +28,7 @@ jobs:
       - name: upload packages
         uses: svenstaro/upload-release-action@v2
         with:
+          draft: true
           file_glob: true
           file: target/artifacts/*
 
@@ -69,6 +70,7 @@ jobs:
       - name: upload packages
         uses: svenstaro/upload-release-action@v2
         with:
+          draft: true
           file_glob: true
           file: target/artifacts/*
 
@@ -95,5 +97,6 @@ jobs:
       - name: upload packages
         uses: svenstaro/upload-release-action@v2
         with:
+          draft: true
           file_glob: true
           file: target/artifacts/*

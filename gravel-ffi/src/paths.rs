@@ -26,7 +26,11 @@ pub fn xdg_data_dirs() -> Vec<PathBuf> {
 		return path.split(':').map(PathBuf::from).collect();
 	}
 
-	vec![PathBuf::from("/usr/local/share/"), PathBuf::from("/usr/share/")]
+	#[cfg(unix)]
+	return vec![PathBuf::from("/usr/local/share/"), PathBuf::from("/usr/share/")];
+
+	#[cfg(windows)]
+	return vec![];
 }
 
 /// Returns XDG_DATA_HOME plus XDG_DATA_DIRS, postfixed with `path`.
