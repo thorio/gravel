@@ -37,7 +37,7 @@ anyhow.workspace = true
 chrono = { workspace = true }
 clap = { workspace = true, features = ["derive"] }
 clap-verbosity-flag.workspace = true
-color-eyre.workspace = true
+color-eyre = { workspace = true, features = ["issue-url"] }
 fern.workspace = true
 file-rotate.workspace = true
 glob.workspace = true

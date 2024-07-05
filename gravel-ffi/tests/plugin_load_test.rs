@@ -1,4 +1,4 @@
-#![allow(unused_crate_dependencies)]
+#![allow(unused_crate_dependencies, clippy::missing_panics_doc)]
 
 use abi_stable::std_types::{ROption, RSlice, RString};
 use abi_stable::{library::RootModule, sabi_trait, traits::IntoReprC};

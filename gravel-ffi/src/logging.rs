@@ -65,6 +65,8 @@ pub struct ForwardLogger {
 }
 
 impl ForwardLogger {
+	/// # Panics
+	/// When called more than once. See `log::set_logger`.
 	pub fn register(target: BoxDynLogTarget, crate_name: &'static str) {
 		log::set_max_level(target.max_level().into());
 		log::set_logger(Box::leak(Box::new(Self { target }))).expect("logger must only be registered once per plugin");

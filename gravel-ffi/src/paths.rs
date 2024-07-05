@@ -3,6 +3,8 @@ use std::{env, iter::once, path::PathBuf};
 const XDG_DATA_HOME: &str = "XDG_DATA_HOME";
 const XDG_DATA_DIRS: &str = "XDG_DATA_DIRS";
 
+/// # Panics
+/// When $HOME/$USERPROFILE are not set.
 pub fn home() -> PathBuf {
 	#[cfg(unix)]
 	let home = env::var("HOME").expect("$HOME must always be set");

@@ -15,7 +15,7 @@ mod init;
 // unwrap instead of returning a Result so we hit color_eyre's panic handler
 #[allow(clippy::unwrap_used)]
 fn main() {
-	color_eyre::install().unwrap();
+	init::panic();
 
 	#[cfg(windows)]
 	init::windows_console::attach();

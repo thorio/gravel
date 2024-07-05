@@ -4,6 +4,7 @@ mod engine;
 mod frontend;
 mod hotkeys;
 mod logging;
+mod panic;
 mod plugins;
 mod single_instance;
 
@@ -17,4 +18,5 @@ pub use engine::engine;
 pub use frontend::frontend;
 pub use hotkeys::hotkeys;
 pub use logging::logging;
+pub use panic::panic;
 pub use plugins::plugins;
