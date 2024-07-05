@@ -107,7 +107,7 @@ frontend:
   #     auto_hide: false
   #
   #     ## Exits the application instead of hiding the window.
-  #     ## Requires external solution to start gravel when desired.
+  #     ## Requires an external solution to start gravel when desired.
   #     exit_on_hide: false
   #
   #     ## Time in milliseconds after hiding in which show requests
@@ -125,6 +125,8 @@ frontend:
 ## Providers to use. These are responsible for the results you get.
 ## Providers each yield different sets of results, so if you need more or
 ## less functionality, you can configure this here.
+## Each provider is referenced by the name of their plugin, and can be added
+## to your configuration multiple times.
 providers:
 
   ## Default calculator. If it detects a mathematical expression, such as
