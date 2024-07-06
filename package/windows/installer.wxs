@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<!-- This file expects to be compiled from repo root, otherwise relative paths break -->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product
+		Id="*"
+		Name="gravel"
+		UpgradeCode="20FE42E0-16EB-45AA-AC6F-5CA6B2C72836"
+		Manufacturer="thorou"
+		Language="1033"
+		Codepage="1252"
+		Version="0.0.0.0">
+
+		<Package Id="*"
+			Keywords="Installer"
+			Description="Cross-platform application launcher for Linux and Windows"
+			InstallerVersion="450"
+			Languages="1033"
+			Compressed="yes"
+			InstallScope="perMachine"
+			SummaryCodepage="1252"/>
+
+		<MajorUpgrade
+			Schedule="afterInstallInitialize"
+			DowngradeErrorMessage="A newer version of [ProductName] is already installed. Setup will now exit."/>
+
+		<Media Id="1" Cabinet="media1.cab" EmbedCab="yes"/>
+
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFiles64Folder" Name="PFiles">
+				<Directory Id="APPLICATIONFOLDER" Name="gravel">
+					<Component Id="License" Guid="*">
+						<File Id="LicenseFile" Name="license.txt" DiskId="1" Source="LICENSE" KeyPath="yes"/>
+					</Component>
+
+					<Component Id="TemplateConfig" Guid="*">
+						<File Id="TemplateConfigFile" Name="template-config.yml" DiskId="1" Source="config.yml" KeyPath="yes"/>
+					</Component>
+
+					<Directory Id="Bin" Name="bin">
+						<Component Id="Path" Guid="99247058-6B47-4D7D-AED3-1703E46E2350" KeyPath="yes">
+							<Environment
+								Id="PATH"
+								Name="PATH"
+								Value="[bin]"
+								Permanent="no"
+								Part="last"
+								Action="set"
+								System="yes"/>
+						</Component>
+						<Component Id="Binary" Guid="*">
+							<File
+								Id="exe"
+								Name="gravel.exe"
+								DiskId="1"
+								Source="target/release/gravel.exe"
+								KeyPath="yes"/>
+						</Component>
+					</Directory>
+				</Directory>
+			</Directory>
+
+			<Directory Id="StartMenuFolder">
+				<Component Id="ApplicationShortcut" Guid="36c354a4-e352-44e3-847a-3c464ecc3392">
+					<Shortcut Id="ApplicationStartMenuShortcut"
+							Name="gravel"
+							Description="Cross-platform application launcher for Linux and Windows"
+							Target="[!exe]"
+							WorkingDirectory="APPLICATIONFOLDER"/>
+					<RegistryValue Root="HKCU" Key="Software\gravel" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+				</Component>
+			</Directory>
+		</Directory>
+
+		<Feature
+			Id="Binaries"
+			Title="Application"
+			Description="Installs the application and license."
+			Level="1"
+			ConfigurableDirectory="APPLICATIONFOLDER"
+			AllowAdvertise="no"
+			Display="expand"
+			Absent="disallow">
+
+			<ComponentRef Id="License"/>
+			<ComponentRef Id="TemplateConfig"/>
+			<ComponentRef Id="Binary"/>
+
+			<Feature
+				Id="Environment"
+				Title="Add to PATH"
+				Description="Add the install location of the executable to the system PATH."
+				Level="1"
+				Absent="allow">
+				<ComponentRef Id="Path"/>
+			</Feature>
+
+			<Feature
+				Id="Shortcut"
+				Title="Start Menu Shortcut"
+				Description="Add a shortcut to the start menu."
+				Level="1"
+				Absent="allow">
+				<ComponentRef Id="ApplicationShortcut" />
+			</Feature>
+		</Feature>
+
+		<SetProperty Id="ARPINSTALLLOCATION" Value="[APPLICATIONFOLDER]" After="CostFinalize"/>
+
+		<Icon Id="ProductICO" SourceFile="package/icons/icon.ico"/>
+		<Property Id="ARPPRODUCTICON" Value="ProductICO" />
+
+		<Property Id="ARPHELPLINK" Value="https://github.com/thorio/gravel"/>
+		<UI>
+			<UIRef Id="WixUI_FeatureTree"/>
+			<Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="CustomizeDlg" Order="99">1</Publish>
+			<Publish Dialog="CustomizeDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="99">1</Publish>
+		</UI>
+	</Product>
+</Wix>

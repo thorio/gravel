@@ -23,12 +23,11 @@ jobs:
           fetch-tags: true
 
       - name: build and package
-        run: cargo make --no-workspace release-deb
+        run: cargo make --no-workspace ci-ubuntu
 
       - name: upload packages
         uses: svenstaro/upload-release-action@v2
         with:
-          draft: true
           file_glob: true
           file: target/artifacts/*
 
@@ -65,12 +64,11 @@ jobs:
 
       - name: build and package
         shell: sudo -u builder bash {0}
-        run: cargo make --no-workspace release-arch
+        run: cargo make --no-workspace ci-arch
 
       - name: upload packages
         uses: svenstaro/upload-release-action@v2
         with:
-          draft: true
           file_glob: true
           file: target/artifacts/*
 
@@ -92,11 +90,11 @@ jobs:
           fetch-tags: true
 
       - name: build and package
-        run: cargo make --no-workspace release-exe
+        run: |
+          cargo make --no-workspace ci-windows
 
       - name: upload packages
         uses: svenstaro/upload-release-action@v2
         with:
-          draft: true
           file_glob: true
           file: target/artifacts/*

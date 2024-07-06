@@ -1,6 +1,15 @@
 [config]
 skip_core_tasks = true
 
+[tasks.ci-ubuntu]
+run_task = { name = ["release-deb", "release-config"] }
+
+[tasks.ci-arch]
+run_task = { name = ["release-archpkg"] }
+
+[tasks.ci-windows]
+run_task = { name = ["release-zip", "release-msi"] }
+
 # NOTE: github actions windows-2022 has a super old grep version so don't use it without LC_ALL=en_US.utf8
 [tasks.patch-version]
 script_runner = "sh"
@@ -10,11 +19,17 @@ script = '''
 	sed -i "s/0.0.0-dev/$tag+$sha/" Cargo.toml
 	sed -i "s/0.0.0_dev/$(echo $tag | sed 's/-/_/g')/" package/arch/PKGBUILD
 	sed -i "s/0.0.0-dev/$tag/" package/debian/control
+	sed -i "s/0.0.0.0/$(echo $tag | sed 's/[+-].*//g')/" package/windows/installer.wxs
 '''
 
 [tasks.artifact-dropoff]
 script_runner = "sh"
 script = "mkdir -p target/artifacts"
+
+[tasks.release-config]
+dependencies = ["artifact-dropoff"]
+script_runner = "sh"
+script = "cp -a config.yml target/artifacts/config.yml"
 
 [tasks.release-deb]
 dependencies = ["artifact-dropoff", "patch-version"]
@@ -23,25 +38,45 @@ script_runner = "sh"
 script = '''
 	cargo build --release
 	bash package/debian/build.sh
-	cp -a package/debian/*.deb target/artifacts/gravel-x86_64.deb
+	cp -a package/debian/*.deb target/artifacts/gravel-debian-x86_64.deb
 '''
 
-[tasks.release-arch]
+[tasks.release-archpkg]
 dependencies = ["patch-version", "artifact-dropoff"]
 condition = { platforms = ["linux"] }
 script_runner = "sh"
 script = '''
 	cargo build --release
 	(cd package/arch && makepkg -Cf)
-	cp -a package/arch/*.pkg.tar.zst target/artifacts/gravel-x86_64.pkg.tar.zst
+	cp -a package/arch/*.pkg.tar.zst target/artifacts/gravel-arch-x86_64.pkg.tar.zst
 '''
 
-[tasks.release-exe]
-dependencies = ["artifact-dropoff", "patch-version"]
+[tasks.windows-exe]
+dependencies = ["patch-version"]
 condition = { platforms = ["windows"] }
 script_runner = "sh"
 script = '''
 	cargo build --release
 	rcedit target/release/gravel.exe --set-icon package/icons/icon.ico
-	cp -a target/release/gravel.exe target/artifacts/gravel-x86_64.exe
+'''
+
+[tasks.release-zip]
+dependencies = ["artifact-dropoff", "windows-exe"]
+condition = { platforms = ["windows"] }
+script_runner = "sh"
+script = '''
+	mkdir -p target/tmp/zip
+	cp LICENSE target/tmp/zip/license.txt
+	cp config.yml target/tmp/zip/template-config.yml
+	cp target/release/gravel.exe target/tmp/zip/gravel.exe
+	(cd target/tmp/zip && 7z a ../../artifacts/gravel-windows-x86_64.zip .)
+'''
+
+[tasks.release-msi]
+dependencies = ["artifact-dropoff", "windows-exe"]
+condition = { platforms = ["windows"] }
+script_runner = "sh"
+script = '''
+	candle -arch x64 package/windows/installer.wxs -o target/installer.wixobj
+	light -ext WixUIExtension -spdb target/installer.wixobj -o target/artifacts/gravel-windows-x86_64.msi
 '''

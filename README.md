@@ -6,7 +6,7 @@
 
 ![usage example](./images/frontend.png)
 
-Gravel is a no-nonsense application launcher built for speed and efficiency.  
+gravel is a no-nonsense application launcher built for speed and efficiency.  
 It supports fuzzy searching without any other heuristics, ensuring consistent performance and reliable, repeatable results. Sensible defaults coupled with a powerful configuration system allow you to get started quickly or spend some time dialing in your experience.
 
 
@@ -34,18 +34,19 @@ Binaries are available for the following x86-64 platforms:
 | --- | --- | --- |
 | Arch | [Package][arch-pkg] | [AUR][arch-aur] |
 | Debian | [Package][debian-deb] | |
-| Windows | [exe][windows-exe]
+| Windows | [Portable][windows-zip] | [Installer][windows-msi]
 
-[arch-pkg]: https://github.com/thorio/gravel/releases/latest/download/gravel-x86_64.pkg.tar.zst
+[arch-pkg]: https://github.com/thorio/gravel/releases/latest/download/gravel-arch-x86_64.pkg.tar.zst
 [arch-aur]: https://aur.archlinux.org/packages/gravel-bin
-[debian-deb]: https://github.com/thorio/gravel/releases/latest/download/gravel-x86_64.deb
-[windows-exe]: https://github.com/thorio/gravel/releases/latest/download/gravel-x86_64.exe
+[debian-deb]: https://github.com/thorio/gravel/releases/latest/download/gravel-debian-x86_64.deb
+[windows-zip]: https://github.com/thorio/gravel/releases/latest/download/gravel-windows-x86_64.zip
+[windows-msi]: https://github.com/thorio/gravel/releases/latest/download/gravel-windows-x86_64.msi
 
 You can then start using gravel right away with the default hotkey alt + space, no configuration required.
 
 
 ### Configuration
-Gravel uses a hierarchical configuration system, meaning you can set options at the user, platform and host level, each of which overrides the last. This allows for easy configuration re-use across systems while still retaining the freedom to configure differing options for each.
+gravel uses a hierarchical configuration system, meaning you can set options at the user, platform and host level, each of which overrides the last. This allows for easy configuration re-use across systems while still retaining the freedom to configure differing options for each.
 
 To get started, place [config.yml][config] from this repository in `~/.config/gravel/config.yml` and edit it to your liking. It contains explanations for each option as well as the configuration system itself.
 
@@ -81,12 +82,12 @@ Using the devcontainer is highly encouraged to get up and running ASAP, otherwis
 
 ### Architecture
 
-Gravel has three core components:
+gravel has three core components:
 - Frontend: the UI you interact with, where you enter your queries and select the hits.
 - Query Engine: forwards the query to the providers, then scores and processes the hits.
 - Providers: process the query and return hits, like programs, system actions or math hits.
 
-Both the frontend and provider components can be swapped out via plugins, allowing you to mold Gravel to your exact needs.
+Both the frontend and provider components can be swapped out via plugins, allowing you to mold gravel to your exact needs.
 
 
 ### Plugins
@@ -95,7 +96,7 @@ Both the frontend and provider components can be swapped out via plugins, allowi
 
 Plugins are implemented using [`abi_stable`][abi-stable], thus allowing libraries to be loaded at runtime. Writing a provider is quite straightforward, take a look at [the example provider][example-provider] for an overview.
 
-Gravel's version _is_ the version of the plugin interface, which follows [semver][semver].
+gravel's version _is_ the version of the plugin interface, which follows [semver][semver].
 
 [abi-stable]: https://docs.rs/abi_stable/latest/abi_stable/
 [example-provider]: ./examples/example-provider

@@ -4,7 +4,7 @@ use crate::structs::{Event, HitUi, Ui};
 use fltk::enums::{Align, Event as FltkEvent, FrameType, Key};
 use fltk::{app, app::Sender, frame::Frame, group::Group, input::Input, prelude::*, window::Window};
 
-const WINDOW_TITLE: &str = "Gravel";
+const WINDOW_TITLE: &str = "gravel";
 const WM_CLASS: &str = "gravel";
 
 /// Get the window's target size given the number of hits displayed.
