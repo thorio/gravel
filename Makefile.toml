@@ -2,7 +2,7 @@
 skip_core_tasks = true
 
 [tasks.ci-ubuntu]
-run_task = { name = ["release-deb", "release-config"] }
+run_task = { name = ["release-deb", "release-tar", "release-config"] }
 
 [tasks.ci-arch]
 run_task = { name = ["release-archpkg"] }
@@ -26,39 +26,50 @@ script = '''
 script_runner = "sh"
 script = "mkdir -p target/artifacts"
 
+[tasks.build-release]
+command = "cargo"
+args = ["build", "--release"]
+
 [tasks.release-config]
 dependencies = ["artifact-dropoff"]
 script_runner = "sh"
 script = "cp -a config.yml target/artifacts/config.yml"
 
 [tasks.release-deb]
-dependencies = ["artifact-dropoff", "patch-version"]
+dependencies = ["artifact-dropoff", "patch-version", "build-release"]
 condition = { platforms = ["linux"] }
 script_runner = "sh"
 script = '''
-	cargo build --release
 	bash package/debian/build.sh
 	cp -a package/debian/*.deb target/artifacts/gravel-debian-x86_64.deb
 '''
 
-[tasks.release-archpkg]
-dependencies = ["patch-version", "artifact-dropoff"]
+[tasks.release-tar]
+dependencies = ["artifact-dropoff", "patch-version", "build-release"]
 condition = { platforms = ["linux"] }
 script_runner = "sh"
 script = '''
-	cargo build --release
+	mkdir -p target/tmp/tar
+	cp LICENSE target/tmp/tar/LICENSE
+	cp config.yml target/tmp/tar/template-config.yml
+	cp target/release/gravel target/tmp/tar/gravel
+	(cd target/tmp/tar && tar czf ../../artifacts/gravel-linux-x86_64.tar.gz .)
+'''
+
+[tasks.release-archpkg]
+dependencies = ["patch-version", "artifact-dropoff", "build-release"]
+condition = { platforms = ["linux"] }
+script_runner = "sh"
+script = '''
 	(cd package/arch && makepkg -Cf)
 	cp -a package/arch/*.pkg.tar.zst target/artifacts/gravel-arch-x86_64.pkg.tar.zst
 '''
 
 [tasks.windows-exe]
-dependencies = ["patch-version"]
+dependencies = ["patch-version", "build-release"]
 condition = { platforms = ["windows"] }
 script_runner = "sh"
-script = '''
-	cargo build --release
-	rcedit target/release/gravel.exe --set-icon package/icons/icon.ico
-'''
+script = "rcedit target/release/gravel.exe --set-icon package/icons/icon.ico"
 
 [tasks.release-zip]
 dependencies = ["artifact-dropoff", "windows-exe"]

@@ -30,15 +30,17 @@ It supports fuzzy searching without any other heuristics, ensuring consistent pe
 # Installation
 
 Binaries are available for the following x86-64 platforms:
-| Platform |  |  |
+| Platform | | |
 | --- | --- | --- |
 | Arch | [Package][arch-pkg] | [AUR][arch-aur] |
 | Debian | [Package][debian-deb] | |
-| Windows | [Portable][windows-zip] | [Installer][windows-msi]
+| Linux | [Binaries][linux-tar] | |
+| Windows | [Portable][windows-zip] | [Installer][windows-msi] |
 
 [arch-pkg]: https://github.com/thorio/gravel/releases/latest/download/gravel-arch-x86_64.pkg.tar.zst
 [arch-aur]: https://aur.archlinux.org/packages/gravel-bin
 [debian-deb]: https://github.com/thorio/gravel/releases/latest/download/gravel-debian-x86_64.deb
+[linux-tar]: https://github.com/thorio/gravel/releases/latest/download/gravel-linux-x86_64.tar.gz
 [windows-zip]: https://github.com/thorio/gravel/releases/latest/download/gravel-windows-x86_64.zip
 [windows-msi]: https://github.com/thorio/gravel/releases/latest/download/gravel-windows-x86_64.msi
 
