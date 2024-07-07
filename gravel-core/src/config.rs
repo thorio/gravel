@@ -1,7 +1,7 @@
 //! For an explanation of the config, see `config.yml` in the crate's root.
 
 use abi_stable::{std_types::RString, traits::IntoReprC};
-use gravel_ffi::config::{create_figment, ConfigLayer};
+use gravel_ffi::config::__private_api::{create_figment, ConfigLayer};
 use gravel_ffi::{FrontendMessage, PluginConfigAdapter};
 use nameof::name_of;
 use serde::Deserialize;
@@ -101,6 +101,6 @@ pub struct Frontend {
 pub struct Provider {
 	pub plugin: String,
 	pub keyword: Option<String>,
-	// Technically expected here but is deserialized differently, see `gravel_ffi::PluginConfigAdapter`
+	// Technically expected here but is deserialized differently, see [`gravel_ffi::PluginConfigAdapter`]
 	//pub config: Any,
 }

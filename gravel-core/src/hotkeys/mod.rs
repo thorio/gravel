@@ -15,7 +15,7 @@ struct Hotkey<T> {
 }
 
 /// Listens for system-wide hotkeys and sends an arbitrary signal through
-/// the given [`Sender`].
+/// the given [`RSender`].
 ///
 /// The listener runs in a separate thread to avoid blocking.
 pub struct Listener<T: 'static + Send + Clone + Debug> {

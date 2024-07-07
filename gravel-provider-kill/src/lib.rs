@@ -11,7 +11,7 @@ mod implementation;
 pub struct KillProvider;
 
 #[gravel_provider("kill")]
-impl ProviderDef for KillProvider {
+impl Provider for KillProvider {
 	fn new(_config: &PluginConfigAdapter<'_>) -> Self {
 		Self {}
 	}

@@ -6,14 +6,17 @@ use abi_stable::{std_types::RString, StableAbi};
 pub type ProviderFactory = extern "C" fn(&PluginConfigAdapter<'_>) -> BoxDynProvider;
 pub type FrontendFactory = extern "C" fn(BoxDynFrontendContext, &PluginConfigAdapter<'_>) -> BoxDynFrontend;
 
+/// Factory functions for the different plugin types.
 #[repr(u8)]
 #[derive(StableAbi, Debug)]
 pub enum PluginFactory {
+	// abi_stable doesn't let me use the type aliases ;_;
 	Provider(extern "C" fn(&PluginConfigAdapter<'_>) -> BoxDynProvider),
 	Frontend(extern "C" fn(BoxDynFrontendContext, &PluginConfigAdapter<'_>) -> BoxDynFrontend),
 }
 
 impl PluginFactory {
+	/// Returns the provider factory or [`None`].
 	pub fn provider(&self) -> Option<ProviderFactory> {
 		if let Self::Provider(factory) = self {
 			return Some(*factory);
@@ -22,6 +25,7 @@ impl PluginFactory {
 		None
 	}
 
+	/// Returns the frontend factory or [`None`].
 	pub fn frontend(&self) -> Option<FrontendFactory> {
 		if let Self::Frontend(factory) = self {
 			return Some(*factory);
@@ -31,8 +35,7 @@ impl PluginFactory {
 	}
 }
 
-/// Holds metadata about a frontend or provider, as well as
-/// a way to construct them.
+/// Holds metadata and a factory function for a plugin.
 #[repr(C)]
 #[derive(StableAbi, Debug)]
 pub struct PluginDefinition {
@@ -40,6 +43,7 @@ pub struct PluginDefinition {
 	pub factory: PluginFactory,
 }
 
+/// Holds metadata about a plugin.
 #[repr(C)]
 #[derive(StableAbi, Debug)]
 pub struct PluginMetadata {

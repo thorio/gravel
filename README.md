@@ -50,9 +50,9 @@ You can then start using gravel right away with the default hotkey alt + space, 
 ### Configuration
 gravel uses a hierarchical configuration system, meaning you can set options at the user, platform and host level, each of which overrides the last. This allows for easy configuration re-use across systems while still retaining the freedom to configure differing options for each.
 
-To get started, place [config.yml][config] from this repository in `~/.config/gravel/config.yml` and edit it to your liking. It contains explanations for each option as well as the configuration system itself.
+To get started, place [config.yml][config] in `~/.config/gravel/config.yml` and edit it to your liking. It contains explanations for each option as well as the configuration system itself.
 
-[config]: ./config.yml
+[config]: https://github.com/thorio/gravel/releases/latest/download/config.yml
 
 
 # Development

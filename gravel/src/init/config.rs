@@ -1,16 +1,10 @@
 use abi_stable::std_types::RString;
 use gravel_core::config::{ConfigManager, DEFAULT_CONFIG};
 use gravel_core::paths::config_dir;
-use gravel_ffi::config::{ConfigLayer, ConfigSource, MergeStrategy};
+use gravel_ffi::config::__private_api::{ConfigLayer, ConfigSource, MergeStrategy};
 use std::env::consts;
 
-/// Reads and deserializes the configuration from multiple sources:
-/// - baked-in default config (config.yml in crate root)
-/// - user config file in `$XDG_CONFIG_HOME/gravel/config.yml`
-/// - platform-specific user config file in e.g.
-///   `$XDG_CONFIG_HOME/gravel/platform/linux.yml`
-/// - host-specific user config file in e.g.
-///   `$XDG_CONFIG_HOME/gravel/host/yourhostname.yml`
+/// Reads and deserializes the configuration from multiple sources, see [`sources`].
 ///
 /// Each layer can override the values of the previous layers.
 pub fn config() -> ConfigManager {
@@ -19,7 +13,13 @@ pub fn config() -> ConfigManager {
 	ConfigManager::new(sources())
 }
 
-/// Initializes up the [`ConfigBuilder`] with all sources.
+/// Returns configuration layers:
+/// - Baked-in default config (config.yml in crate root)
+/// - User config file in `$XDG_CONFIG_HOME/gravel/config.yml`
+/// - Platform-specific user config file in e.g.
+///   `$XDG_CONFIG_HOME/gravel/platform/linux.yml`
+/// - Host-specific user config file in e.g.
+///   `$XDG_CONFIG_HOME/gravel/host/yourhostname.yml`
 fn sources() -> Vec<ConfigLayer> {
 	let user_config_dir = config_dir();
 	let user_config_path = user_config_dir.join("config.yml");

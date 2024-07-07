@@ -1,9 +1,27 @@
+//! Plumbing for using the [`log`] crate across FFI-boundaries.
+//!
+//! By setting up a chain from [`ForwardLogger`] => [`LogTarget`]
+//! => [`Log`], a dynamically loaded library can effectively log
+//! to the calling library's logging implementation.
+//!
+//! ### Usage
+//! - Set up logging as usual
+//! - Construct a [`StaticLogTarget`] in the same library
+//! - Pass the [`LogTarget`] through FFI
+//! - Register a [`ForwardLogger`] in the dynamic library
+//! - Use the [`log`] crate as usual
+//!
+//! Note: The max logging level is only set once, when
+//! the [`ForwardLogger`] is registered.
+
 use abi_stable::{sabi_trait, std_types::RBox};
 use log::{Log, Metadata, Record};
 use log_types::{RLevelFilter, RMetadata, RRecord};
 
+/// FFI-safe [`LogTarget`] trait object.
 pub type BoxDynLogTarget = LogTarget_TO<'static, RBox<()>>;
 
+/// FFI-safe version of [`Log`].
 #[sabi_trait]
 pub trait LogTarget: Send + Sync {
 	fn enabled(&self, metadata: RMetadata<'_>) -> bool;
@@ -12,6 +30,8 @@ pub trait LogTarget: Send + Sync {
 	fn max_level(&self) -> RLevelFilter;
 }
 
+/// [`LogTarget`] that forwards calls to the statically registered
+/// logger of the library it was constructed in.
 pub struct StaticLogTarget;
 
 impl StaticLogTarget {
@@ -38,6 +58,7 @@ impl LogTarget for StaticLogTarget {
 	}
 }
 
+/// [`LogTarget`] that does nothing.
 pub struct NoOpLogTarget;
 
 impl NoOpLogTarget {
@@ -60,13 +81,14 @@ impl LogTarget for NoOpLogTarget {
 	}
 }
 
+/// Logger that forwards calls to a [`LogTarget`].
 pub struct ForwardLogger {
 	target: BoxDynLogTarget,
 }
 
 impl ForwardLogger {
 	/// # Panics
-	/// When called more than once. See `log::set_logger`.
+	/// When called more than once. See [`log::set_logger`].
 	pub fn register(target: BoxDynLogTarget, crate_name: &'static str) {
 		log::set_max_level(target.max_level().into());
 		log::set_logger(Box::leak(Box::new(Self { target }))).expect("logger must only be registered once per plugin");
@@ -89,7 +111,7 @@ impl Log for ForwardLogger {
 	}
 }
 
-/// Contains FFI-safe wrappers and associated conversions for `log` types.
+/// Contains FFI-safe versions and associated conversions for [`log`] types.
 mod log_types {
 	use abi_stable::std_types::{ROption, RStr, RString};
 	use abi_stable::traits::{IntoReprC, IntoReprRust};
@@ -97,7 +119,7 @@ mod log_types {
 	use log::{Level, LevelFilter, Log, Metadata, Record, RecordBuilder};
 	use std::fmt::Arguments;
 
-	/// FFI-safe representation of `log::Metadata`
+	/// FFI-safe version of [`log::Metadata`].
 	#[repr(C)]
 	#[derive(StableAbi)]
 	pub struct RMetadata<'a> {
@@ -123,7 +145,7 @@ mod log_types {
 		}
 	}
 
-	/// FFI-safe representation of `log::LevelFilter`
+	/// FFI-safe version of [`log::LevelFilter`].
 	#[repr(u8)]
 	#[derive(StableAbi, Clone, Copy)]
 	pub enum RLevelFilter {
@@ -161,7 +183,7 @@ mod log_types {
 		}
 	}
 
-	/// FFI-safe representation of `log::Level`
+	/// FFI-safe version of [`log::Level`].
 	#[repr(u8)]
 	#[derive(StableAbi, Clone, Copy)]
 	pub enum RLevel {
@@ -196,7 +218,7 @@ mod log_types {
 		}
 	}
 
-	/// FFI-safe representation of `log::Record`
+	/// FFI-safe version of [`log::Record`].
 	#[repr(C)]
 	#[derive(StableAbi)]
 	pub struct RRecord<'a> {

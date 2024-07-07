@@ -12,8 +12,6 @@ mod native;
 
 use crate::structs::{Event, HitUi, Ui};
 use crate::{config::Config, scroll::Scroll};
-use abi_stable::external_types::crossbeam_channel::RReceiver;
-use abi_stable::std_types::RStr;
 use fltk::{enums::FrameType, prelude::*};
 use gravel_ffi::prelude::*;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
@@ -29,7 +27,7 @@ pub struct FltkFrontend {
 }
 
 #[gravel_frontend("fltk")]
-impl FrontendDef for FltkFrontend {
+impl Frontend for FltkFrontend {
 	fn new(context: BoxDynFrontendContext, config: &PluginConfigAdapter<'_>) -> Self {
 		let config = config::get(config);
 		let ui = builder::build(&config);
@@ -44,7 +42,7 @@ impl FrontendDef for FltkFrontend {
 			config,
 			context,
 			ui,
-			result: QueryResult::empty(),
+			result: QueryResult::default(),
 			scroll: Scroll::new(0, max_view_size),
 			visible,
 			last_hide_time: UNIX_EPOCH,
@@ -293,7 +291,7 @@ impl FltkFrontend {
 	}
 }
 
-/// Writes the given [`HitData`] to the given [`HitUi`].
+/// Writes the given [`ScoredHit`]'s data to the given [`HitUi`].
 ///
 /// `selected` highlights the hit.
 fn update_hit(hit_ui: &mut HitUi, hit: Option<&ScoredHit>, selected: bool, show_score: bool) {

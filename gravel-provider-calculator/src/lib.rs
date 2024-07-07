@@ -1,4 +1,4 @@
-//! Calculator provider based on [`meval`].
+//! Calculator provider based on [`mexprp`].
 //!
 //! Whenever the input can be parsed as a mathematical expression, shows the
 //! result as the first hit.
@@ -26,7 +26,7 @@ impl CalculatorProvider {
 }
 
 #[gravel_provider("calculator")]
-impl ProviderDef for CalculatorProvider {
+impl Provider for CalculatorProvider {
 	fn new(config: &PluginConfigAdapter<'_>) -> Self {
 		Self {
 			config: config.get(DEFAULT_CONFIG),

@@ -1,19 +1,16 @@
+//! Contains procedural macros used to auto-implement FFI loader code.
+//! See `gravel_ffi::Provider` and `gravel_ffi::Frontend` for usage instructions
+
 use proc_macro::TokenStream as TokenStream1;
 use syn::{parse_quote, File, ItemImpl};
 
 mod declare;
 mod util;
 
-/// Automatically implements the necessary FFI-glue for plugins to work.  
-/// The Argument is the plugin name, which is used to identify it.
+/// Automatically implements the necessary FFI-glue for plugins to work.
 ///
-/// Usage:
-/// ```compile_fail
-/// #[gravel_provider("my_provider")]
-/// impl ProviderDef for MyProvider {
-///     // ... //
-/// }
-/// ```
+/// The Argument is the plugin name, which is used to identify it.  
+/// See `gravel_ffi::Provider` for more detailed information.
 #[proc_macro_attribute]
 pub fn gravel_provider(attr: TokenStream1, item: TokenStream1) -> TokenStream1 {
 	util::wrap_syn(item, |impl_block: ItemImpl| {
@@ -22,9 +19,9 @@ pub fn gravel_provider(attr: TokenStream1, item: TokenStream1) -> TokenStream1 {
 		let declaration = declare::provider(&util::get_name(attr)?, provider_type);
 
 		let ast: File = parse_quote! {
-			impl ::gravel_ffi::Provider for #provider_type {
+			impl ::gravel_ffi::ProviderInner for #provider_type {
 				fn query(&self, query: ::abi_stable::std_types::RStr<'_>) -> ::gravel_ffi::ProviderResult {
-					::gravel_ffi::ProviderDef::query(self, query.as_str())
+					::gravel_ffi::Provider::query(self, query.as_str())
 				}
 			}
 
@@ -36,16 +33,10 @@ pub fn gravel_provider(attr: TokenStream1, item: TokenStream1) -> TokenStream1 {
 	})
 }
 
-/// Automatically implements the necessary FFI-glue for plugins to work.  
-/// The Argument is the plugin name, which is used to identify it.
+/// Automatically implements the necessary FFI-glue for plugins to work.
 ///
-/// Usage:
-/// ```compile_fail
-/// #[gravel_frontend("my_frontend")]
-/// impl FrontendDef for MyFrontend {
-///     // ... //
-/// }
-/// ```
+/// The Argument is the plugin name, which is used to identify it.  
+/// See `gravel_ffi::Frontend` for more detailed information.
 #[proc_macro_attribute]
 pub fn gravel_frontend(attr: TokenStream1, item: TokenStream1) -> TokenStream1 {
 	util::wrap_syn(item, |impl_block: ItemImpl| {
@@ -54,9 +45,9 @@ pub fn gravel_frontend(attr: TokenStream1, item: TokenStream1) -> TokenStream1 {
 		let declaration = declare::frontend(&util::get_name(attr)?, frontend_type);
 
 		let ast: File = parse_quote! {
-			impl ::gravel_ffi::Frontend for #frontend_type {
+			impl ::gravel_ffi::FrontendInner for #frontend_type {
 				fn run(&mut self, receiver: ::abi_stable::external_types::crossbeam_channel::RReceiver<FrontendMessageNe>) -> ::gravel_ffi::FrontendExitStatusNe {
-					let status = ::gravel_ffi::FrontendDef::run(self, receiver);
+					let status = ::gravel_ffi::Frontend::run(self, receiver);
 					::gravel_ffi::FrontendExitStatusNe::new(status)
 				}
 			}

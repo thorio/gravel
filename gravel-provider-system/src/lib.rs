@@ -17,7 +17,7 @@ pub struct SystemProvider {
 }
 
 #[gravel_provider("system")]
-impl ProviderDef for SystemProvider {
+impl Provider for SystemProvider {
 	fn new(config: &PluginConfigAdapter<'_>) -> Self {
 		let config = config.get::<Config>(DEFAULT_CONFIG);
 		let hits = vec![

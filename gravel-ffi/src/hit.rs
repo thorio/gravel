@@ -3,20 +3,46 @@ use abi_stable::std_types::{RArc, ROption, RStr, RString};
 use abi_stable::{sabi_trait, RRef, StableAbi};
 use std::fmt::Debug;
 
+/// The maximum score a [`Hit`] can have.
+pub const MAX_SCORE: u32 = u32::MAX;
+
+/// The minimum score a [`Hit`] can have.
+pub const MIN_SCORE: u32 = u32::MIN;
+
+/// FFI-safe [`Hit`] trait object.
+///
+/// It uses [`RArc`] to facilitate caching hits.
 pub type ArcDynHit = Hit_TO<'static, RArc<()>>;
 
+/// This is the trait for hits returned from [`crate::Provider`]s.
+///
+/// It must contain some information about the hit, as well as
+/// a function to execute when it is selected.
+///
+/// For most situations, a [`SimpleHit`] is sufficient.
 #[sabi_trait]
 pub trait Hit: Sync + Send + Debug {
 	fn title(&self) -> RStr<'_>;
 	fn subtitle(&self) -> RStr<'_>;
+
+	/// If [`ROption::RSome`], skips normal scoring for this hit,
+	/// instead using the contained score as-is.
+	///
+	/// This is useful for pinning a hit to the top or bottom of the results,
+	/// but probably not very useful for actual scoring, as the underlying scoring
+	/// implementation used in gravel may change.
 	fn override_score(&self) -> ROption<u32>;
 	fn action(&self, context: RefDynHitActionContext<'_>);
 }
 
+/// Clones an [`ArcDynHit`], as this is not straightforward.
+///
+/// Like [`std::sync::Arc`], cloning just increments the reference counter.
 pub(crate) fn clone_hit_arc(hit: &ArcDynHit) -> ArcDynHit {
 	ArcDynHit::from_sabi(hit.obj.shallow_clone())
 }
 
+/// Wraps an [`ArcDynHit`] with scoring metadata.
 #[repr(C)]
 #[derive(StableAbi, Debug)]
 pub struct ScoredHit {
@@ -30,6 +56,28 @@ impl ScoredHit {
 	}
 }
 
+/// FFI-safe reference to a [`HitActionContext`] trait object.
+pub type RefDynHitActionContext<'a> = HitActionContext_TO<'static, RRef<'a, ()>>;
+
+/// Abstracts interaction between a hit action and the frontend.
+#[sabi_trait]
+pub trait HitActionContext {
+	/// Asks the frontend to hide.
+	fn hide_frontend(&self);
+
+	/// Asks the frontend to query again.
+	///
+	/// Useful if the plugin just did something that changes the results of the next query.
+	fn refresh_frontend(&self);
+
+	/// Exits the whole application.
+	fn exit(&self);
+
+	/// Restarts the whole application.
+	fn restart(&self);
+}
+
+/// Standard implementation of [`Hit`], using a boxed closure.
 #[repr(C)]
 pub struct SimpleHit {
 	pub title: RString,
@@ -52,7 +100,6 @@ impl Debug for SimpleHit {
 }
 
 impl SimpleHit {
-	/// Creates a new instance without extra data.
 	#[must_use]
 	pub fn new(
 		title: impl Into<RString>,
@@ -67,16 +114,13 @@ impl SimpleHit {
 		}
 	}
 
+	/// Sets the override score for this hit.
+	///
+	/// See [`Hit::override_score`] for more information.
 	#[must_use]
 	pub fn with_score(mut self, score: u32) -> Self {
 		self.override_score = ROption::RSome(score);
 		self
-	}
-}
-
-impl From<SimpleHit> for ArcDynHit {
-	fn from(value: SimpleHit) -> Self {
-		Self::from_ptr(RArc::new(value), sabi_trait::TD_Opaque)
 	}
 }
 
@@ -101,12 +145,8 @@ impl Hit for SimpleHit {
 	}
 }
 
-pub type RefDynHitActionContext<'a> = HitActionContext_TO<'static, RRef<'a, ()>>;
-
-#[sabi_trait]
-pub trait HitActionContext {
-	fn hide_frontend(&self);
-	fn refresh_frontend(&self);
-	fn exit(&self);
-	fn restart(&self);
+impl From<SimpleHit> for ArcDynHit {
+	fn from(value: SimpleHit) -> Self {
+		Self::from_ptr(RArc::new(value), sabi_trait::TD_Opaque)
+	}
 }

@@ -11,12 +11,13 @@ struct ProviderInfo {
 	pub keyword: Option<String>,
 }
 
+/// Aggregates and scores hits from the given [`gravel_ffi::Provider`]s.
 pub struct QueryEngine {
 	providers: Vec<ProviderInfo>,
 	action_context: ActionContext,
 }
 
-/// for now the `QueryEngine` _is_ the `FrontendContext`,
+/// For now the [`QueryEngine`] _is_ the [`FrontendContext`],
 /// but this can later be changed without breaking the interface
 impl FrontendContext for QueryEngine {
 	fn query(&self, query: RStr<'_>) -> QueryResult {
@@ -25,7 +26,7 @@ impl FrontendContext for QueryEngine {
 		let query = query.into_rust();
 
 		if query.trim().is_empty() {
-			return QueryResult::empty();
+			return QueryResult::default();
 		}
 
 		log::trace!("starting query '{query}'");
@@ -52,7 +53,6 @@ impl From<QueryEngine> for BoxDynFrontendContext {
 	}
 }
 
-/// Aggregates and scores hits from the given [`Provider`]s.
 impl QueryEngine {
 	pub fn new(sender: RSender<FrontendMessageNe>) -> Self {
 		Self {
@@ -82,7 +82,7 @@ impl QueryEngine {
 
 	/// Tries to find a provider with the a keyword that matches the query's.
 	/// If one is found, the keyword is stripped from the query and the
-	/// resulting new query is run against that provider only.
+	/// resulting new query is ran against that provider only.
 	fn try_keyword_query(&self, query: &str) -> Option<QueryResult> {
 		let first_word = query.split(' ').next()?;
 

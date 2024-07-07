@@ -30,7 +30,7 @@ struct ProgramProvider {
 }
 
 #[gravel_provider("program")]
-impl ProviderDef for ProgramProvider {
+impl Provider for ProgramProvider {
 	fn new(config: &PluginConfigAdapter<'_>) -> Self {
 		let config = config.get::<Config>(DEFAULT_CONFIG);
 

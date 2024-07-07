@@ -2,7 +2,7 @@ use gravel_core::config::ConfigManager;
 use gravel_core::{engine::QueryEngine, plugin::PluginRegistry};
 use gravel_ffi::BoxDynFrontend;
 
-/// Initializes the configured [`Frontend`].
+/// Initializes the configured [`gravel_ffi::Frontend`].
 pub fn frontend(registry: &PluginRegistry, engine: QueryEngine, config: &ConfigManager) -> BoxDynFrontend {
 	let root_config = config.root();
 

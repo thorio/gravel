@@ -17,7 +17,7 @@ pub struct ExampleProvider {
 // This macro generates the FFI loader code to make this library work as a plugin.
 // The name of the plugin should be unique.
 #[gravel_provider("example")]
-impl ProviderDef for ExampleProvider {
+impl Provider for ExampleProvider {
 	// Creates a new instance of the provider.
 	// There might be several with different configs!
 	fn new(config: &PluginConfigAdapter<'_>) -> Self {

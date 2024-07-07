@@ -17,7 +17,7 @@ pub struct ExecProvider {
 }
 
 #[gravel_provider("exec")]
-impl ProviderDef for ExecProvider {
+impl Provider for ExecProvider {
 	fn new(config: &PluginConfigAdapter<'_>) -> Self {
 		Self {
 			config: config.get(DEFAULT_CONFIG),

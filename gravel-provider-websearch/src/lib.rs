@@ -14,7 +14,7 @@ pub struct WebsearchProvider {
 }
 
 #[gravel_provider("websearch")]
-impl ProviderDef for WebsearchProvider {
+impl Provider for WebsearchProvider {
 	fn new(config: &PluginConfigAdapter<'_>) -> Self {
 		let config = config.get::<Config>(DEFAULT_CONFIG);
 
