@@ -12,8 +12,6 @@ It supports fuzzy searching without any other heuristics, ensuring consistent pe
 
 ## Features
 
-> Note: Plugins will be available with the v0.7.0 release.
-
 - Native FLTK UI
 - Plugins
 - Global Hotkeys
@@ -94,12 +92,11 @@ Both the frontend and provider components can be swapped out via plugins, allowi
 
 ### Plugins
 
-> Note: Plugins will be available with the v0.7.0 release.
-
-Plugins are implemented using [`abi_stable`][abi-stable], thus allowing libraries to be loaded at runtime. Writing a provider is quite straightforward, take a look at [the example provider][example-provider] for an overview.
+Plugins are implemented using [`abi_stable`][abi-stable], thus allowing libraries to be loaded at runtime. Writing a provider is quite straightforward, take a look at [the plugin interface documentation][docs] and [the example provider][example-provider] for an overview.
 
 gravel's version _is_ the version of the plugin interface, which follows [semver][semver].
 
 [abi-stable]: https://docs.rs/abi_stable/latest/abi_stable/
+[docs]: https://thorio.github.io/gravel/gravel_ffi/
 [example-provider]: ./examples/example-provider
 [semver]: https://semver.org/
