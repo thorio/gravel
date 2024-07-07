@@ -10,6 +10,9 @@ run_task = { name = ["release-archpkg"] }
 [tasks.ci-windows]
 run_task = { name = ["release-zip", "release-msi"] }
 
+[tasks.ci-pages]
+run_task = { name = ["release-docs"] }
+
 # NOTE: github actions windows-2022 has a super old grep version so don't use it without LC_ALL=en_US.utf8
 [tasks.patch-version]
 script_runner = "sh"
@@ -91,3 +94,9 @@ script = '''
 	candle -arch x64 package/windows/installer.wxs -o target/installer.wixobj
 	light -ext WixUIExtension -spdb target/installer.wixobj -o target/artifacts/gravel-windows-x86_64.msi
 '''
+
+[tasks.release-docs]
+dependencies = ["patch-version"]
+command = "cargo"
+env = { "RUSTDOCFLAGS" = "-D warnings" }
+args = ["doc", "--no-deps"]

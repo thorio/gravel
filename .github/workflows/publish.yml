@@ -90,8 +90,7 @@ jobs:
           fetch-tags: true
 
       - name: build and package
-        run: |
-          cargo make --no-workspace ci-windows
+        run: cargo make --no-workspace ci-windows
 
       - name: upload packages
         uses: svenstaro/upload-release-action@v2

@@ -1,0 +1,61 @@
+name: pages
+
+on:
+  workflow_dispatch:
+  release:
+    types: [ published ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-22.04
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: setup pages
+        uses: actions/configure-pages@v4
+
+      - name: setup rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: install rust tools
+        run: cargo install --debug cargo-make
+
+      - name: clean docs
+        run: cargo clean --doc
+
+      - name: build
+        run: cargo make --no-workspace ci-pages
+
+      - name: add redirect
+        run: echo '<meta http-equiv="refresh" content="0;url=gravel_ffi/index.html">' > target/doc/index.html
+
+      - name: upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: target/doc
+
+  deploy:
+    name: deploy
+    runs-on: ubuntu-22.04
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
