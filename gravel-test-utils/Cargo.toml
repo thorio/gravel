@@ -1,0 +1,13 @@
+[package]
+name = "gravel-test-utils"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+gravel-ffi = { path = "../gravel-ffi" }
+
+abi_stable.workspace = true
+mockall.workspace = true
+
+[lints]
+workspace = true

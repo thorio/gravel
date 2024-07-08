@@ -1,0 +1,9 @@
+single_instance: null
+
+frontend:
+  plugin: fltk
+  config:
+    behaviour:
+      # kind of cheeky but it'll work, closing the frontend as soon as it's opened
+      exit_on_hide: true
+      start_hidden: true

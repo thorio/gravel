@@ -79,3 +79,12 @@ fn restart(executable: &Path) -> Result<()> {
 		Ok(())
 	}
 }
+
+#[cfg(test)]
+mod clippy_shut_up {
+	// this has to be put *somewhere* so clippy doesn't complain that the crates are unused
+	// (even though they're used in the integration tests)
+	use gravel_test_utils as _;
+	use rstest as _;
+	use test_bin as _;
+}

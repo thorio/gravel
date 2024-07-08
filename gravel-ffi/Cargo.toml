@@ -12,7 +12,7 @@ log.workspace = true
 serde.workspace = true
 
 [dev-dependencies]
-mockall.workspace = true
+gravel-test-utils = { path = "../gravel-test-utils" }
 
 [lints]
 workspace = true

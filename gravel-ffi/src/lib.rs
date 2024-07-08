@@ -51,5 +51,5 @@ pub use gravel_ffi_macros::*;
 mod clippy_shut_up {
 	// this has to be put *somewhere* so clippy doesn't complain that the crate is unused
 	// (even though it's used in the integration tests)
-	use mockall as _;
+	use gravel_test_utils as _;
 }

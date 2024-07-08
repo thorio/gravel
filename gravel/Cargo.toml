@@ -53,5 +53,11 @@ winapi = { workspace = true, features = ["wincon"] }
 [target.'cfg(unix)'.dependencies]
 exec.workspace = true
 
+[dev-dependencies]
+gravel-test-utils = { path = "../gravel-test-utils" }
+
+rstest.workspace = true
+test_bin.workspace = true
+
 [lints]
 workspace = true

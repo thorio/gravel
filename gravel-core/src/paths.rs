@@ -1,6 +1,7 @@
 use gravel_ffi::paths;
 use lazy_static::lazy_static;
-use std::{env, path::PathBuf};
+use std::env::{self, consts::DLL_EXTENSION};
+use std::path::PathBuf;
 
 const APP_NAME: &str = "gravel";
 
@@ -22,13 +23,8 @@ pub fn log_path() -> PathBuf {
 }
 
 pub fn plugin_globs() -> impl Iterator<Item = PathBuf> {
-	#[cfg(windows)]
-	const PLUGIN_EXT: &str = "dll";
-	#[cfg(unix)]
-	const PLUGIN_EXT: &str = "so";
-
 	lazy_static! {
-		static ref PLUGIN_DIR: String = format!("{APP_NAME}/plugins/*.{PLUGIN_EXT}");
+		static ref PLUGIN_DIR: String = format!("{APP_NAME}/plugins/*.{DLL_EXTENSION}");
 	}
 
 	paths::xdg_data_globs(&PLUGIN_DIR)

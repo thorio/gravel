@@ -62,12 +62,12 @@ Using the devcontainer is highly encouraged to get up and running ASAP, otherwis
 
   **Arch** or derivatives
   ```
-  pacman -S libx11 libxext libxft libxinerama libxcursor libxrender libxfixes pango cairo libgl mesa coreutils gtk3 xdg-utils
+  pacman -S libx11 libxext libxft libxinerama libxcursor libxrender libxfixes pango cairo libgl mesa coreutils gtk3 xdg-utils xorg-server-xvfb
   ```
 
   **Debian** or derivatives
   ```
-  apt install libx11-dev libxext-dev libxft-dev libxinerama-dev libxcursor-dev libxrender-dev libxfixes-dev libpango1.0-dev libgl1-mesa-dev libglu1-mesa-dev
+  apt install libx11-dev libxext-dev libxft-dev libxinerama-dev libxcursor-dev libxrender-dev libxfixes-dev libpango1.0-dev libgl1-mesa-dev libglu1-mesa-dev libgtk-3-bin xdg-utils xvfb --no-install-recommends
   ```
 
   **Windows**  

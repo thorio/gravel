@@ -1,30 +1,14 @@
 #![allow(unused_crate_dependencies, clippy::missing_panics_doc)]
 
 use abi_stable::std_types::{ROption, RSlice, RString};
-use abi_stable::{library::RootModule, sabi_trait, traits::IntoReprC};
-use gravel_ffi::{logging::NoOpLogTarget, HitActionContext, PluginConfigAdapter, PluginLibRef, RefDynHitActionContext};
-use mockall::mock;
+use abi_stable::{library::RootModule, traits::IntoReprC};
+use gravel_ffi::{logging::NoOpLogTarget, PluginConfigAdapter, PluginLibRef};
+use gravel_test_utils::mock::MockHitActionContext;
 use std::path::PathBuf;
-
-mock! {
-	HitActionContext {}
-	impl HitActionContext for HitActionContext {
-		fn hide_frontend(&self);
-		fn refresh_frontend(&self);
-		fn exit(&self);
-		fn restart(&self);
-	}
-}
-
-impl<'a> From<&'a MockHitActionContext> for RefDynHitActionContext<'a> {
-	fn from(value: &'a MockHitActionContext) -> Self {
-		Self::from_ptr(value, sabi_trait::TD_Opaque)
-	}
-}
 
 /// This is a smoke test to check for breaking changes in the plugin interface
 #[cfg_attr(unix, test)]
-pub fn use_provider() {
+pub fn load_plugin_use_provider() {
 	// abi_stable checks if the types are compatible
 	let lib = PluginLibRef::load_from_file(&PathBuf::from("tests/data/libexample_provider.so"))
 		.expect("plugin must be loadable");

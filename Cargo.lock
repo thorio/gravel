@@ -1130,11 +1130,14 @@ dependencies = [
  "gravel-provider-program",
  "gravel-provider-system",
  "gravel-provider-websearch",
+ "gravel-test-utils",
  "hostname",
  "itertools",
  "log",
+ "rstest",
  "single-instance",
  "stderrlog",
+ "test_bin",
  "winapi",
 ]
 
@@ -1163,8 +1166,8 @@ dependencies = [
  "abi_stable",
  "figment",
  "gravel-ffi-macros",
+ "gravel-test-utils",
  "log",
- "mockall",
  "serde",
 ]
 
@@ -1265,6 +1268,15 @@ dependencies = [
  "open",
  "serde",
  "urlencoding",
+]
+
+[[package]]
+name = "gravel-test-utils"
+version = "0.0.0-dev"
+dependencies = [
+ "abi_stable",
+ "gravel-ffi",
+ "mockall",
 ]
 
 [[package]]
@@ -2420,6 +2432,12 @@ name = "termtree"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3369f5ac52d5eb6ab48c6b4ffdc8efbcad6b89c765749064ba298f2c68a16a76"
+
+[[package]]
+name = "test_bin"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8e7a7de15468c6e65dd7db81cf3822c1ec94c71b2a3c1a976ea8e4696c91115c"
 
 [[package]]
 name = "thiserror"
