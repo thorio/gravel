@@ -20,6 +20,7 @@ impl<'a> PluginConfigAdapter<'a> {
 	}
 
 	/// Build and deserialize the plugin's config into the given type.
+	#[must_use]
 	pub fn get<'de, T: Deserialize<'de>>(&self, default_config: &str) -> T {
 		log::trace!("reading plugin config for {}", self.key);
 

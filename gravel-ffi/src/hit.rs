@@ -1,6 +1,6 @@
 use abi_stable::pointer_trait::ImmutableRef;
 use abi_stable::std_types::{RArc, ROption, RStr, RString};
-use abi_stable::{sabi_trait, RRef, StableAbi};
+use abi_stable::{sabi_trait, traits::IntoReprC, RRef, StableAbi};
 use std::fmt::Debug;
 
 /// The maximum score a [`Hit`] can have.
@@ -118,8 +118,9 @@ impl SimpleHit {
 	///
 	/// See [`Hit::override_score`] for more information.
 	#[must_use]
-	pub fn with_score(mut self, score: u32) -> Self {
-		self.override_score = ROption::RSome(score);
+	pub fn with_score(mut self, score: impl Into<Option<u32>>) -> Self {
+		let option: Option<u32> = score.into();
+		self.override_score = option.into_c();
 		self
 	}
 }

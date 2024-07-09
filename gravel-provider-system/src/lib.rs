@@ -20,7 +20,7 @@ pub struct SystemProvider {
 impl Provider for SystemProvider {
 	fn new(config: &PluginConfigAdapter<'_>) -> Self {
 		let config = config.get::<Config>(DEFAULT_CONFIG);
-		let hits = vec![
+		let hits = [
 			context_hit(config.exit, |ctx| ctx.exit()),
 			context_hit(config.reload, |ctx| ctx.restart()),
 			shell_hit(config.lock, implementation::lock),
@@ -59,7 +59,7 @@ fn shell_hit(config: ShellCommandConfig, action: impl Fn(&str) -> Result<()> + S
 	hit.into()
 }
 
-#[derive(Clone, Deserialize, Debug)]
+#[derive(Deserialize, Debug)]
 struct Config {
 	pub exit: CommandConfig,
 	pub reload: CommandConfig,
@@ -70,13 +70,13 @@ struct Config {
 	pub sleep: ShellCommandConfig,
 }
 
-#[derive(Clone, Deserialize, Debug)]
+#[derive(Deserialize, Debug)]
 struct CommandConfig {
 	pub title: String,
 	pub subtitle: String,
 }
 
-#[derive(Clone, Deserialize, Debug)]
+#[derive(Deserialize, Debug)]
 struct ShellCommandConfig {
 	pub title: String,
 	pub subtitle: String,

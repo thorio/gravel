@@ -12,6 +12,7 @@ members = [
 	"gravel-ffi-macros",
 	"gravel-frontend-fltk",
 	"gravel-provider-calculator",
+	"gravel-provider-custom",
 	"gravel-provider-exec",
 	"gravel-provider-kill",
 	"gravel-provider-program",
@@ -46,6 +47,7 @@ log = "0.4.22"
 mexprp = { version = "0.3.1", default-features = false }
 nameof = "1.2.2"
 nix = "0.29.0"
+nonempty = "0.10.0"
 open = "5.2.0"
 procfs = { version = "0.16.0", default-features = false }
 quote = "1.0.36"

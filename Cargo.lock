@@ -1125,6 +1125,7 @@ dependencies = [
  "gravel-ffi",
  "gravel-frontend-fltk",
  "gravel-provider-calculator",
+ "gravel-provider-custom",
  "gravel-provider-exec",
  "gravel-provider-kill",
  "gravel-provider-program",
@@ -1201,6 +1202,17 @@ dependencies = [
  "log",
  "mexprp",
  "rstest",
+ "serde",
+]
+
+[[package]]
+name = "gravel-provider-custom"
+version = "0.0.0-dev"
+dependencies = [
+ "abi_stable",
+ "gravel-ffi",
+ "log",
+ "nonempty",
  "serde",
 ]
 
@@ -1660,6 +1672,15 @@ checksum = "d273983c5a657a70a3e8f2a01329822f3b8c8172b73826411a55751e404a0a4a"
 dependencies = [
  "memchr",
  "minimal-lexical",
+]
+
+[[package]]
+name = "nonempty"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "303e8749c804ccd6ca3b428de7fe0d86cb86bc7606bc15291f100fd487960bb8"
+dependencies = [
+ "serde",
 ]
 
 [[package]]

@@ -20,6 +20,8 @@ fn register_builtins(registry: &mut PluginRegistry) {
 
 	#[cfg(feature = "calculator")]
 	registry.register(gravel_provider_calculator::__gravel_plugin_inner());
+	#[cfg(feature = "custom")]
+	registry.register(gravel_provider_custom::__gravel_plugin_inner());
 	#[cfg(feature = "exec")]
 	registry.register(gravel_provider_exec::__gravel_plugin_inner());
 	#[cfg(feature = "kill")]

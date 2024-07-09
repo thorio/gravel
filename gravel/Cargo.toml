@@ -11,9 +11,10 @@ repository = "https://github.com/thorio/gravel"
 [features]
 default = [ "builtins" ]
 
-builtins = [ "fltk", "calculator", "exec", "kill", "program", "system", "websearch" ]
+builtins = [ "fltk", "calculator", "custom", "exec", "kill", "program", "system", "websearch" ]
 fltk = ["gravel-frontend-fltk"]
 calculator = ["gravel-provider-calculator"]
+custom = ["gravel-provider-custom"]
 exec = ["gravel-provider-exec"]
 kill = ["gravel-provider-kill"]
 program = ["gravel-provider-program"]
@@ -26,6 +27,7 @@ gravel-ffi = { path = "../gravel-ffi" }
 
 gravel-frontend-fltk = { path = "../gravel-frontend-fltk", features = ["no-root"], optional = true }
 gravel-provider-calculator = { path = "../gravel-provider-calculator", features = ["no-root"], optional = true }
+gravel-provider-custom = { path = "../gravel-provider-custom", features = ["no-root"], optional = true }
 gravel-provider-exec = { path = "../gravel-provider-exec", features = ["no-root"], optional = true }
 gravel-provider-kill = { path = "../gravel-provider-kill", features = ["no-root"], optional = true }
 gravel-provider-program = { path = "../gravel-provider-program", features = ["no-root"], optional = true }

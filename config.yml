@@ -255,3 +255,13 @@ providers:
     # config:
     #   ## Changes the subtitle of the hit. Visual difference only.
     #   subtitle: Run Command
+
+  ## Tool for creating your own hits.
+  # - plugin: custom
+  #   config:
+  #     ## The configuration of this provider is a bit more in-depth,
+  #     ## so please refer to the documentation:
+  #     ## https://thorio.github.io/gravel/docs/gravel_provider_custom
+  #     hits:
+  #       - title: say hello
+  #         action: "echo hello from bash"
