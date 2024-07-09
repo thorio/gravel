@@ -97,6 +97,6 @@ Plugins are implemented using [`abi_stable`][abi-stable], thus allowing librarie
 gravel's version _is_ the version of the plugin interface, which follows [semver][semver].
 
 [abi-stable]: https://docs.rs/abi_stable/latest/abi_stable/
-[docs]: https://thorio.github.io/gravel/gravel_ffi/
+[docs]: https://thorio.github.io/gravel/docs/gravel_ffi/
 [example-provider]: ./examples/example-provider
 [semver]: https://semver.org/

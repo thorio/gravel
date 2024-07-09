@@ -97,6 +97,16 @@ script = '''
 
 [tasks.release-docs]
 dependencies = ["patch-version"]
-command = "cargo"
 env = { "RUSTDOCFLAGS" = "-D warnings" }
-args = ["doc", "--no-deps"]
+script_runner = "sh"
+script = '''
+	cargo clean --doc
+	cargo doc --no-deps
+
+	rm -rf target/pages
+	mkdir -p target/pages
+	cp -ar target/doc target/pages/docs
+
+	# redirect to docs
+	echo '<meta http-equiv="refresh" content="0;url=docs/gravel_ffi/index.html">' > target/pages/index.html
+'''

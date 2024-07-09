@@ -34,19 +34,13 @@ jobs:
       - name: install rust tools
         run: cargo install --debug cargo-make
 
-      - name: clean docs
-        run: cargo clean --doc
-
-      - name: build
+      - name: build docs
         run: cargo make --no-workspace ci-pages
-
-      - name: add redirect
-        run: echo '<meta http-equiv="refresh" content="0;url=gravel_ffi/index.html">' > target/doc/index.html
 
       - name: upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: target/doc
+          path: target/pages
 
   deploy:
     name: deploy
