@@ -8,7 +8,7 @@ use abi_stable::external_types::crossbeam_channel;
 use anyhow::{Context, Result};
 use gravel_core::performance::Stopwatch;
 use gravel_ffi::{FrontendExitStatus, FrontendMessageNe};
-use std::{env, path::Path};
+use std::{env, path::Path, process::Command};
 
 mod init;
 
@@ -31,6 +31,7 @@ fn main() {
 fn run() -> Result<()> {
 	let stopwatch = Stopwatch::start();
 
+	// do this first so it doesn't break when the executable is replaced later
 	let executable = env::current_exe()?;
 
 	let args = init::cli();
@@ -64,20 +65,19 @@ fn run() -> Result<()> {
 }
 
 fn restart(executable: &Path) -> Result<()> {
+	#[cfg(unix)]
+	use std::os::unix::process::CommandExt;
+
 	log::debug!("attempting to restart gravel");
 
+	// skip arg0
+	let args = env::args().skip(1);
+
 	#[cfg(unix)]
-	anyhow::bail!(exec::execvp(executable, env::args()));
+	anyhow::bail!(Command::new(executable).args(args).exec());
 
 	#[cfg(not(unix))]
-	{
-		// Windows doesn't like the first arg being the binary path
-		let args = env::args().skip(1);
-
-		std::process::Command::new(executable).args(args).spawn()?;
-
-		Ok(())
-	}
+	Ok(Command::new(executable).args(args).spawn().map(drop)?)
 }
 
 #[cfg(test)]
