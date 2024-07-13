@@ -8,7 +8,7 @@ use implementation::Pid;
 #[cfg_attr(windows, path = "windows.rs")]
 mod implementation;
 
-pub struct KillProvider;
+struct KillProvider;
 
 #[gravel_provider("kill")]
 impl Provider for KillProvider {
@@ -29,7 +29,7 @@ impl Provider for KillProvider {
 	}
 }
 
-pub(crate) fn get_hit(name: &str, pid: Pid, cmdline: &str) -> SimpleHit {
+fn get_hit(name: &str, pid: Pid, cmdline: &str) -> SimpleHit {
 	let title = format!("{name} - {pid}");
 
 	SimpleHit::new(title, cmdline, move |_, ctx| do_kill(pid, ctx))

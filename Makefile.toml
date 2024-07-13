@@ -101,7 +101,7 @@ env = { "RUSTDOCFLAGS" = "-D warnings" }
 script_runner = "sh"
 script = '''
 	cargo clean --doc
-	cargo doc --no-deps
+	cargo doc --all --no-deps --exclude example-provider --exclude gravel-test-utils
 
 	rm -rf target/pages
 	mkdir -p target/pages

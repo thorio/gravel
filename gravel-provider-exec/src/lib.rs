@@ -12,7 +12,7 @@ mod implementation;
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
-pub struct ExecProvider {
+struct ExecProvider {
 	config: Config,
 }
 

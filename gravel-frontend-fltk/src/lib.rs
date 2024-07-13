@@ -16,7 +16,7 @@ use fltk::{enums::FrameType, prelude::*};
 use gravel_ffi::prelude::*;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-pub struct FltkFrontend {
+struct FltkFrontend {
 	config: Config,
 	ui: Ui,
 	context: BoxDynFrontendContext,

@@ -7,10 +7,10 @@ use serde::Deserialize;
 //
 // Use `include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));`
 // to read it from a file at compile time.
-pub const DEFAULT_CONFIG: &str = "number: 2";
+const DEFAULT_CONFIG: &str = "number: 2";
 
 // The provider can define any state, as long as it's immutable.
-pub struct ExampleProvider {
+struct ExampleProvider {
 	_number: u32,
 }
 
@@ -55,6 +55,6 @@ impl Provider for ExampleProvider {
 
 // The config struct must be deserializable.
 #[derive(Deserialize)]
-pub struct Config {
+struct Config {
 	pub number: u32,
 }

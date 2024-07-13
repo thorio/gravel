@@ -8,7 +8,7 @@ use serde::Deserialize;
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
-pub struct WebsearchProvider {
+struct WebsearchProvider {
 	config: Config,
 	url_pattern: &'static str,
 }
