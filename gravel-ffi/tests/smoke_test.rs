@@ -1,8 +1,10 @@
 #![allow(unused_crate_dependencies, clippy::missing_panics_doc)]
 
 use abi_stable::std_types::{ROption, RSlice, RString};
-use abi_stable::{library::RootModule, traits::IntoReprC};
-use gravel_ffi::{logging::NoOpLogTarget, PluginConfigAdapter, PluginLibRef};
+use abi_stable::traits::IntoReprC;
+use gravel_core::plugin::load_library_from_path;
+use gravel_ffi::PluginLibRef;
+use gravel_ffi::{logging::NoOpLogTarget, PluginConfigAdapter};
 use gravel_test_utils::mock::MockHitActionContext;
 use std::path::PathBuf;
 
@@ -10,8 +12,8 @@ use std::path::PathBuf;
 #[cfg_attr(unix, test)]
 pub fn load_plugin_use_provider() {
 	// abi_stable checks if the types are compatible
-	let lib = PluginLibRef::load_from_file(&PathBuf::from("tests/data/libexample_provider.so"))
-		.expect("plugin must be loadable");
+	let lib = load_library_from_path::<PluginLibRef>(&PathBuf::from("tests/data/libexample_provider.so"))
+		.expect("plugin library header must be loadable");
 
 	// but just to be sure, let's do a test run of the provider
 	let definitions = lib.plugin()(NoOpLogTarget::get());

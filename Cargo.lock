@@ -1166,6 +1166,7 @@ version = "0.0.0-dev"
 dependencies = [
  "abi_stable",
  "figment",
+ "gravel-core",
  "gravel-ffi-macros",
  "gravel-test-utils",
  "log",

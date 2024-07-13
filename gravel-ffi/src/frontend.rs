@@ -73,10 +73,6 @@ impl QueryResult {
 	}
 }
 
-// Note: the non-exhaustive enums don't work correctly when
-// the consumer is using a newer version than the library,
-// therefore adding enum variants still constitutes a breaking change.
-
 /// Non-exhaustive variant of [`FrontendMessage`].
 pub type FrontendMessageNe = FrontendMessage_NE;
 

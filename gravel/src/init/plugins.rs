@@ -35,10 +35,9 @@ fn register_builtins(registry: &mut PluginRegistry) {
 }
 
 mod external {
-	use abi_stable::library::{lib_header_from_path, LibHeader, LibraryError, RootModule};
-	use abi_stable::sabi_types::VersionNumber;
 	use glob::{glob, Paths};
-	use gravel_core::{config::ExternalPlugins, paths, plugin::PluginRegistry};
+	use gravel_core::plugin::{load_library_from_path, PluginRegistry};
+	use gravel_core::{config::ExternalPlugins, paths};
 	use gravel_ffi::{logging::StaticLogTarget, PluginLibRef};
 	use itertools::Itertools;
 	use std::path::PathBuf;
@@ -89,31 +88,11 @@ mod external {
 			.ok()
 	}
 
-	fn check_version<M: RootModule>(header: &'static LibHeader) -> Result<&'static LibHeader, LibraryError> {
-		let expected_version = VersionNumber::new(M::VERSION_STRINGS)?;
-		let actual_version = VersionNumber::new(header.version_strings())?;
-
-		if expected_version.major != actual_version.major
-			|| expected_version.minor < actual_version.minor
-			|| (expected_version.major == 0) && expected_version.minor > actual_version.minor
-		{
-			return Err(LibraryError::IncompatibleVersionNumber {
-				library_name: M::NAME,
-				expected_version,
-				actual_version,
-			});
-		}
-
-		Ok(header)
-	}
-
 	#[allow(clippy::print_stderr)]
 	fn load_lib(path: PathBuf) -> Option<PluginLibRef> {
 		log::trace!("attempting to load plugin library from {path:?}");
 
-		lib_header_from_path(&path)
-			.and_then(check_version::<PluginLibRef>)
-			.and_then(LibHeader::check_layout)
+		load_library_from_path(&path)
 			.inspect_err(|e| {
 				// these errors tend to be huge, multiline monsters, so putting them in the logs would flood them
 				log::error!("unable to load plugin at {path:?}, writing diagnostics to stderr");
