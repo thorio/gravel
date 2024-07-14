@@ -78,7 +78,7 @@ impl FltkFrontend {
 		match message {
 			Event::Query => self.query(),
 			Event::ForceQuery => self.force_query(),
-			Event::Confirm => self.confirm(),
+			Event::Confirm(secondary) => self.confirm(secondary),
 			Event::CursorUp => self.cursor_up(),
 			Event::CursorDown => self.cursor_down(),
 			Event::CursorPageUp => self.cursor_page_up(),
@@ -201,10 +201,17 @@ impl FltkFrontend {
 	}
 
 	/// Runs the action of the selected hit.
-	fn confirm(&self) {
-		if !self.result.hits.is_empty() {
-			let cursor = self.scroll.cursor();
-			let hit = &self.result.hits[cursor as usize].hit;
+	fn confirm(&self, secondary: bool) {
+		if self.result.hits.is_empty() {
+			return;
+		}
+
+		let cursor = self.scroll.cursor();
+		let hit = &self.result.hits[cursor as usize].hit;
+
+		if secondary {
+			self.context.run_secondary_hit_action(hit);
+		} else {
 			self.context.run_hit_action(hit);
 		}
 	}

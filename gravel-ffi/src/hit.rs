@@ -23,7 +23,10 @@ pub type ArcDynHit = Hit_TO<'static, RArc<()>>;
 #[sabi_trait]
 pub trait Hit: Sync + Send + Debug {
 	fn title(&self) -> RStr<'_>;
-	fn subtitle(&self) -> RStr<'_>;
+
+	fn subtitle(&self) -> RStr<'_> {
+		"".into_c()
+	}
 
 	/// If [`ROption::RSome`], skips normal scoring for this hit,
 	/// instead using the contained score as-is.
@@ -31,8 +34,21 @@ pub trait Hit: Sync + Send + Debug {
 	/// This is useful for pinning a hit to the top or bottom of the results,
 	/// but probably not very useful for actual scoring, as the underlying scoring
 	/// implementation used in gravel may change.
-	fn override_score(&self) -> ROption<u32>;
+	fn override_score(&self) -> ROption<u32> {
+		ROption::RNone
+	}
+
 	fn action(&self, context: RefDynHitActionContext<'_>);
+
+	/// Secondary action for related functionality.
+	///
+	/// How this is triggered and what it does is plugin-defined. By default,
+	/// it calls the regular action.
+	fn secondary_action(&self, context: RefDynHitActionContext<'_>) {
+		log::trace!("no secondary action set for hit '{}'", self.title());
+
+		self.action(context);
+	}
 }
 
 /// Clones an [`ArcDynHit`], as this is not straightforward.
@@ -75,9 +91,13 @@ pub trait HitActionContext {
 
 	/// Restarts the whole application.
 	fn restart(&self);
+
+	fn set_query(&self, query: RString);
 }
 
-/// Standard implementation of [`Hit`], using a boxed closure.
+type SimpleHitAction = Box<dyn Fn(&SimpleHit, RefDynHitActionContext<'_>) + Send + Sync>;
+
+/// Standard implementation of [`Hit`] using closures.
 #[repr(C)]
 pub struct SimpleHit {
 	pub title: RString,
@@ -85,7 +105,8 @@ pub struct SimpleHit {
 	pub override_score: ROption<u32>,
 
 	#[allow(clippy::type_complexity)]
-	pub action: Box<dyn Fn(&SimpleHit, RefDynHitActionContext<'_>) + Send + Sync>,
+	pub action: SimpleHitAction,
+	pub secondary_action: Option<SimpleHitAction>,
 }
 
 impl Debug for SimpleHit {
@@ -111,6 +132,7 @@ impl SimpleHit {
 			subtitle: subtitle.into(),
 			override_score: ROption::RNone,
 			action: Box::new(func),
+			secondary_action: None,
 		}
 	}
 
@@ -123,11 +145,33 @@ impl SimpleHit {
 		self.override_score = option.into_c();
 		self
 	}
+
+	/// Sets the secondary action for this hit.
+	///
+	/// See [`Hit::secondary_action`] for more information.
+	#[must_use]
+	pub fn with_secondary(
+		mut self,
+		action: impl Fn(&Self, RefDynHitActionContext<'_>) + Send + Sync + 'static,
+	) -> Self {
+		self.secondary_action = Some(Box::new(action));
+		self
+	}
 }
 
 impl Hit for SimpleHit {
 	fn action(&self, context: RefDynHitActionContext<'_>) {
 		(self.action)(self, context);
+	}
+
+	fn secondary_action(&self, context: RefDynHitActionContext<'_>) {
+		let Some(action) = &self.secondary_action else {
+			log::trace!("no secondary action set for hit '{}'", self.title());
+
+			return self.action(context);
+		};
+
+		(action)(self, context);
 	}
 
 	#[must_use]

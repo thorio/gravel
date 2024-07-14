@@ -51,6 +51,9 @@ impl Provider for CalculatorProvider {
 		let hit = SimpleHit::new(result, self.config.subtitle.clone(), move |hit, ctx| {
 			do_copy(clipboard.clone(), hit.title().as_str(), ctx);
 		})
+		.with_secondary(|hit, ctx| {
+			ctx.set_query(hit.title().into_rust().to_owned().into_c());
+		})
 		.with_score(MAX_SCORE);
 
 		ProviderResult::single(hit)

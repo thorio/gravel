@@ -58,6 +58,9 @@ pub trait FrontendContext {
 
 	/// Executes the passed hit's action.
 	fn run_hit_action(&self, hit: &ArcDynHit);
+
+	/// Executes the passed hit's secondary action.
+	fn run_secondary_hit_action(&self, hit: &ArcDynHit);
 }
 
 /// A Collection of scored hits returned by the [`FrontendContext`].

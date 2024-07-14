@@ -32,7 +32,9 @@ pub mod prelude {
 		QueryResult, RefDynHitActionContext, ScoredHit, SimpleHit, MAX_SCORE, MIN_SCORE,
 	};
 
-	pub use abi_stable::{external_types::crossbeam_channel::RReceiver, std_types::RStr};
+	pub use abi_stable::external_types::crossbeam_channel::RReceiver;
+	pub use abi_stable::std_types::{ROption, RStr};
+	pub use abi_stable::traits::{IntoReprC, IntoReprRust};
 }
 
 pub use config::PluginConfigAdapter;

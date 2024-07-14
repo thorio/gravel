@@ -26,7 +26,8 @@ pub struct HitUi {
 pub enum Event {
 	Query,
 	ForceQuery,
-	Confirm,
+	/// false => primary, true => secondary
+	Confirm(bool),
 	CursorUp,
 	CursorDown,
 	CursorPageUp,

@@ -40,4 +40,5 @@ pub fn load_plugin_use_provider() {
 	context.expect_hide_frontend().return_const(());
 
 	hit.action((&context).into());
+	hit.secondary_action((&context).into());
 }

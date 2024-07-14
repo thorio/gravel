@@ -149,7 +149,7 @@ fn on_input_event(event: FltkEvent, sender: &Sender<Event>) -> bool {
 fn on_input_keydown(key: Key, sender: &Sender<Event>) {
 	let message = match key {
 		Key::Escape => Event::Cancel,
-		Key::Enter | Key::KPEnter => Event::Confirm,
+		Key::Enter | Key::KPEnter => Event::Confirm(shift_down()),
 		Key::Up => Event::CursorUp,
 		Key::Down => Event::CursorDown,
 		Key::PageUp => Event::CursorPageUp,
@@ -164,4 +164,8 @@ fn on_input_keydown(key: Key, sender: &Sender<Event>) {
 
 fn ctrl_down() -> bool {
 	app::event_key_down(Key::ControlL) || app::event_key_down(Key::ControlR)
+}
+
+fn shift_down() -> bool {
+	app::event_key_down(Key::ShiftL) || app::event_key_down(Key::ShiftR)
 }

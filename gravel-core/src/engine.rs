@@ -1,5 +1,6 @@
 use crate::performance::Stopwatch;
 use crate::scoring;
+use abi_stable::std_types::RString;
 use abi_stable::{external_types::crossbeam_channel::RSender, sabi_trait, std_types::RStr, traits::IntoReprRust};
 use gravel_ffi::{ArcDynHit, FrontendMessage, HitActionContext, RefDynHitActionContext};
 use gravel_ffi::{BoxDynFrontendContext, BoxDynProvider, FrontendContext, FrontendMessageNe, QueryResult};
@@ -44,6 +45,10 @@ impl FrontendContext for QueryEngine {
 
 	fn run_hit_action(&self, hit: &ArcDynHit) {
 		hit.action((&self.action_context).into());
+	}
+
+	fn run_secondary_hit_action(&self, hit: &ArcDynHit) {
+		hit.secondary_action((&self.action_context).into());
 	}
 }
 
@@ -155,5 +160,9 @@ impl HitActionContext for ActionContext {
 
 	fn restart(&self) {
 		self.send(FrontendMessage::Restart);
+	}
+
+	fn set_query(&self, query: RString) {
+		self.send(FrontendMessage::ShowWithQuery(query));
 	}
 }

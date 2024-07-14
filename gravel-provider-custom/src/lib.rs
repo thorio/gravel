@@ -67,6 +67,9 @@
 //! Must be an integer between 0 and 4294967295 (32bit unsigned integer).
 //! Defaults to `null`, using the normal scoring process.
 //!
+//! #### secondary_action
+//! This is defined identically to the regular action above, but triggered on the secondary action instead.
+//!
 //! #### wait
 //! Either `true` or `false`, this specifies if the provider should wait until the action is completed.  
 //! Be careful, setting this to `true` on a long-running command will hang the UI!
@@ -106,12 +109,14 @@ impl Provider for CustomProvider {
 fn into_hit(config: HitConfig) -> ArcDynHit {
 	let subtitle = config.subtitle.unwrap_or_default();
 	let wait = config.wait.unwrap_or(true);
-	let action = config.action;
-	let post_action = config.post_action;
 
 	SimpleHit::new(config.title, subtitle, move |h, context| {
-		run_action(&action, wait, h);
-		run_post_action(context, post_action);
+		run_action(&config.action, wait, h);
+		run_post_action(context, config.post_action);
+	})
+	.with_secondary(move |hit, context| {
+		run_action(&config.secondary_action, wait, hit);
+		run_post_action(context, config.post_action);
 	})
 	.with_score(config.override_score)
 	.into()
@@ -177,6 +182,7 @@ struct HitConfig {
 	pub override_score: Option<u32>,
 	pub wait: Option<bool>,
 	pub action: Action,
+	pub secondary_action: Action,
 
 	#[serde(default)]
 	pub post_action: PostAction,

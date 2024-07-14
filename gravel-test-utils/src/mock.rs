@@ -1,4 +1,4 @@
-use abi_stable::sabi_trait;
+use abi_stable::{sabi_trait, std_types::RString};
 use gravel_ffi::{HitActionContext, RefDynHitActionContext};
 use mockall::mock;
 
@@ -9,6 +9,7 @@ mock! {
 		fn refresh_frontend(&self);
 		fn exit(&self);
 		fn restart(&self);
+		fn set_query(&self, query: RString);
 	}
 }
 
