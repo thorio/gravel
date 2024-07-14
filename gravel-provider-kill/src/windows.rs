@@ -1,5 +1,7 @@
 use anyhow::Result;
 use gravel_ffi::SimpleHit;
+use std::thread::sleep;
+use std::time::Duration;
 use sysinfo::{Process, System};
 use thiserror::Error;
 use winapi::shared::minwindef::DWORD;
@@ -8,19 +10,19 @@ use winapi::um::{handleapi, processthreadsapi, winnt, winnt::HANDLE};
 
 pub type Pid = u32;
 
-struct HandleWrapper {
-	pub handle: HANDLE,
+struct Handle {
+	pub inner: HANDLE,
 }
 
-impl HandleWrapper {
+impl Handle {
 	pub fn from(handle: HANDLE) -> Self {
-		Self { handle }
+		Self { inner: handle }
 	}
 }
 
-impl Drop for HandleWrapper {
+impl Drop for Handle {
 	fn drop(&mut self) {
-		unsafe { handleapi::CloseHandle(self.handle) };
+		unsafe { handleapi::CloseHandle(self.inner) };
 	}
 }
 
@@ -54,14 +56,14 @@ fn get_hit(pid: sysinfo::Pid, process: &Process) -> SimpleHit {
 	super::get_hit(process.name(), pid.as_u32(), &cmdline)
 }
 
-fn open_process(desired_access: DWORD, pid: Pid) -> Result<HandleWrapper, KillError> {
+fn open_process(desired_access: DWORD, pid: Pid) -> Result<Handle, KillError> {
 	let handle = unsafe { processthreadsapi::OpenProcess(desired_access, 0, pid) };
 
 	if handle == 0 as HANDLE {
 		return Err(get_last_error());
 	}
 
-	Ok(HandleWrapper::from(handle))
+	Ok(Handle::from(handle))
 }
 
 fn get_last_error() -> KillError {
@@ -73,9 +75,13 @@ fn get_last_error() -> KillError {
 pub fn kill_process(pid: Pid) -> Result<(), KillError> {
 	let handle = open_process(winnt::PROCESS_TERMINATE, pid)?;
 
-	if unsafe { processthreadsapi::TerminateProcess(handle.handle, 1) } == 0 {
+	if unsafe { processthreadsapi::TerminateProcess(handle.inner, 1) } == 0 {
 		return Err(get_last_error());
 	}
+
+	// give windows some extra time to actually kill the process
+	// NOTE: using WaitForSingleObject doesn't work
+	sleep(Duration::from_millis(100));
 
 	Ok(())
 }
