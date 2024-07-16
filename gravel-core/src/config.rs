@@ -94,7 +94,6 @@ impl From<HotkeyAction> for FrontendMessage {
 #[derive(Debug, Deserialize)]
 pub struct Frontend {
 	pub plugin: String,
-	pub alias: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
