@@ -1,5 +1,6 @@
 use crate::hotkeys::{Key, Modifier};
 use enumflags2::BitFlags;
+use itertools::Itertools;
 use thiserror::Error;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -26,7 +27,7 @@ pub fn parse_binding(binding: &str) -> Result<ParsedBinding, ParseError> {
 		return Err(ParseError::Empty);
 	}
 
-	let parts = binding.split('-').collect::<Vec<&str>>();
+	let parts = binding.split('-').collect_vec();
 
 	let key = convert_key(parts.last().expect("vec always contains at least one item"))?;
 	let modifiers = parts

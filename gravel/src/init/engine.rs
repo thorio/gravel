@@ -25,7 +25,7 @@ pub fn engine(sender: RSender<FrontendMessageNe>, registry: &PluginRegistry, con
 		};
 
 		let provider = factory(&config.adapt_provider(index));
-		engine.register(provider, provider_config.keyword.clone());
+		engine.register(plugin_name.clone(), provider, provider_config.keyword.clone());
 	}
 
 	engine

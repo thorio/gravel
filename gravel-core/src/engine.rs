@@ -2,12 +2,14 @@ use crate::performance::Stopwatch;
 use crate::scoring;
 use abi_stable::std_types::RString;
 use abi_stable::{external_types::crossbeam_channel::RSender, sabi_trait, std_types::RStr, traits::IntoReprRust};
-use gravel_ffi::{ArcDynHit, FrontendMessage, HitActionContext, RefDynHitActionContext};
+use gravel_ffi::{ArcDynHit, FrontendMessage, HitActionContext, ProviderResult, RefDynHitActionContext};
 use gravel_ffi::{BoxDynFrontendContext, BoxDynProvider, FrontendContext, FrontendMessageNe, QueryResult};
 use itertools::Itertools;
+use std::iter::once;
 
 /// Holds a [`Provider`] and some additional metadata.
 struct ProviderInfo {
+	pub name: String,
 	pub provider: BoxDynProvider,
 	pub keyword: Option<String>,
 }
@@ -22,7 +24,13 @@ pub struct QueryEngine {
 /// but this can later be changed without breaking the interface
 impl FrontendContext for QueryEngine {
 	fn query(&self, query: RStr<'_>) -> QueryResult {
-		let stopwatch = Stopwatch::start();
+		fn inner(engine: &QueryEngine, query: &str) -> QueryResult {
+			if let Some(result) = engine.try_keyword_query(query) {
+				return result;
+			}
+
+			engine.full_query(query)
+		}
 
 		let query = query.into_rust();
 
@@ -30,16 +38,11 @@ impl FrontendContext for QueryEngine {
 			return QueryResult::default();
 		}
 
-		log::trace!("starting query '{query}'");
+		let stopwatch = Stopwatch::start();
 
-		if let Some(result) = self.try_keyword_query(query) {
-			log::trace!("query complete, took {stopwatch}");
-			return result;
-		}
+		let result = inner(self, query);
 
-		let result = self.full_query(query);
-
-		log::trace!("query complete, took {stopwatch}");
+		log::trace!("query took {stopwatch}");
 		result
 	}
 
@@ -67,8 +70,12 @@ impl QueryEngine {
 	}
 
 	/// Adds the provider to the engine's collection.
-	pub fn register(&mut self, provider: BoxDynProvider, keyword: Option<String>) -> &mut Self {
-		let info = ProviderInfo { provider, keyword };
+	pub fn register(&mut self, name: String, provider: BoxDynProvider, keyword: Option<String>) -> &mut Self {
+		let info = ProviderInfo {
+			name,
+			provider,
+			keyword,
+		};
 
 		self.providers.push(info);
 		self
@@ -76,13 +83,9 @@ impl QueryEngine {
 
 	/// Runs the query against all available providers.
 	fn full_query(&self, query: &str) -> QueryResult {
-		let providers = self
-			.providers
-			.iter()
-			.filter(|provider| provider.keyword.is_none())
-			.collect::<Vec<&ProviderInfo>>();
+		let providers = self.providers.iter().filter(|provider| provider.keyword.is_none());
 
-		inner_query(&providers, query)
+		query_all(providers, query)
 	}
 
 	/// Tries to find a provider with the a keyword that matches the query's.
@@ -96,7 +99,7 @@ impl QueryEngine {
 		// remove the keyword from the query
 		let new_query = &query[first_word.len()..query.len()].trim_start();
 
-		Some(inner_query(&[provider], new_query))
+		Some(query_all(once(provider), new_query))
 	}
 
 	/// Tries to find a provider with the a keyword that matches the given string.
@@ -108,11 +111,9 @@ impl QueryEngine {
 }
 
 /// Queries providers; aggregates, scores and orders [`Hit`]s.
-fn inner_query(providers: &[&ProviderInfo], query: &str) -> QueryResult {
-	let hits = providers
-		.iter()
-		.flat_map(|p| p.provider.query(query.into()).hits)
-		.collect_vec();
+#[allow(single_use_lifetimes)]
+fn query_all<'a>(providers: impl Iterator<Item = &'a ProviderInfo>, query: &str) -> QueryResult {
+	let hits = providers.flat_map(|p| query_one(p, query).hits).collect_vec();
 
 	let hits = match query.trim() {
 		"*" => scoring::to_unscored(hits),
@@ -120,6 +121,20 @@ fn inner_query(providers: &[&ProviderInfo], query: &str) -> QueryResult {
 	};
 
 	QueryResult::new(hits)
+}
+
+fn query_one(info: &ProviderInfo, query: &str) -> ProviderResult {
+	let stopwatch = Stopwatch::start();
+
+	let result = info.provider.query(query.into());
+
+	log::trace!(
+		"query for provider '{}' took {stopwatch} and produced {} hits",
+		info.name,
+		result.hits.len()
+	);
+
+	result
 }
 
 struct ActionContext {
