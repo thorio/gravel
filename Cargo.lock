@@ -1138,6 +1138,7 @@ dependencies = [
  "gravel-ffi-macros",
  "gravel-test-utils",
  "log",
+ "rstest",
  "serde",
 ]
 
@@ -1258,6 +1259,7 @@ dependencies = [
  "abi_stable",
  "gravel-ffi",
  "mockall",
+ "rstest",
 ]
 
 [[package]]

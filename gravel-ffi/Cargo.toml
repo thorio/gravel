@@ -15,5 +15,7 @@ serde.workspace = true
 gravel-test-utils = { path = "../gravel-test-utils" }
 gravel-core = { path = "../gravel-core" }
 
+rstest.workspace = true
+
 [lints]
 workspace = true

@@ -17,7 +17,7 @@ use glob::{glob, Paths};
 use gravel_ffi::prelude::*;
 use itertools::Itertools;
 use serde::Deserialize;
-use std::path::PathBuf;
+use std::{path::PathBuf, time::Duration};
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
 #[cfg_attr(windows, path = "windows.rs")]
@@ -27,6 +27,7 @@ const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/
 
 struct ProgramProvider {
 	program_paths: Vec<PathBuf>,
+	cache: HitCache,
 }
 
 #[gravel_provider("program")]
@@ -37,21 +38,27 @@ impl Provider for ProgramProvider {
 		let program_paths = implementation::get_program_paths(&config).collect_vec();
 		log::debug!("determined program paths: {program_paths:?}");
 
-		Self { program_paths }
+		Self {
+			program_paths,
+			cache: HitCache::default().max_age(Duration::from_secs(10)),
+		}
 	}
 
 	fn query(&self, _query: &str) -> ProviderResult {
-		let hits = self
-			.program_paths
-			.iter()
-			.filter_map(expand_glob)
-			.flatten()
-			.filter_map(Result::ok)
-			// TODO: follow desktop file specification on deduplication
-			.unique_by(|p| p.file_name().map(ToOwned::to_owned))
-			.filter_map(|p| implementation::get_program(&p));
+		fn inner(program_paths: &[PathBuf]) -> impl Iterator<Item = SimpleHit> + '_ {
+			program_paths
+				.iter()
+				.filter_map(expand_glob)
+				.flatten()
+				.filter_map(Result::ok)
+				// TODO: follow desktop file specification on deduplication
+				.unique_by(|p| p.file_name().map(ToOwned::to_owned))
+				.filter_map(|p| implementation::get_program(&p))
+		}
 
-		ProviderResult::new(hits)
+		let cached = self.cache.get_or(|| inner(&self.program_paths));
+
+		ProviderResult::from_cached(cached.get())
 	}
 }
 

@@ -13,7 +13,7 @@ mod implementation;
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
 struct SystemProvider {
-	hits: Box<[ArcDynHit]>,
+	hits: StaticHitCache,
 }
 
 #[gravel_provider("system")]
@@ -30,33 +30,31 @@ impl Provider for SystemProvider {
 			shell_hit(config.sleep, implementation::sleep),
 		];
 
-		Self { hits: hits.into() }
+		Self {
+			hits: StaticHitCache::new(hits),
+		}
 	}
 
 	fn query(&self, _query: &str) -> ProviderResult {
-		ProviderResult::from_cached(&*self.hits)
+		ProviderResult::from_cached(self.hits.get())
 	}
 }
 
 fn context_hit(
 	config: CommandConfig,
 	action: impl Fn(RefDynHitActionContext<'_>) + Send + Sync + 'static,
-) -> ArcDynHit {
-	let hit = SimpleHit::new(config.title, config.subtitle, move |_, ctx| action(ctx));
-
-	hit.into()
+) -> SimpleHit {
+	SimpleHit::new(config.title, config.subtitle, move |_, ctx| action(ctx))
 }
 
-fn shell_hit(config: ShellCommandConfig, action: impl Fn(&str) -> Result<()> + Send + Sync + 'static) -> ArcDynHit {
-	let hit = SimpleHit::new(config.title, config.subtitle, move |hit, context| {
+fn shell_hit(config: ShellCommandConfig, action: impl Fn(&str) -> Result<()> + Send + Sync + 'static) -> SimpleHit {
+	SimpleHit::new(config.title, config.subtitle, move |hit, context| {
 		action(&config.command_linux)
 			.inspect_err(|e| log::error!("unable to perform system operation {}: {e}", hit.title()))
 			.ok();
 
 		context.hide_frontend();
-	});
-
-	hit.into()
+	})
 }
 
 #[derive(Deserialize, Debug)]

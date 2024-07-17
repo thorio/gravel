@@ -70,8 +70,9 @@ pub fn xdg_state_home() -> PathBuf {
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use rstest::rstest;
 
-	#[test]
+	#[rstest]
 	pub fn should_return_globs() {
 		// this is fine for now because there's only one test that deals with env vars
 		env::set_var(XDG_DATA_HOME, "/home/user/.xdg/share");

@@ -11,6 +11,7 @@
 	single_use_lifetimes
 )]
 
+mod cache;
 #[doc(hidden)]
 pub mod config;
 mod frontend;
@@ -28,8 +29,9 @@ mod provider;
 pub mod prelude {
 	pub use crate::{
 		gravel_frontend, gravel_provider, ArcDynHit, BoxDynFrontendContext, Frontend, FrontendContext,
-		FrontendExitStatus, FrontendMessage, FrontendMessageNe, Hit, PluginConfigAdapter, Provider, ProviderResult,
-		QueryResult, RefDynHitActionContext, ScoredHit, SimpleHit, MAX_SCORE, MIN_SCORE,
+		FrontendExitStatus, FrontendMessage, FrontendMessageNe, Hit, HitCache, PluginConfigAdapter, Provider,
+		ProviderResult, QueryResult, RefDynHitActionContext, ScoredHit, SimpleHit, StaticHitCache, MAX_SCORE,
+		MIN_SCORE,
 	};
 
 	pub use abi_stable::external_types::crossbeam_channel::RReceiver;
@@ -37,6 +39,7 @@ pub mod prelude {
 	pub use abi_stable::traits::{IntoReprC, IntoReprRust};
 }
 
+pub use cache::{HitCache, StaticHitCache};
 pub use config::PluginConfigAdapter;
 pub use frontend::{
 	BoxDynFrontend, BoxDynFrontendContext, Frontend, FrontendContext, FrontendExitStatus, FrontendExitStatusNe,

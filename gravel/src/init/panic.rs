@@ -36,8 +36,9 @@ fn log_panic(panic_info: &PanicInfo<'_>) {
 #[cfg(test)]
 mod test {
 	use super::*;
+	use rstest::rstest;
 
-	#[test]
+	#[rstest]
 	fn eyre_hook_init() {
 		get_eyre();
 	}

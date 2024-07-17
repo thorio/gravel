@@ -7,10 +7,7 @@ use std::process::Command;
 use std::time::Duration;
 use test_bin::get_test_bin;
 
-#[fixture]
-fn xvfb() -> Xvfb {
-	Xvfb::new().expect("failed to setup xvfb")
-}
+use gravel_test_utils::fixtures::xvfb;
 
 #[fixture]
 fn bin() -> Command {

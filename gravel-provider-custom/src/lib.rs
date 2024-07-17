@@ -87,7 +87,7 @@ use serde::Deserialize;
 use std::{ffi::OsStr, io, process::Command};
 
 struct CustomProvider {
-	hits: Box<[ArcDynHit]>,
+	hits: StaticHitCache,
 }
 
 #[gravel_provider("custom")]
@@ -96,17 +96,17 @@ impl Provider for CustomProvider {
 		let hits = config.get::<Config>("").hits;
 		log::trace!("initializing custom provider with {} hits", hits.len());
 
-		let hits = hits.into_iter().map(into_hit).collect();
-
-		Self { hits }
+		Self {
+			hits: StaticHitCache::new(hits.into_iter().map(into_hit)),
+		}
 	}
 
 	fn query(&self, _query: &str) -> ProviderResult {
-		ProviderResult::from_cached(&*self.hits)
+		ProviderResult::from_cached(self.hits.get())
 	}
 }
 
-fn into_hit(config: HitConfig) -> ArcDynHit {
+fn into_hit(config: HitConfig) -> SimpleHit {
 	let subtitle = config.subtitle.unwrap_or_default();
 	let wait = config.wait.unwrap_or(true);
 
@@ -119,7 +119,6 @@ fn into_hit(config: HitConfig) -> ArcDynHit {
 		run_post_action(context, config.post_action);
 	})
 	.with_score(config.override_score)
-	.into()
 }
 
 fn run_action(action: &Action, wait: bool, hit: &SimpleHit) {
