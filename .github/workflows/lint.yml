@@ -23,6 +23,9 @@ jobs:
       - name: checkout repository
         uses: actions/checkout@v4
 
+      - name: check formatting
+        run: cargo fmt --check
+
       - name: lint
         run: cargo clippy
 
@@ -43,6 +46,9 @@ jobs:
 
       - name: checkout repository
         uses: actions/checkout@v4
+
+      - name: check formatting
+        run: cargo fmt --check
 
       - name: lint
         run: cargo clippy
