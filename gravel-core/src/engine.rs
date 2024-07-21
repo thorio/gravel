@@ -2,8 +2,8 @@ use crate::performance::Stopwatch;
 use crate::scoring;
 use abi_stable::std_types::RString;
 use abi_stable::{external_types::crossbeam_channel::RSender, sabi_trait, std_types::RStr, traits::IntoReprRust};
-use gravel_ffi::{ArcDynHit, FrontendMessage, HitActionContext, ProviderResult, RefDynHitActionContext};
-use gravel_ffi::{BoxDynFrontendContext, BoxDynProvider, FrontendContext, FrontendMessageNe, QueryResult};
+use gravel_ffi::{ActionKind, ArcDynHit, FrontendMessage, HitActionContext, ProviderResult, RefDynHitActionContext};
+use gravel_ffi::{BoxDynProvider, FrontendMessageNe, QueryResult};
 use itertools::Itertools;
 use std::iter::once;
 
@@ -20,10 +20,8 @@ pub struct QueryEngine {
 	action_context: ActionContext,
 }
 
-/// For now the [`QueryEngine`] _is_ the [`FrontendContext`],
-/// but this can later be changed without breaking the interface
-impl FrontendContext for QueryEngine {
-	fn query(&self, query: RStr<'_>) -> QueryResult {
+impl QueryEngine {
+	pub fn query(&self, query: RStr<'_>) -> QueryResult {
 		fn inner(engine: &QueryEngine, query: &str) -> QueryResult {
 			if let Some(result) = engine.try_keyword_query(query) {
 				return result;
@@ -46,22 +44,15 @@ impl FrontendContext for QueryEngine {
 		result
 	}
 
-	fn run_hit_action(&self, hit: &ArcDynHit) {
-		hit.action((&self.action_context).into());
+	pub fn run_hit_action(&self, hit: &ArcDynHit, kind: ActionKind) {
+		let context = (&self.action_context).into();
+
+		match kind {
+			ActionKind::Primary => hit.action(context),
+			ActionKind::Secondary => hit.secondary_action(context),
+		}
 	}
 
-	fn run_secondary_hit_action(&self, hit: &ArcDynHit) {
-		hit.secondary_action((&self.action_context).into());
-	}
-}
-
-impl From<QueryEngine> for BoxDynFrontendContext {
-	fn from(value: QueryEngine) -> Self {
-		Self::from_value(value, sabi_trait::TD_Opaque)
-	}
-}
-
-impl QueryEngine {
 	pub fn new(sender: RSender<FrontendMessageNe>) -> Self {
 		Self {
 			providers: vec![],

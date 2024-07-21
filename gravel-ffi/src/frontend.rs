@@ -56,6 +56,7 @@ pub trait FrontendContext {
 	/// Runs the query against configured providers and returns results.
 	fn query(&self, query: RStr<'_>) -> QueryResult;
 
+	// TODO: refactor with ActionKind
 	/// Executes the passed hit's action.
 	fn run_hit_action(&self, hit: &ArcDynHit);
 

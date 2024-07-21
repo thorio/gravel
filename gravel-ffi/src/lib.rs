@@ -28,7 +28,7 @@ mod provider;
 /// <sub>may not actually contain *all* types required; terms and conditions apply</sub>
 pub mod prelude {
 	pub use crate::{
-		gravel_frontend, gravel_provider, ArcDynHit, BoxDynFrontendContext, Frontend, FrontendContext,
+		gravel_frontend, gravel_provider, ActionKind, ArcDynHit, BoxDynFrontendContext, Frontend, FrontendContext,
 		FrontendExitStatus, FrontendMessage, FrontendMessageNe, Hit, HitCache, PluginConfigAdapter, Provider,
 		ProviderResult, QueryResult, RefDynHitActionContext, ScoredHit, SimpleHit, StaticHitCache, MAX_SCORE,
 		MIN_SCORE,
@@ -45,7 +45,9 @@ pub use frontend::{
 	BoxDynFrontend, BoxDynFrontendContext, Frontend, FrontendContext, FrontendExitStatus, FrontendExitStatusNe,
 	FrontendInner, FrontendMessage, FrontendMessageNe, QueryResult,
 };
-pub use hit::{ArcDynHit, Hit, HitActionContext, RefDynHitActionContext, ScoredHit, SimpleHit, MAX_SCORE, MIN_SCORE};
+pub use hit::{
+	ActionKind, ArcDynHit, Hit, HitActionContext, RefDynHitActionContext, ScoredHit, SimpleHit, MAX_SCORE, MIN_SCORE,
+};
 pub use plugin::{PluginDefinition, PluginMetadata};
 pub use prefix::{PluginLib, PluginLibRef};
 pub use provider::{BoxDynProvider, Provider, ProviderInner, ProviderResult};

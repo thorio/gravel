@@ -1,6 +1,8 @@
 use color_eyre::config::{HookBuilder, PanicHook};
 use std::panic::{set_hook, PanicInfo};
 
+const ISSUE_URL: &str = concat!(env!("CARGO_PKG_REPOSITORY"), "/issues/new");
+
 pub fn panic() {
 	#[allow(clippy::print_stderr)]
 	set_hook(Box::new(move |panic_info| {
@@ -10,9 +12,7 @@ pub fn panic() {
 }
 
 fn get_eyre() -> PanicHook {
-	let (eyre_panic, _) = HookBuilder::default()
-		.issue_url(concat!(env!("CARGO_PKG_REPOSITORY"), "/issues/new"))
-		.into_hooks();
+	let (eyre_panic, _) = HookBuilder::default().issue_url(ISSUE_URL).into_hooks();
 
 	eyre_panic
 }
@@ -25,11 +25,12 @@ fn log_panic(panic_info: &PanicInfo<'_>) {
 		.or_else(|| panic_info.payload().downcast_ref::<&str>().cloned())
 		.unwrap_or("<non-string panic payload>");
 
-	let location = panic_info
-		.location()
-		.map_or_else(|| String::from("awd"), |l| format!("{}:{}", l.file(), l.line()));
+	let location = panic_info.location().map_or_else(
+		|| String::from("<unknown location>"),
+		|l| format!("{}:{}", l.file(), l.line()),
+	);
 
-	log::error!("panicked at {location}: {payload}");
+	log::error!("panicked at {location}: {payload}, please open an issue at {ISSUE_URL}.",);
 	log::logger().flush();
 }
 
@@ -40,6 +41,7 @@ mod test {
 
 	#[rstest]
 	fn eyre_hook_init() {
+		// make sure this doesn't panic
 		get_eyre();
 	}
 }

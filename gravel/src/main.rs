@@ -7,10 +7,12 @@
 use abi_stable::external_types::crossbeam_channel;
 use anyhow::{Context, Result};
 use gravel_core::performance::Stopwatch;
-use gravel_ffi::{FrontendExitStatus, FrontendMessageNe};
+use gravel_ffi::{FrontendExitStatus, FrontendExitStatusNe, FrontendMessageNe};
+use runner::Runner;
 use std::{env, path::Path, process::Command};
 
 mod init;
+mod runner;
 
 // unwrap instead of returning a Result so we hit color_eyre's panic handler
 #[allow(clippy::unwrap_used)]
@@ -43,24 +45,29 @@ fn run() -> Result<()> {
 
 	let registry = init::plugins(&config.root().external_plugins);
 
-	let (sender, receiver) = crossbeam_channel::bounded::<FrontendMessageNe>(8);
+	let (sender, receiver) = crossbeam_channel::bounded::<FrontendMessageNe>(16);
 	let engine = init::engine(sender.clone(), &registry, &config);
-	let mut frontend = init::frontend(&registry, engine, &config);
 
+	let runner = Runner::new(engine);
 	init::hotkeys(&config.root().hotkeys, sender);
+
+	let mut frontend = init::frontend(&registry, runner, &config);
 
 	log::info!("initialization complete, took {stopwatch}");
 	log::trace!("starting frontend");
-	let exit_status = frontend
-		.run(receiver)
-		.into_enum()
-		.expect("plugin must not be newer than application");
+	let exit_status = frontend.run(receiver);
 
 	drop(single_instance);
 
-	match exit_status {
+	on_exit(exit_status, &executable)
+}
+
+fn on_exit(status: FrontendExitStatusNe, executable: &Path) -> Result<()> {
+	let status = status.into_enum().expect("plugin must not be newer than application");
+
+	match status {
 		FrontendExitStatus::Exit => Ok(()),
-		FrontendExitStatus::Restart => restart(&executable),
+		FrontendExitStatus::Restart => restart(executable),
 	}
 }
 
@@ -85,6 +92,5 @@ mod clippy_shut_up {
 	// this has to be put *somewhere* so clippy doesn't complain that the crates are unused
 	// (even though they're used in the integration tests)
 	use gravel_test_utils as _;
-	use rstest as _;
 	use test_bin as _;
 }

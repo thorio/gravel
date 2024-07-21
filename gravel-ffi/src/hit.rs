@@ -58,6 +58,12 @@ pub(crate) fn clone_hit_arc(hit: &ArcDynHit) -> ArcDynHit {
 	ArcDynHit::from_sabi(hit.obj.shallow_clone())
 }
 
+#[derive(Debug)]
+pub enum ActionKind {
+	Primary,
+	Secondary,
+}
+
 /// Wraps an [`ArcDynHit`] with scoring metadata.
 #[repr(C)]
 #[derive(StableAbi, Debug)]

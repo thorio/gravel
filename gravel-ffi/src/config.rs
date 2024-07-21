@@ -79,7 +79,7 @@ pub mod __private_api {
 	#[repr(u8)]
 	#[derive(StableAbi, Debug)]
 	pub enum ConfigSource {
-		String(RString),
+		String(RString), // TODO: refactor with RStr<'static>
 		File(RString),
 	}
 }
