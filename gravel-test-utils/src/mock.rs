@@ -10,6 +10,7 @@ mock! {
 		fn exit(&self);
 		fn restart(&self);
 		fn set_query(&self, query: RString);
+		fn clear_caches(&self);
 	}
 }
 

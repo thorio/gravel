@@ -6,13 +6,11 @@
 
 use abi_stable::external_types::crossbeam_channel;
 use anyhow::{Context, Result};
-use gravel_core::performance::Stopwatch;
+use gravel_core::{performance::Stopwatch, Core, CoreMessage};
 use gravel_ffi::{FrontendExitStatus, FrontendExitStatusNe, FrontendMessageNe};
-use runner::Runner;
 use std::{env, path::Path, process::Command};
 
 mod init;
-mod runner;
 
 // unwrap instead of returning a Result so we hit color_eyre's panic handler
 #[allow(clippy::unwrap_used)]
@@ -40,22 +38,22 @@ fn run() -> Result<()> {
 	init::logging(args.logging).context("logger error")?;
 
 	let config = init::config();
-
 	let single_instance = init::single_instance(config.root().single_instance.as_deref());
-
 	let registry = init::plugins(&config.root().external_plugins);
 
-	let (sender, receiver) = crossbeam_channel::bounded::<FrontendMessageNe>(16);
-	let engine = init::engine(sender.clone(), &registry, &config);
+	let (frontend_send, frontend_recv) = crossbeam_channel::bounded::<FrontendMessageNe>(16);
+	let (core_send, core_recv) = crossbeam_channel::bounded::<CoreMessage>(16);
 
-	let runner = Runner::new(engine);
-	init::hotkeys(&config.root().hotkeys, sender);
+	let engine = init::engine(core_send.clone(), &registry, &config);
+	let runner = Core::new(engine, frontend_send.clone(), core_recv);
+
+	init::hotkeys(&config.root().hotkeys, frontend_send);
 
 	let mut frontend = init::frontend(&registry, runner, &config);
 
-	log::info!("initialization complete, took {stopwatch}");
+	log::info!("initialization took {stopwatch}");
 	log::trace!("starting frontend");
-	let exit_status = frontend.run(receiver);
+	let exit_status = frontend.run(frontend_recv);
 
 	drop(single_instance);
 

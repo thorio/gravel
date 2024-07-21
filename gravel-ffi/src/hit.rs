@@ -98,7 +98,11 @@ pub trait HitActionContext {
 	/// Restarts the whole application.
 	fn restart(&self);
 
+	/// Sets the query and runs it.
 	fn set_query(&self, query: RString);
+
+	/// Clears caches in the entire application.
+	fn clear_caches(&self);
 }
 
 type SimpleHitAction = Box<dyn Fn(&SimpleHit, RefDynHitActionContext<'_>) + Send + Sync>;

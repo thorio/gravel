@@ -41,6 +41,7 @@ pub enum Event {
 	Cancel,
 	Exit,
 	Restart,
+	ClearCaches,
 }
 
 impl From<FrontendMessage> for Event {
@@ -54,6 +55,7 @@ impl From<FrontendMessage> for Event {
 			M::Refresh => Self::ForceQuery,
 			M::Exit => Self::Exit,
 			M::Restart => Self::Restart,
+			M::ClearCaches => Self::ClearCaches,
 		}
 	}
 }

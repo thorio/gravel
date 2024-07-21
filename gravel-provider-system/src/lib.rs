@@ -23,6 +23,7 @@ impl Provider for SystemProvider {
 		let hits = [
 			context_hit(config.exit, |ctx| ctx.exit()),
 			context_hit(config.reload, |ctx| ctx.restart()),
+			context_hit(config.clear_caches, clear_caches),
 			shell_hit(config.lock, implementation::lock),
 			shell_hit(config.logout, implementation::logout),
 			shell_hit(config.restart, implementation::restart),
@@ -38,6 +39,11 @@ impl Provider for SystemProvider {
 	fn query(&self, _query: &str) -> ProviderResult {
 		ProviderResult::from_cached(self.hits.get())
 	}
+}
+
+fn clear_caches(context: RefDynHitActionContext<'_>) {
+	context.clear_caches();
+	context.hide_frontend();
 }
 
 fn context_hit(
@@ -61,6 +67,7 @@ fn shell_hit(config: ShellCommandConfig, action: impl Fn(&str) -> Result<()> + S
 struct Config {
 	pub exit: CommandConfig,
 	pub reload: CommandConfig,
+	pub clear_caches: CommandConfig,
 	pub lock: ShellCommandConfig,
 	pub logout: ShellCommandConfig,
 	pub restart: ShellCommandConfig,

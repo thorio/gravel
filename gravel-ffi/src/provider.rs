@@ -13,6 +13,9 @@ pub type BoxDynProvider = ProviderInner_TO<'static, RBox<()>>;
 #[sabi_trait]
 pub trait ProviderInner {
 	fn query(&self, query: RStr<'_>) -> ProviderResult;
+	fn clear_caches(&self) {
+		// do nothing
+	}
 }
 
 /// Abstracts functionality required for a provider.
@@ -44,6 +47,11 @@ pub trait Provider {
 
 	/// Queries the provider and returns hits.
 	fn query(&self, query: &str) -> ProviderResult;
+
+	/// Clears all caches the provider may keep.
+	fn clear_caches(&self) {
+		// do nothing
+	}
 }
 
 /// A collection of hits returned by a provider.

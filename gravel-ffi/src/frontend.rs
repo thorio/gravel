@@ -103,6 +103,9 @@ pub enum FrontendMessage {
 
 	/// Exit the appplication with [`FrontendExitStatus::Restart`].
 	Restart,
+
+	/// Clear all caches the frontend may keep.
+	ClearCaches,
 }
 
 /// Non-exhaustive variant of [`FrontendExitStatus`].

@@ -23,6 +23,10 @@ pub fn gravel_provider(attr: TokenStream1, item: TokenStream1) -> TokenStream1 {
 				fn query(&self, query: ::abi_stable::std_types::RStr<'_>) -> ::gravel_ffi::ProviderResult {
 					::gravel_ffi::Provider::query(self, query.as_str())
 				}
+
+				fn clear_caches(&self) {
+					::gravel_ffi::Provider::clear_caches(self);
+				}
 			}
 
 			#declaration

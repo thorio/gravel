@@ -91,6 +91,7 @@ impl FltkFrontend {
 			Event::ShowWithQuery(query) => self.show_with(&query),
 			Event::Exit => return Some(FrontendExitStatus::Exit),
 			Event::Restart => return Some(FrontendExitStatus::Restart),
+			Event::ClearCaches => (), // no caches to clear
 		};
 
 		None
@@ -108,11 +109,11 @@ impl FltkFrontend {
 				.ok()
 		}
 
-		let own_sender = self.ui.sender.clone();
+		let fltk_sender = self.ui.sender.clone();
 
 		fltk::app::add_timeout3(0.01, move |handle| {
 			if let Some(message) = try_recv(&receiver) {
-				own_sender.send(message);
+				fltk_sender.send(message);
 			}
 
 			fltk::app::repeat_timeout3(0.01, handle);

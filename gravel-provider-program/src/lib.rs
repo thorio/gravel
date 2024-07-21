@@ -60,6 +60,10 @@ impl Provider for ProgramProvider {
 
 		ProviderResult::from_cached(cached.get())
 	}
+
+	fn clear_caches(&self) {
+		self.cache.clear();
+	}
 }
 
 fn expand_glob(pattern: &PathBuf) -> Option<Paths> {

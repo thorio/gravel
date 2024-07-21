@@ -1,9 +1,9 @@
 use crate::performance::Stopwatch;
-use crate::scoring;
+use crate::{scoring, CoreMessage};
 use abi_stable::std_types::RString;
 use abi_stable::{external_types::crossbeam_channel::RSender, sabi_trait, std_types::RStr, traits::IntoReprRust};
 use gravel_ffi::{ActionKind, ArcDynHit, FrontendMessage, HitActionContext, ProviderResult, RefDynHitActionContext};
-use gravel_ffi::{BoxDynProvider, FrontendMessageNe, QueryResult};
+use gravel_ffi::{BoxDynProvider, QueryResult};
 use itertools::Itertools;
 use std::iter::once;
 
@@ -21,6 +21,25 @@ pub struct QueryEngine {
 }
 
 impl QueryEngine {
+	pub fn new(sender: RSender<CoreMessage>) -> Self {
+		Self {
+			providers: vec![],
+			action_context: ActionContext::new(sender),
+		}
+	}
+
+	/// Adds the provider to the engine's collection.
+	pub fn register(&mut self, name: String, provider: BoxDynProvider, keyword: Option<String>) -> &mut Self {
+		let info = ProviderInfo {
+			name,
+			provider,
+			keyword,
+		};
+
+		self.providers.push(info);
+		self
+	}
+
 	pub fn query(&self, query: RStr<'_>) -> QueryResult {
 		fn inner(engine: &QueryEngine, query: &str) -> QueryResult {
 			if let Some(result) = engine.try_keyword_query(query) {
@@ -40,7 +59,7 @@ impl QueryEngine {
 
 		let result = inner(self, query);
 
-		log::trace!("query took {stopwatch}");
+		log::trace!("full query took {stopwatch}");
 		result
 	}
 
@@ -50,26 +69,13 @@ impl QueryEngine {
 		match kind {
 			ActionKind::Primary => hit.action(context),
 			ActionKind::Secondary => hit.secondary_action(context),
-		}
-	}
-
-	pub fn new(sender: RSender<FrontendMessageNe>) -> Self {
-		Self {
-			providers: vec![],
-			action_context: ActionContext::new(sender),
-		}
-	}
-
-	/// Adds the provider to the engine's collection.
-	pub fn register(&mut self, name: String, provider: BoxDynProvider, keyword: Option<String>) -> &mut Self {
-		let info = ProviderInfo {
-			name,
-			provider,
-			keyword,
 		};
+	}
 
-		self.providers.push(info);
-		self
+	pub fn clear_caches(&self) {
+		for provider in &self.providers {
+			provider.provider.clear_caches();
+		}
 	}
 
 	/// Runs the query against all available providers.
@@ -106,10 +112,14 @@ impl QueryEngine {
 fn query_all<'a>(providers: impl Iterator<Item = &'a ProviderInfo>, query: &str) -> QueryResult {
 	let hits = providers.flat_map(|p| query_one(p, query).hits).collect_vec();
 
+	let stopwatch = Stopwatch::start();
+
 	let hits = match query.trim() {
 		"*" => scoring::to_unscored(hits),
 		_ => scoring::to_scored(hits, query),
 	};
+
+	log::trace!("scoring took {stopwatch}");
 
 	QueryResult::new(hits)
 }
@@ -129,19 +139,23 @@ fn query_one(info: &ProviderInfo, query: &str) -> ProviderResult {
 }
 
 struct ActionContext {
-	sender: RSender<FrontendMessageNe>,
+	sender: RSender<CoreMessage>,
 }
 
 impl ActionContext {
-	pub fn new(sender: RSender<FrontendMessageNe>) -> Self {
+	pub fn new(sender: RSender<CoreMessage>) -> Self {
 		Self { sender }
 	}
 
-	fn send(&self, message: FrontendMessage) {
+	fn send(&self, message: CoreMessage) {
 		self.sender
-			.send(FrontendMessageNe::new(message))
-			.inspect_err(|e| log::error!("unable to frontend message from hit action: {e}"))
+			.send(message)
+			.inspect_err(|e| log::error!("unable to send core message: {e}"))
 			.ok();
+	}
+
+	fn send_frontend(&self, message: FrontendMessage) {
+		self.send(CoreMessage::Frontend(message));
 	}
 }
 
@@ -153,22 +167,26 @@ impl<'a> From<&'a ActionContext> for RefDynHitActionContext<'a> {
 
 impl HitActionContext for ActionContext {
 	fn hide_frontend(&self) {
-		self.send(FrontendMessage::Hide);
+		self.send_frontend(FrontendMessage::Hide);
 	}
 
 	fn refresh_frontend(&self) {
-		self.send(FrontendMessage::Refresh);
+		self.send_frontend(FrontendMessage::Refresh);
 	}
 
 	fn exit(&self) {
-		self.send(FrontendMessage::Exit);
+		self.send_frontend(FrontendMessage::Exit);
 	}
 
 	fn restart(&self) {
-		self.send(FrontendMessage::Restart);
+		self.send_frontend(FrontendMessage::Restart);
 	}
 
 	fn set_query(&self, query: RString) {
-		self.send(FrontendMessage::ShowWithQuery(query));
+		self.send_frontend(FrontendMessage::ShowWithQuery(query));
+	}
+
+	fn clear_caches(&self) {
+		self.send(CoreMessage::ClearCaches);
 	}
 }
