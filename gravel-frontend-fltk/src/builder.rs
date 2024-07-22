@@ -65,8 +65,12 @@ fn build_window(config: &Config) -> Window {
 		.with_label(WINDOW_TITLE);
 
 	window.set_color(config.colors.background);
-	window.set_border(false);
+	window.set_border(config.layout.window_decorations);
 	window.set_xclass(WM_CLASS);
+
+	if config.layout.window_border {
+		window.set_frame(FrameType::BorderBox);
+	}
 
 	window
 }
@@ -78,7 +82,7 @@ fn build_input(config: &Config) -> Input {
 
 	input.set_text_size(config.layout.query_font_size);
 	input.set_frame(FrameType::FlatBox);
-	input.set_color(config.colors.background);
+	input.set_color(config.colors.query_background);
 	input.set_text_color(config.colors.query_text);
 	input.set_selection_color(config.colors.query_highlight);
 	input.set_cursor_color(config.colors.query_cursor);

@@ -14,6 +14,12 @@ layout:
   ## Total window width. All other widths are calculated relative to this.
   window_width: 800
 
+  ## Whether to draw a thin, black border around the window.
+  window_border: false
+
+  ## Whether to draw window decorations (title bar, close button, etc.).
+  window_decorations: false
+
   ## These are some more specific values you usually don't need to change.
   hit_title_height: 30
   hit_title_font_size: 20
@@ -28,16 +34,10 @@ layout:
 ## Google has a color picker if you search for, well, "color picker".
 colors:
   background: 0x202020
-  accent: 0xbf6c0d
-  text: 0xffffff
-
-## Alternative representation which is more customizable.
-## Chose *either* block, not both.
-# colors:
-  background: 0x202020
   query_text: 0xffffff
   query_cursor: 0xbf6c0d
   query_highlight: 0xbf6c0d
+  query_background: 0x202020
   hit_title: 0xffffff
   hit_subtitle: 0xffffff
   hit_highlight: 0xbf6c0d

@@ -48,6 +48,8 @@ pub struct Layout {
 	pub scrollbar_padding: i32,
 	pub padding: i32,
 	pub window_width: i32,
+	pub window_border: bool,
+	pub window_decorations: bool,
 }
 
 #[derive(Deserialize, Debug)]
@@ -67,6 +69,8 @@ pub struct Colors {
 	pub query_cursor: Color,
 	#[serde(deserialize_with = "deserialize::color")]
 	pub query_highlight: Color,
+	#[serde(deserialize_with = "deserialize::color")]
+	pub query_background: Color,
 	#[serde(deserialize_with = "deserialize::color")]
 	pub hit_title: Color,
 	#[serde(deserialize_with = "deserialize::color")]
@@ -98,6 +102,8 @@ pub mod deserialize {
 		pub scrollbar_padding: i32,
 		pub padding: i32,
 		pub window_width: i32,
+		pub window_border: bool,
+		pub window_decorations: bool,
 	}
 
 	impl From<Layout> for super::Layout {
@@ -126,6 +132,9 @@ pub mod deserialize {
 			let hit_start_y = padding * 2 + query_height;
 			let window_min_height = query_height + padding * 2;
 
+			let window_border = value.window_border;
+			let window_decorations = value.window_decorations;
+
 			Self {
 				max_hits,
 				hit_width,
@@ -146,6 +155,8 @@ pub mod deserialize {
 				scrollbar_padding,
 				padding,
 				window_width,
+				window_border,
+				window_decorations,
 			}
 		}
 	}

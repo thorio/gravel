@@ -26,6 +26,7 @@ pub fn run_gravel(mut bin: Command, xvfb: Xvfb) {
 	let output = bin
 		.env("GRAVEL_CONFIG_PATH", "tests/config")
 		.env("DISPLAY", xvfb.display())
+		.arg("--log-file=off")
 		.output()
 		.expect("gravel broke");
 
