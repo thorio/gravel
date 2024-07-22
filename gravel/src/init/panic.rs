@@ -23,7 +23,8 @@ fn log_panic(panic_info: &PanicInfo<'_>) {
 		.downcast_ref::<String>()
 		.map(String::as_str)
 		.or_else(|| panic_info.payload().downcast_ref::<&str>().cloned())
-		.unwrap_or("<non-string panic payload>");
+		.map(|p| p.replace('\r', "\\r").replace('\n', "\\n"))
+		.unwrap_or_else(|| String::from("<non-string panic payload>"));
 
 	let location = panic_info.location().map_or_else(
 		|| String::from("<unknown location>"),

@@ -8,7 +8,8 @@ use abi_stable::external_types::crossbeam_channel;
 use anyhow::{Context, Result};
 use gravel_core::{performance::Stopwatch, Core, CoreMessage};
 use gravel_ffi::{FrontendExitStatus, FrontendExitStatusNe, FrontendMessageNe};
-use std::{env, path::Path, process::Command};
+use std::path::{Path, PathBuf};
+use std::{env, process::Command};
 
 mod init;
 
@@ -32,10 +33,10 @@ fn run() -> Result<()> {
 	let stopwatch = Stopwatch::start();
 
 	// do this first so it doesn't break when the executable is replaced later
-	let executable = env::current_exe()?;
+	let executable = env::current_exe().context("failed to get gravel executable");
 
 	let args = init::cli();
-	init::logging(args.logging).context("logger error")?;
+	init::logging(args.logging).context("failed to set up logging")?;
 
 	let config = init::config();
 	let single_instance = init::single_instance(config.root().single_instance.as_deref());
@@ -57,15 +58,15 @@ fn run() -> Result<()> {
 
 	drop(single_instance);
 
-	on_exit(exit_status, &executable)
+	on_exit(exit_status, executable)
 }
 
-fn on_exit(status: FrontendExitStatusNe, executable: &Path) -> Result<()> {
+fn on_exit(status: FrontendExitStatusNe, executable: Result<PathBuf>) -> Result<()> {
 	let status = status.into_enum().expect("plugin must not be newer than application");
 
 	match status {
 		FrontendExitStatus::Exit => Ok(()),
-		FrontendExitStatus::Restart => restart(executable),
+		FrontendExitStatus::Restart => restart(&executable?),
 	}
 }
 
@@ -79,10 +80,12 @@ fn restart(executable: &Path) -> Result<()> {
 	let args = env::args().skip(1);
 
 	#[cfg(unix)]
-	anyhow::bail!(Command::new(executable).args(args).exec());
+	let res = Err(Command::new(executable).args(args).exec());
 
 	#[cfg(not(unix))]
-	Ok(Command::new(executable).args(args).spawn().map(drop)?)
+	let res = Command::new(executable).args(args).spawn().map(drop);
+
+	res.context("failed to execute gravel binary")
 }
 
 #[cfg(test)]

@@ -208,6 +208,10 @@ providers:
     #     title: reload
     #     subtitle: Reload gravel
     #
+    #   clear_caches:
+    #     title: clear caches
+    #     subtitle: Clear frontend and provider caches
+    #
     #   lock:
     #     title: lock
     #     subtitle: Lock the System
