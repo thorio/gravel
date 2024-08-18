@@ -21,6 +21,9 @@ program = ["gravel-provider-program"]
 system = ["gravel-provider-system"]
 websearch = ["gravel-provider-websearch"]
 
+# experimental
+wayland = ["gravel-frontend-fltk/wayland"]
+
 [dependencies]
 gravel-core = { path = "../gravel-core" }
 gravel-ffi = { path = "../gravel-ffi" }

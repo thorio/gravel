@@ -8,6 +8,7 @@ crate-type = [ "cdylib", "rlib" ]
 
 [features]
 no-root = []
+wayland = ["fltk/use-wayland"]
 
 [dependencies]
 gravel-ffi = { path = "../gravel-ffi" }

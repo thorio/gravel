@@ -67,7 +67,7 @@ Using the devcontainer is highly encouraged to get up and running ASAP, otherwis
 
   **Debian** or derivatives
   ```
-  apt install libx11-dev libxext-dev libxft-dev libxinerama-dev libxcursor-dev libxrender-dev libxfixes-dev libpango1.0-dev libgl1-mesa-dev libglu1-mesa-dev libgtk-3-bin xdg-utils xvfb --no-install-recommends
+  apt install libx11-dev libxext-dev libxft-dev libxinerama-dev libxcursor-dev libxrender-dev libxfixes-dev libpango1.0-dev libgl1-mesa-dev libglu1-mesa-dev libgtk-3-bin libwayland-dev wayland-protocols libdbus-1-dev libxkbcommon-dev xdg-utils xvfb --no-install-recommends
   ```
 
   **Windows**  
