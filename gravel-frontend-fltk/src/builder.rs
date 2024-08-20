@@ -50,7 +50,7 @@ pub fn build(config: &Config) -> Ui {
 
 	Ui {
 		window,
-		app,
+		_app: app,
 		input,
 		scrollbar,
 		hits,

@@ -6,7 +6,7 @@ use gravel_ffi::{FrontendMessage, FrontendMessageNe};
 /// Holds all necessary elements of the FLTK app.
 pub struct Ui {
 	pub window: Window,
-	pub app: App,
+	pub _app: App,
 	pub input: Input,
 	pub scrollbar: Scrollbar,
 	pub hits: Vec<HitUi>,

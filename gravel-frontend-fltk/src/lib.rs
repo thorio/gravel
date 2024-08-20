@@ -50,32 +50,37 @@ impl Frontend for FltkFrontend {
 	}
 
 	fn run(&mut self, receiver: RReceiver<FrontendMessageNe>) -> FrontendExitStatus {
-		self.handle_frontend_messages(receiver);
 		self.update_window_position();
 
-		self.run_event_loop()
+		self.run_event_loop(&receiver)
 	}
 }
 
 impl FltkFrontend {
 	/// Runs the FLTK event loop. Blocks until the app exits.
-	fn run_event_loop(&mut self) -> FrontendExitStatus {
-		while self.ui.app.wait() {
-			let Some(message) = self.ui.receiver.recv() else {
-				continue;
-			};
+	fn run_event_loop(&mut self, receiver: &RReceiver<FrontendMessageNe>) -> FrontendExitStatus {
+		loop {
+			if let Err(e) = fltk::app::wait_for(0.005) {
+				// TODO: handle X11 signals?
+				log::error!("fltk wait_for error: {e}");
+			}
 
-			if let Some(status) = self.handle_message(message) {
-				self.ui.app.quit();
-				return status;
+			if fltk::app::should_program_quit() {
+				self.ui.sender.send(Event::Exit);
+			}
+
+			self.forward_frontend_messages(receiver);
+
+			if let Some(exit) = self.receive_event() {
+				fltk::app::quit();
+				fltk::app::wait();
+				return exit;
 			}
 		}
-
-		FrontendExitStatus::Exit
 	}
 
-	fn handle_message(&mut self, message: Event) -> Option<FrontendExitStatus> {
-		match message {
+	fn receive_event(&mut self) -> Option<FrontendExitStatus> {
+		match self.ui.receiver.recv()? {
 			Event::Query => self.query(),
 			Event::ForceQuery => self.force_query(),
 			Event::Confirm(secondary) => self.confirm(secondary),
@@ -99,7 +104,7 @@ impl FltkFrontend {
 
 	/// Registers a recurring timeout that forwards [`FrontendMessage`]s on
 	/// the given [`Receiver`] to the frontend's own channel.
-	fn handle_frontend_messages(&mut self, receiver: RReceiver<FrontendMessageNe>) {
+	fn forward_frontend_messages(&mut self, receiver: &RReceiver<FrontendMessageNe>) {
 		fn try_recv(receiver: &RReceiver<FrontendMessageNe>) -> Option<Event> {
 			receiver
 				.try_recv()
@@ -109,15 +114,9 @@ impl FltkFrontend {
 				.ok()
 		}
 
-		let fltk_sender = self.ui.sender.clone();
-
-		fltk::app::add_timeout3(0.01, move |handle| {
-			if let Some(message) = try_recv(&receiver) {
-				fltk_sender.send(message);
-			}
-
-			fltk::app::repeat_timeout3(0.01, handle);
-		});
+		if let Some(message) = try_recv(receiver) {
+			self.ui.sender.send(message);
+		}
 	}
 
 	fn show_or_hide(&mut self) {
@@ -134,7 +133,7 @@ impl FltkFrontend {
 			return;
 		}
 
-		self.ui.window.platform_hide();
+		self.ui.window.hide();
 		self.visible = false;
 		self.last_hide_time = SystemTime::now();
 	}
@@ -148,7 +147,7 @@ impl FltkFrontend {
 		self.input_select_all();
 
 		self.update_window_position();
-		self.ui.window.platform_show();
+		self.ui.window.show();
 		self.visible = true;
 
 		// pull the window into the foreground so it isn't stuck behind other windows
@@ -290,12 +289,16 @@ impl FltkFrontend {
 		let width = self.config.layout.window_width;
 		let max_height = builder::get_window_height(&self.config, self.config.layout.max_hits);
 
-		let (screen_width, screen_height) = fltk::app::screen_size();
+		let (mx, my) = fltk::app::get_mouse();
+		let screen_num = fltk::app::screen_num(mx, my);
 
-		let pos_x = (screen_width as i32 - width) / 2;
-		let pos_y = (screen_height as i32 - max_height) / 2;
+		let (sx, sy, sw, sh) = fltk::app::screen_xywh(screen_num);
 
-		self.ui.window.set_pos(pos_x, pos_y);
+		let x = sx + (sw - width) / 2;
+		let y = sy + (sh - max_height) / 2;
+
+		self.ui.window.set_screen_num(screen_num);
+		self.ui.window.set_pos(x, y);
 	}
 }
 
