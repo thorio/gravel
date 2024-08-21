@@ -80,13 +80,13 @@ pub enum HotkeyAction {
 	ShowWith(String),
 }
 
-impl From<HotkeyAction> for FrontendMessage {
-	fn from(value: HotkeyAction) -> Self {
+impl From<&HotkeyAction> for FrontendMessage {
+	fn from(value: &HotkeyAction) -> Self {
 		match value {
 			HotkeyAction::ShowHide => Self::ShowOrHide,
 			HotkeyAction::Show => Self::Show,
 			HotkeyAction::Hide => Self::Hide,
-			HotkeyAction::ShowWith(query) => Self::ShowWithQuery(query.into_c()),
+			HotkeyAction::ShowWith(query) => Self::ShowWithQuery(query.clone().into_c()),
 		}
 	}
 }

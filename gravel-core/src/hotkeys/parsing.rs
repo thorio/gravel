@@ -1,13 +1,8 @@
+use super::ParsedBinding;
 use crate::hotkeys::{Key, Modifier};
 use enumflags2::BitFlags;
 use itertools::Itertools;
 use thiserror::Error;
-
-#[derive(Debug, PartialEq, Eq)]
-pub struct ParsedBinding {
-	pub modifiers: BitFlags<Modifier>,
-	pub key: Key,
-}
 
 #[derive(Error, Debug, PartialEq, Eq)]
 pub enum ParseError {

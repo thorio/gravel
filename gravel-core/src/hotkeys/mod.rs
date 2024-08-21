@@ -1,4 +1,3 @@
-use abi_stable::external_types::crossbeam_channel::RSender;
 use enumflags2::BitFlags;
 use std::fmt::Debug;
 
@@ -7,25 +6,39 @@ pub use self::{parsing::ParseError, structs::*};
 mod parsing;
 mod structs;
 
-#[derive(Copy, Clone, Debug)]
-struct Hotkey<T> {
+struct Hotkey {
 	pub modifiers: BitFlags<Modifier>,
 	pub key: Key,
-	pub value: T,
+	pub callback: Box<dyn Fn() + 'static + Send>,
+}
+
+impl Debug for Hotkey {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		f.debug_struct("Hotkey")
+			.field("modifiers", &self.modifiers)
+			.field("key", &self.key)
+			.field("value", &"Box<dyn FnMut>")
+			.finish()
+	}
 }
 
 /// Listens for system-wide hotkeys and sends an arbitrary signal through
 /// the given [`RSender`].
 ///
 /// The listener runs in a separate thread to avoid blocking.
-pub struct Listener<T: 'static + Send + Clone + Debug> {
-	hotkeys: Vec<Hotkey<T>>,
+#[derive(Default)]
+pub struct Listener {
+	hotkeys: Vec<Hotkey>,
 }
 
-impl<T: 'static + Send + Clone + Debug> Listener<T> {
+impl Listener {
 	/// Registers a hotkey given the modifiers and key.
-	pub fn register(&mut self, modifiers: BitFlags<Modifier>, key: Key, value: T) -> &mut Self {
-		let hotkey = Hotkey { modifiers, key, value };
+	pub fn register(&mut self, modifiers: BitFlags<Modifier>, key: Key, f: impl Fn() + 'static + Send) -> &mut Self {
+		let hotkey = Hotkey {
+			modifiers,
+			key,
+			callback: Box::from(f),
+		};
 
 		self.hotkeys.push(hotkey);
 
@@ -40,53 +53,36 @@ impl<T: 'static + Send + Clone + Debug> Listener<T> {
 	/// - `a` => A
 	///
 	/// For a complete list of keys and modifiers, see [`Key`], [`Modifier`]
-	pub fn register_emacs(&mut self, binding: &str, value: T) -> Result<&mut Self, ParseError> {
+	pub fn register_emacs(&mut self, binding: &str, f: impl Fn() + 'static + Send) -> Result<&mut Self, ParseError> {
 		let result = parsing::parse_binding(binding)?;
-		self.register(result.modifiers, result.key, value);
+		self.register(result.modifiers, result.key, f);
 
 		Ok(self)
 	}
 
 	/// Spawns the listener with the registered hotkeys.
-	pub fn spawn_listener(&mut self, sender: RSender<T>) -> &mut Self {
-		let hotkeys = self.hotkeys.clone();
-
+	pub fn spawn_listener(self) {
 		// run the listener on another thread to avoid blocking the current one
 		std::thread::spawn(move || {
 			log::trace!("starting hotkey listener thread");
-			init_hotkeys(&sender, hotkeys).listen();
+			init_hotkeys(self.hotkeys).listen();
 		});
-
-		self
-	}
-}
-
-impl<T: 'static + Send + Clone + Debug> Default for Listener<T> {
-	fn default() -> Self {
-		Self { hotkeys: vec![] }
 	}
 }
 
 /// Registers the given hotkeys with a new [`hotkey::Listener`] and returns it.
 ///
 /// If a hotkey cannot be registered, a warning is logged and the hotkey is skipped.
-fn init_hotkeys<T: 'static + Clone + Debug>(sender: &RSender<T>, hotkeys: Vec<Hotkey<T>>) -> hotkey::Listener {
+fn init_hotkeys(hotkeys: Vec<Hotkey>) -> hotkey::Listener {
 	let mut hk = hotkey::Listener::new();
 
 	for hotkey in hotkeys {
-		let sender_clone = sender.clone();
-		let value_clone = hotkey.value.clone();
 		let modifiers = hotkey.modifiers.iter().fold(0, |r, v| r | convert_modifier(v));
 		let key = convert_key(hotkey.key);
 
-		hk.register_hotkey(modifiers, key, move || {
-			sender_clone
-				.send(value_clone.clone())
-				.inspect_err(|e| log::error!("unable to send hotkey action message: {e}"))
-				.ok();
-		})
-		.inspect_err(|e| log::warn!("failed to register hotkey {hotkey:?}: {e}"))
-		.ok();
+		hk.register_hotkey(modifiers, key, move || (hotkey.callback)())
+			.inspect_err(|e| log::warn!("failed to register hotkey {:?}: {e}", (hotkey.key, hotkey.modifiers)))
+			.ok();
 	}
 
 	hk

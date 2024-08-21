@@ -1,4 +1,10 @@
-use enumflags2::bitflags;
+use enumflags2::{bitflags, BitFlags};
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct ParsedBinding {
+	pub modifiers: BitFlags<Modifier>,
+	pub key: Key,
+}
 
 #[bitflags]
 #[repr(u8)]
