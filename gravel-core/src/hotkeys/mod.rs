@@ -22,8 +22,7 @@ impl Debug for Hotkey {
 	}
 }
 
-/// Listens for system-wide hotkeys and sends an arbitrary signal through
-/// the given [`RSender`].
+/// Listens for system-wide hotkeys and calls closures.
 ///
 /// The listener runs in a separate thread to avoid blocking.
 #[derive(Default)]
