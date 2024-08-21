@@ -3,6 +3,7 @@ use crate::scrollbar::Scrollbar;
 use crate::structs::{Event, HitUi, Ui};
 use fltk::enums::{Align, Event as FltkEvent, FrameType, Key};
 use fltk::{app, app::Sender, frame::Frame, group::Group, input::Input, prelude::*, window::Window};
+use gravel_ffi::ActionKind;
 
 const WINDOW_TITLE: &str = "gravel";
 const WM_CLASS: &str = "gravel";
@@ -153,7 +154,8 @@ fn on_input_event(event: FltkEvent, sender: &Sender<Event>) -> bool {
 fn on_input_keydown(key: Key, sender: &Sender<Event>) {
 	let message = match key {
 		Key::Escape => Event::Cancel,
-		Key::Enter | Key::KPEnter => Event::Confirm(shift_down()),
+		Key::Enter | Key::KPEnter if shift_down() => Event::Confirm(ActionKind::Secondary),
+		Key::Enter | Key::KPEnter => Event::Confirm(ActionKind::Primary),
 		Key::Up => Event::CursorUp,
 		Key::Down => Event::CursorDown,
 		Key::PageUp => Event::CursorPageUp,

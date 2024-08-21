@@ -1,5 +1,5 @@
-use crate::{ArcDynHit, PluginConfigAdapter, ScoredHit};
-use abi_stable::std_types::{RBox, RStr, RString, RVec};
+use crate::{ActionKind, ArcDynHit, PluginConfigAdapter, ScoredHit};
+use abi_stable::std_types::{RBox, RString, RVec};
 use abi_stable::{external_types::crossbeam_channel::RReceiver, sabi_trait, StableAbi};
 
 /// FFI-safe [`FrontendInner`] trait object.
@@ -54,14 +54,14 @@ pub type BoxDynFrontendContext = FrontendContext_TO<'static, RBox<()>>;
 #[sabi_trait]
 pub trait FrontendContext {
 	/// Runs the query against configured providers and returns results.
-	fn query(&self, query: RStr<'_>) -> QueryResult;
+	///
+	/// ```
+	/// todo!("describe token");
+	/// ```
+	fn query(&self, query: RString) -> u32;
 
-	// TODO: refactor with ActionKind
 	/// Executes the passed hit's action.
-	fn run_hit_action(&self, hit: &ArcDynHit);
-
-	/// Executes the passed hit's secondary action.
-	fn run_secondary_hit_action(&self, hit: &ArcDynHit);
+	fn run_hit_action(&self, hit: &ArcDynHit, kind: ActionKind);
 }
 
 /// A Collection of scored hits returned by the [`FrontendContext`].
@@ -85,8 +85,8 @@ pub type FrontendMessageNe = FrontendMessage_NE;
 /// These values are to be received by the frontend via a provided
 /// [`RReceiver`] and must be handled.
 #[repr(u8)]
-#[derive(StableAbi, Debug, Clone)]
-#[sabi(kind(WithNonExhaustive(size = 40, traits(Debug, Clone))))]
+#[derive(StableAbi, Debug)]
+#[sabi(kind(WithNonExhaustive(size = 40, traits(Debug))))]
 pub enum FrontendMessage {
 	ShowOrHide,
 	Show,
@@ -106,6 +106,13 @@ pub enum FrontendMessage {
 
 	/// Clear all caches the frontend may keep.
 	ClearCaches,
+
+	/// Result from a previous query.
+	///
+	/// ```
+	/// todo!("describe token");
+	/// ```
+	QueryResult(u32, QueryResult),
 }
 
 /// Non-exhaustive variant of [`FrontendExitStatus`].

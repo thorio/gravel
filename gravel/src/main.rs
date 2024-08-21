@@ -6,6 +6,7 @@
 
 use abi_stable::external_types::crossbeam_channel;
 use anyhow::{Context, Result};
+use gravel_core::FrontendCtx;
 use gravel_core::{performance::Stopwatch, Core, CoreMessage};
 use gravel_ffi::{FrontendExitStatus, FrontendExitStatusNe, FrontendMessageNe};
 use std::path::{Path, PathBuf};
@@ -47,10 +48,15 @@ fn run() -> Result<()> {
 
 	let engine = init::engine(core_send.clone(), &registry, &config);
 	let runner = Core::new(engine, frontend_send.clone(), core_recv);
+	let frontend_ctx = FrontendCtx::new(core_send);
+
+	std::thread::spawn(move || {
+		runner.run();
+	});
 
 	init::hotkeys(&config.root().hotkeys, frontend_send);
 
-	let mut frontend = init::frontend(&registry, runner, &config);
+	let mut frontend = init::frontend(&registry, frontend_ctx, &config);
 
 	log::info!("initialization took {stopwatch}");
 	log::trace!("starting frontend");

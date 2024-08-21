@@ -11,7 +11,7 @@ pub type BoxDynProvider = ProviderInner_TO<'static, RBox<()>>;
 ///
 /// It does some boilerplate conversions to reduce complexity in the real [`Provider`].
 #[sabi_trait]
-pub trait ProviderInner {
+pub trait ProviderInner: Send {
 	fn query(&self, query: RStr<'_>) -> ProviderResult;
 	fn clear_caches(&self) {
 		// do nothing

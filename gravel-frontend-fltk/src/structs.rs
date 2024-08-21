@@ -1,7 +1,7 @@
 use crate::scrollbar::Scrollbar;
 use abi_stable::nonexhaustive_enum::UnwrapEnumError;
 use fltk::{app::App, app::Receiver, app::Sender, frame::Frame, group::Group, input::Input, window::Window};
-use gravel_ffi::{FrontendMessage, FrontendMessageNe};
+use gravel_ffi::{ActionKind, FrontendMessage, FrontendMessageNe, QueryResult};
 
 /// Holds all necessary elements of the FLTK app.
 pub struct Ui {
@@ -22,12 +22,12 @@ pub struct HitUi {
 }
 
 /// Represents Actions the UI should carry out.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug)]
 pub enum Event {
 	Query,
 	ForceQuery,
-	/// false => primary, true => secondary
-	Confirm(bool),
+	QueryResult(u32, QueryResult),
+	Confirm(ActionKind),
 	CursorUp,
 	CursorDown,
 	CursorPageUp,
@@ -56,6 +56,7 @@ impl From<FrontendMessage> for Event {
 			M::Exit => Self::Exit,
 			M::Restart => Self::Restart,
 			M::ClearCaches => Self::ClearCaches,
+			M::QueryResult(t, r) => Self::QueryResult(t, r),
 		}
 	}
 }

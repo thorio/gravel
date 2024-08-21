@@ -82,8 +82,9 @@ impl FltkFrontend {
 	fn receive_event(&mut self) -> Option<FrontendExitStatus> {
 		match self.ui.receiver.recv()? {
 			Event::Query => self.query(),
+			Event::QueryResult(_, r) => self.update_result(r),
 			Event::ForceQuery => self.force_query(),
-			Event::Confirm(secondary) => self.confirm(secondary),
+			Event::Confirm(kind) => self.confirm(kind),
 			Event::CursorUp => self.cursor_up(),
 			Event::CursorDown => self.cursor_down(),
 			Event::CursorPageUp => self.cursor_page_up(),
@@ -183,17 +184,20 @@ impl FltkFrontend {
 		self.ui.input.set_mark(i32::MAX).ok();
 	}
 
-	/// Queries the [`QueryEngine`] if the input has changed.
+	/// Queries if the input has changed.
 	fn query(&mut self) {
 		if self.ui.input.changed() {
 			self.force_query();
 		}
 	}
 
-	/// Queries the [`QueryEngine`].
 	fn force_query(&mut self) {
 		let input = self.ui.input.value();
-		self.result = self.context.query(RStr::from_str(&input));
+		self.context.query(input.into_c());
+	}
+
+	fn update_result(&mut self, result: QueryResult) {
+		self.result = result;
 		self.ui.input.clear_changed();
 
 		self.update_window_height();
@@ -201,7 +205,7 @@ impl FltkFrontend {
 	}
 
 	/// Runs the action of the selected hit.
-	fn confirm(&self, secondary: bool) {
+	fn confirm(&self, kind: ActionKind) {
 		if self.result.hits.is_empty() {
 			return;
 		}
@@ -209,11 +213,7 @@ impl FltkFrontend {
 		let cursor = self.scroll.cursor();
 		let hit = &self.result.hits[cursor as usize].hit;
 
-		if secondary {
-			self.context.run_secondary_hit_action(hit);
-		} else {
-			self.context.run_hit_action(hit);
-		}
+		self.context.run_hit_action(hit, kind);
 	}
 
 	fn cursor_up(&mut self) {
