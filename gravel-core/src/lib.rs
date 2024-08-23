@@ -8,7 +8,7 @@ use abi_stable::sabi_trait;
 use abi_stable::std_types::RString;
 use abi_stable::traits::{IntoReprC, IntoReprRust};
 use engine::QueryEngine;
-use gravel_ffi::{ActionKind, ArcDynHit};
+use gravel_ffi::{clone_hit_arc, ActionKind, ArcDynHit};
 use gravel_ffi::{BoxDynFrontendContext, FrontendContext, FrontendMessage, FrontendMessageNe};
 use performance::Stopwatch;
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -31,6 +31,7 @@ pub struct Core {
 pub enum CoreMessage {
 	Frontend(FrontendMessage),
 	Query(u32, String),
+	RunAction(ArcDynHit, ActionKind),
 	ClearCaches,
 }
 
@@ -57,8 +58,9 @@ impl Core {
 		const ONE_MILLI: Duration = Duration::from_millis(1);
 
 		match self.receiver.recv_timeout(ONE_MILLI).ok()? {
-			CoreMessage::Frontend(m) => self.send_frontend(m),
-			CoreMessage::Query(t, q) => self.query(t, q),
+			CoreMessage::Frontend(msg) => self.send_frontend(msg),
+			CoreMessage::Query(token, query) => self.query(token, &query),
+			CoreMessage::RunAction(hit, kind) => self.run_action(&hit, kind),
 			CoreMessage::ClearCaches => self.clear_caches(),
 		}
 
@@ -73,8 +75,8 @@ impl Core {
 		log::trace!("hit action took {stopwatch}");
 	}
 
-	fn query(&self, token: u32, query: String) {
-		let result = self.engine.query(query.into_c().as_rstr());
+	fn query(&self, token: u32, query: &str) {
+		let result = self.engine.query(query.into_c());
 
 		self.send_frontend(FrontendMessage::QueryResult(token, result));
 	}
@@ -103,7 +105,7 @@ impl FrontendCtx {
 	pub fn new(sender: RSender<CoreMessage>) -> Self {
 		Self {
 			sender,
-			token_counter: AtomicU32::default(),
+			token_counter: Default::default(),
 		}
 	}
 
@@ -114,21 +116,20 @@ impl FrontendCtx {
 			.ok();
 	}
 
-	fn get_token(&self) -> u32 {
-		self.token_counter.fetch_add(0, Ordering::Relaxed)
+	fn new_token(&self) -> u32 {
+		self.token_counter.fetch_add(1, Ordering::Relaxed)
 	}
 }
 
 impl FrontendContext for FrontendCtx {
 	fn query(&self, query: RString) -> u32 {
-		let token = self.get_token();
+		let token = self.new_token();
 		self.send(CoreMessage::Query(token, query.into_rust()));
-
 		token
 	}
 
 	fn run_hit_action(&self, hit: &ArcDynHit, kind: ActionKind) {
-		todo!();
+		self.send(CoreMessage::RunAction(clone_hit_arc(hit), kind));
 	}
 }
 

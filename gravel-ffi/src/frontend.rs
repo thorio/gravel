@@ -55,9 +55,8 @@ pub type BoxDynFrontendContext = FrontendContext_TO<'static, RBox<()>>;
 pub trait FrontendContext {
 	/// Runs the query against configured providers and returns results.
 	///
-	/// ```
-	/// todo!("describe token");
-	/// ```
+	/// The return value is a token unique to each query, allowing frontends to
+	/// ignore out-of-date results in lieu of cancellations.
 	fn query(&self, query: RString) -> u32;
 
 	/// Executes the passed hit's action.
@@ -109,9 +108,8 @@ pub enum FrontendMessage {
 
 	/// Result from a previous query.
 	///
-	/// ```
-	/// todo!("describe token");
-	/// ```
+	/// The first value is a token unique to each query, allowing frontends to
+	/// ignore out-of-date results in lieu of cancellations.
 	QueryResult(u32, QueryResult),
 }
 

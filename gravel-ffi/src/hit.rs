@@ -25,7 +25,7 @@ pub trait Hit: Sync + Send + Debug {
 	fn title(&self) -> RStr<'_>;
 
 	fn subtitle(&self) -> RStr<'_> {
-		"".into_c()
+		RStr::default()
 	}
 
 	/// If [`ROption::RSome`], skips normal scoring for this hit,
@@ -54,7 +54,7 @@ pub trait Hit: Sync + Send + Debug {
 /// Clones an [`ArcDynHit`], as this is not straightforward.
 ///
 /// Like [`std::sync::Arc`], cloning just increments the reference counter.
-pub(crate) fn clone_hit_arc(hit: &ArcDynHit) -> ArcDynHit {
+pub fn clone_hit_arc(hit: &ArcDynHit) -> ArcDynHit {
 	ArcDynHit::from_sabi(hit.obj.shallow_clone())
 }
 

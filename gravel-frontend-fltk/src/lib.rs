@@ -21,6 +21,7 @@ struct FltkFrontend {
 	ui: Ui,
 	context: BoxDynFrontendContext,
 	result: QueryResult,
+	query_token: Option<u32>,
 	scroll: Scroll,
 	visible: bool,
 	last_hide_time: SystemTime,
@@ -40,9 +41,10 @@ impl Frontend for FltkFrontend {
 
 		Self {
 			config,
-			context,
 			ui,
+			context,
 			result: QueryResult::default(),
+			query_token: None,
 			scroll: Scroll::new(0, max_view_size),
 			visible,
 			last_hide_time: UNIX_EPOCH,
@@ -60,21 +62,26 @@ impl FltkFrontend {
 	/// Runs the FLTK event loop. Blocks until the app exits.
 	fn run_event_loop(&mut self, receiver: &RReceiver<FrontendMessageNe>) -> FrontendExitStatus {
 		loop {
-			if let Err(e) = fltk::app::wait_for(0.005) {
+			if let Err(e) = fltk::app::wait_for(0.001) {
 				// TODO: handle X11 signals?
 				log::error!("fltk wait_for error: {e}");
 			}
 
 			if fltk::app::should_program_quit() {
-				self.ui.sender.send(Event::Exit);
+				return self.quit(FrontendExitStatus::Exit);
 			}
 
-			self.forward_frontend_messages(receiver);
+			if let Some(exit) = self.receive_message(receiver) {
+				return self.quit(exit);
+			}
+
+			// don't receive events from the UI while a query is running, effectively buffering those events
+			if self.query_token.is_some() {
+				continue;
+			}
 
 			if let Some(exit) = self.receive_event() {
-				fltk::app::quit();
-				fltk::app::wait();
-				return exit;
+				return self.quit(exit);
 			}
 		}
 	}
@@ -82,42 +89,48 @@ impl FltkFrontend {
 	fn receive_event(&mut self) -> Option<FrontendExitStatus> {
 		match self.ui.receiver.recv()? {
 			Event::Query => self.query(),
-			Event::QueryResult(_, r) => self.update_result(r),
-			Event::ForceQuery => self.force_query(),
 			Event::Confirm(kind) => self.confirm(kind),
 			Event::CursorUp => self.cursor_up(),
 			Event::CursorDown => self.cursor_down(),
-			Event::CursorPageUp => self.cursor_page_up(),
-			Event::CursorPageDown => self.cursor_page_down(),
+			Event::PageUp => self.cursor_page_up(),
+			Event::PageDown => self.cursor_page_down(),
 			Event::CursorTop => self.cursor_top(),
 			Event::CursorBottom => self.cursor_bottom(),
-			Event::ShowWindow => self.show(),
 			Event::Cancel | Event::HideWindow => self.hide(),
-			Event::ShowOrHideWindow => self.show_or_hide(),
-			Event::ShowWithQuery(query) => self.show_with(&query),
 			Event::Exit => return Some(FrontendExitStatus::Exit),
-			Event::Restart => return Some(FrontendExitStatus::Restart),
-			Event::ClearCaches => (), // no caches to clear
-		};
+		}
 
 		None
 	}
 
-	/// Registers a recurring timeout that forwards [`FrontendMessage`]s on
-	/// the given [`Receiver`] to the frontend's own channel.
-	fn forward_frontend_messages(&mut self, receiver: &RReceiver<FrontendMessageNe>) {
-		fn try_recv(receiver: &RReceiver<FrontendMessageNe>) -> Option<Event> {
-			receiver
-				.try_recv()
-				.ok()?
-				.try_into()
-				.inspect_err(|e| log::warn!("unknown FrontendMessage, this plugin is out of date: {e}"))
-				.ok()
+	fn receive_message(&mut self, receiver: &RReceiver<FrontendMessageNe>) -> Option<FrontendExitStatus> {
+		let message = receiver
+			.try_recv()
+			.ok()?
+			.into_enum()
+			.inspect_err(|e| log::warn!("unknown FrontendMessage, this plugin is out of date: {e}"))
+			.ok()?;
+
+		use FrontendMessage as M;
+		match message {
+			M::QueryResult(token, result) => self.update_result(token, result),
+			M::ShowOrHide => self.show_or_hide(),
+			M::Show => self.show(),
+			M::Hide => self.hide(),
+			M::ShowWithQuery(query) => self.show_with(&query),
+			M::Refresh => self.force_query(),
+			M::Exit => return Some(FrontendExitStatus::Exit),
+			M::Restart => return Some(FrontendExitStatus::Restart),
+			M::ClearCaches => (),
 		}
 
-		if let Some(message) = try_recv(receiver) {
-			self.ui.sender.send(message);
-		}
+		None
+	}
+
+	fn quit(&self, exit: FrontendExitStatus) -> FrontendExitStatus {
+		fltk::app::quit();
+		fltk::app::wait();
+		exit
 	}
 
 	fn show_or_hide(&mut self) {
@@ -192,13 +205,19 @@ impl FltkFrontend {
 	}
 
 	fn force_query(&mut self) {
-		let input = self.ui.input.value();
-		self.context.query(input.into_c());
+		let token = self.context.query(self.ui.input.value().into_c());
+		self.ui.input.clear_changed();
+
+		self.query_token = Some(token);
 	}
 
-	fn update_result(&mut self, result: QueryResult) {
+	fn update_result(&mut self, token: u32, result: QueryResult) {
+		if self.query_token != Some(token) {
+			return;
+		}
+
 		self.result = result;
-		self.ui.input.clear_changed();
+		self.query_token = None;
 
 		self.update_window_height();
 		self.update_hits();

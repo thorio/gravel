@@ -46,7 +46,8 @@ pub use frontend::{
 	FrontendInner, FrontendMessage, FrontendMessageNe, QueryResult,
 };
 pub use hit::{
-	ActionKind, ArcDynHit, Hit, HitActionContext, RefDynHitActionContext, ScoredHit, SimpleHit, MAX_SCORE, MIN_SCORE,
+	clone_hit_arc, ActionKind, ArcDynHit, Hit, HitActionContext, RefDynHitActionContext, ScoredHit, SimpleHit,
+	MAX_SCORE, MIN_SCORE,
 };
 pub use plugin::{PluginDefinition, PluginMetadata};
 pub use prefix::{PluginLib, PluginLibRef};

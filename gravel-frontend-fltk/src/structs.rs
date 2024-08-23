@@ -1,7 +1,6 @@
 use crate::scrollbar::Scrollbar;
-use abi_stable::nonexhaustive_enum::UnwrapEnumError;
 use fltk::{app::App, app::Receiver, app::Sender, frame::Frame, group::Group, input::Input, window::Window};
-use gravel_ffi::{ActionKind, FrontendMessage, FrontendMessageNe, QueryResult};
+use gravel_ffi::ActionKind;
 
 /// Holds all necessary elements of the FLTK app.
 pub struct Ui {
@@ -25,46 +24,14 @@ pub struct HitUi {
 #[derive(Debug)]
 pub enum Event {
 	Query,
-	ForceQuery,
-	QueryResult(u32, QueryResult),
 	Confirm(ActionKind),
 	CursorUp,
 	CursorDown,
-	CursorPageUp,
-	CursorPageDown,
+	PageUp,
+	PageDown,
 	CursorTop,
 	CursorBottom,
-	ShowWindow,
 	HideWindow,
-	ShowOrHideWindow,
-	ShowWithQuery(String),
 	Cancel,
 	Exit,
-	Restart,
-	ClearCaches,
-}
-
-impl From<FrontendMessage> for Event {
-	fn from(message: FrontendMessage) -> Self {
-		use FrontendMessage as M;
-		match message {
-			M::ShowOrHide => Self::ShowOrHideWindow,
-			M::Show => Self::ShowWindow,
-			M::Hide => Self::HideWindow,
-			M::ShowWithQuery(query) => Self::ShowWithQuery(query.into()),
-			M::Refresh => Self::ForceQuery,
-			M::Exit => Self::Exit,
-			M::Restart => Self::Restart,
-			M::ClearCaches => Self::ClearCaches,
-			M::QueryResult(t, r) => Self::QueryResult(t, r),
-		}
-	}
-}
-
-impl TryFrom<FrontendMessageNe> for Event {
-	type Error = UnwrapEnumError<FrontendMessageNe>;
-
-	fn try_from(value: FrontendMessageNe) -> Result<Self, Self::Error> {
-		value.into_enum().map(Into::into)
-	}
 }
