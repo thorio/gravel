@@ -51,16 +51,16 @@ impl Frontend for FltkFrontend {
 		}
 	}
 
-	fn run(&mut self, receiver: RReceiver<FrontendMessageNe>) -> FrontendExitStatus {
+	fn run(&mut self) -> FrontendExitStatus {
 		self.update_window_position();
 
-		self.run_event_loop(&receiver)
+		self.run_event_loop()
 	}
 }
 
 impl FltkFrontend {
 	/// Runs the FLTK event loop. Blocks until the app exits.
-	fn run_event_loop(&mut self, receiver: &RReceiver<FrontendMessageNe>) -> FrontendExitStatus {
+	fn run_event_loop(&mut self) -> FrontendExitStatus {
 		loop {
 			if let Err(e) = fltk::app::wait_for(0.001) {
 				// TODO: handle X11 signals?
@@ -71,7 +71,7 @@ impl FltkFrontend {
 				return self.quit(FrontendExitStatus::Exit);
 			}
 
-			if let Some(exit) = self.receive_message(receiver) {
+			if let Some(exit) = self.receive_message() {
 				return self.quit(exit);
 			}
 
@@ -103,16 +103,9 @@ impl FltkFrontend {
 		None
 	}
 
-	fn receive_message(&mut self, receiver: &RReceiver<FrontendMessageNe>) -> Option<FrontendExitStatus> {
-		let message = receiver
-			.try_recv()
-			.ok()?
-			.into_enum()
-			.inspect_err(|e| log::warn!("unknown FrontendMessage, this plugin is out of date: {e}"))
-			.ok()?;
-
+	fn receive_message(&mut self) -> Option<FrontendExitStatus> {
 		use FrontendMessage as M;
-		match message {
+		match self.context.recv()? {
 			M::QueryResult(token, result) => self.update_result(token, result),
 			M::ShowOrHide => self.show_or_hide(),
 			M::Show => self.show(),

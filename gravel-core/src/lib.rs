@@ -5,13 +5,13 @@
 
 use abi_stable::external_types::crossbeam_channel::{RReceiver, RSender};
 use abi_stable::sabi_trait;
-use abi_stable::std_types::RString;
+use abi_stable::std_types::{ROption, RString};
 use abi_stable::traits::{IntoReprC, IntoReprRust};
 use engine::QueryEngine;
 use gravel_ffi::{clone_hit_arc, ActionKind, ArcDynHit};
 use gravel_ffi::{BoxDynFrontendContext, FrontendContext, FrontendMessage, FrontendMessageNe};
 use std::sync::atomic::{AtomicU32, Ordering};
-use std::time::Duration;
+use std::{thread, time::Duration};
 
 pub mod config;
 pub mod engine;
@@ -45,6 +45,10 @@ impl Core {
 			frontend_sender,
 			receiver,
 		}
+	}
+
+	pub fn spawn(self) {
+		thread::spawn(move || self.run());
 	}
 
 	pub fn run(&self) {
@@ -94,13 +98,15 @@ impl Core {
 }
 
 pub struct FrontendCtx {
+	receiver: RReceiver<FrontendMessageNe>,
 	sender: RSender<CoreMessage>,
 	token_counter: AtomicU32,
 }
 
 impl FrontendCtx {
-	pub fn new(sender: RSender<CoreMessage>) -> Self {
+	pub fn new(receiver: RReceiver<FrontendMessageNe>, sender: RSender<CoreMessage>) -> Self {
 		Self {
+			receiver,
 			sender,
 			token_counter: Default::default(),
 		}
@@ -119,6 +125,10 @@ impl FrontendCtx {
 }
 
 impl FrontendContext for FrontendCtx {
+	fn recv_raw(&self) -> ROption<FrontendMessageNe> {
+		self.receiver.try_recv().ok().into_c()
+	}
+
 	fn query(&self, query: RString) -> u32 {
 		let token = self.new_token();
 		self.send(CoreMessage::Query(token, query.into_rust()));

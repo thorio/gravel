@@ -1,8 +1,8 @@
 use external::register_externals;
-use gravel_core::{config::ExternalPlugins, plugin::PluginRegistry};
+use gravel_core::{config::ExternalPluginPolicy, plugin::PluginRegistry};
 
 /// Initializes the [`PluginRegistry`] and registers built-in plugins.
-pub fn plugins(config: &ExternalPlugins) -> PluginRegistry {
+pub fn plugins(config: &ExternalPluginPolicy) -> PluginRegistry {
 	let mut registry = PluginRegistry::default();
 	register_builtins(&mut registry);
 	register_externals(&mut registry, config);
@@ -37,18 +37,18 @@ fn register_builtins(registry: &mut PluginRegistry) {
 mod external {
 	use glob::{glob, Paths};
 	use gravel_core::plugin::{load_library_from_path, PluginRegistry};
-	use gravel_core::{config::ExternalPlugins, paths};
+	use gravel_core::{config::ExternalPluginPolicy, paths};
 	use gravel_ffi::{logging::StaticLogTarget, PluginLibRef};
 	use itertools::Itertools;
 	use std::path::PathBuf;
 
-	pub fn register_externals(registry: &mut PluginRegistry, config: &ExternalPlugins) {
+	pub fn register_externals(registry: &mut PluginRegistry, config: &ExternalPluginPolicy) {
 		const EMPTY: &[String] = &[];
 
 		let filter = match config {
-			ExternalPlugins::Disabled => return,
-			ExternalPlugins::All => EMPTY,
-			ExternalPlugins::Whitelist(names) => names,
+			ExternalPluginPolicy::Disabled => return,
+			ExternalPluginPolicy::All => EMPTY,
+			ExternalPluginPolicy::Whitelist(names) => names,
 		};
 
 		log::trace!("looking for external plugin libraries");

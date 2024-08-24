@@ -2,6 +2,7 @@ use log::Level;
 use std::fmt::{self, Arguments, Display, Formatter};
 use std::time::Instant;
 
+#[derive(Debug)]
 pub struct Stopwatch {
 	begin: Instant,
 }
@@ -21,6 +22,7 @@ impl Display for Stopwatch {
 	}
 }
 
+#[derive(Debug)]
 pub struct Timed {
 	message: String,
 	level: Level,

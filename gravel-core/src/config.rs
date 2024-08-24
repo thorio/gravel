@@ -46,7 +46,7 @@ impl ConfigManager {
 #[derive(Debug, Deserialize)]
 pub struct Config {
 	pub single_instance: Option<String>,
-	pub external_plugins: ExternalPlugins,
+	pub external_plugins: ExternalPluginPolicy,
 	pub hotkeys: Vec<Hotkey>,
 	pub frontend: Frontend,
 	pub providers: Vec<Provider>,
@@ -54,7 +54,7 @@ pub struct Config {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum ExternalPlugins {
+pub enum ExternalPluginPolicy {
 	Disabled,
 	All,
 	Whitelist(Vec<String>),

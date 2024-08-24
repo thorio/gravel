@@ -4,94 +4,40 @@
 // Without this, windows will open an additional console window for the application
 #![windows_subsystem = "windows"]
 
-use abi_stable::external_types::crossbeam_channel;
 use anyhow::{Context, Result};
-use gravel_core::FrontendCtx;
-use gravel_core::{performance::Stopwatch, Core, CoreMessage};
-use gravel_ffi::{FrontendExitStatus, FrontendExitStatusNe, FrontendMessageNe};
-use std::path::{Path, PathBuf};
-use std::{env, process::Command};
+use cli::Command;
 
+mod cli;
 mod init;
+mod run;
 
-// unwrap instead of returning a Result so we hit color_eyre's panic handler
-#[allow(clippy::unwrap_used)]
+#[cfg(windows)]
+pub mod windows_console;
+
 fn main() {
 	init::panic();
 
 	#[cfg(windows)]
-	init::windows_console::attach();
+	windows_console::attach();
 
+	// unwrap so we hit color_eyre's panic handler
+	#[allow(clippy::unwrap_used)]
 	run().unwrap();
 
 	#[cfg(windows)]
-	init::windows_console::detach();
+	windows_console::detach();
 
 	log::debug!("exiting");
 }
 
 fn run() -> Result<()> {
-	let stopwatch = Stopwatch::start();
-
-	// do this first so it doesn't break when the executable is replaced later
-	let executable = env::current_exe().context("failed to get gravel executable");
-
-	let args = init::cli();
+	let args = cli::parse();
 	init::logging(args.logging).context("failed to set up logging")?;
-
 	let config = init::config();
-	let single_instance = init::single_instance(config.root().single_instance.as_deref());
-	let registry = init::plugins(&config.root().external_plugins);
 
-	let (frontend_send, frontend_recv) = crossbeam_channel::bounded::<FrontendMessageNe>(16);
-	let (core_send, core_recv) = crossbeam_channel::bounded::<CoreMessage>(16);
-
-	let engine = init::engine(core_send.clone(), &registry, &config);
-	let runner = Core::new(engine, frontend_send.clone(), core_recv);
-	let frontend_ctx = FrontendCtx::new(core_send);
-
-	std::thread::spawn(move || {
-		runner.run();
-	});
-
-	init::hotkeys(&config.root().hotkeys, frontend_send);
-
-	let mut frontend = init::frontend(&registry, frontend_ctx, &config);
-
-	log::info!("initialization took {stopwatch}");
-	log::trace!("starting frontend");
-	let exit_status = frontend.run(frontend_recv);
-
-	drop(single_instance);
-
-	on_exit(exit_status, executable)
-}
-
-fn on_exit(status: FrontendExitStatusNe, executable: Result<PathBuf>) -> Result<()> {
-	let status = status.into_enum().expect("plugin must not be newer than application");
-
-	match status {
-		FrontendExitStatus::Exit => Ok(()),
-		FrontendExitStatus::Restart => restart(&executable?),
+	match args.command.unwrap_or(Command::Daemon) {
+		Command::Daemon => run::daemon(&config),
 	}
-}
-
-fn restart(executable: &Path) -> Result<()> {
-	#[cfg(unix)]
-	use std::os::unix::process::CommandExt;
-
-	log::debug!("attempting to restart gravel");
-
-	// skip arg0
-	let args = env::args().skip(1);
-
-	#[cfg(unix)]
-	let res = Err(Command::new(executable).args(args).exec());
-
-	#[cfg(not(unix))]
-	let res = Command::new(executable).args(args).spawn().map(drop);
-
-	res.context("failed to execute gravel binary")
 }
 
 #[cfg(test)]

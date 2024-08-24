@@ -29,8 +29,8 @@ mod provider;
 pub mod prelude {
 	pub use crate::{
 		gravel_frontend, gravel_provider, ActionKind, ArcDynHit, BoxDynFrontendContext, Frontend, FrontendContext,
-		FrontendExitStatus, FrontendMessage, FrontendMessageNe, Hit, HitCache, PluginConfigAdapter, Provider,
-		ProviderResult, QueryResult, RefDynHitActionContext, ScoredHit, SimpleHit, StaticHitCache, MAX_SCORE,
+		FrontendContextExt, FrontendExitStatus, FrontendMessage, FrontendMessageNe, Hit, HitCache, PluginConfigAdapter,
+		Provider, ProviderResult, QueryResult, RefDynHitActionContext, ScoredHit, SimpleHit, StaticHitCache, MAX_SCORE,
 		MIN_SCORE,
 	};
 
@@ -42,8 +42,8 @@ pub mod prelude {
 pub use cache::{HitCache, StaticHitCache};
 pub use config::PluginConfigAdapter;
 pub use frontend::{
-	BoxDynFrontend, BoxDynFrontendContext, Frontend, FrontendContext, FrontendExitStatus, FrontendExitStatusNe,
-	FrontendInner, FrontendMessage, FrontendMessageNe, QueryResult,
+	BoxDynFrontend, BoxDynFrontendContext, Frontend, FrontendContext, FrontendContextExt, FrontendExitStatus,
+	FrontendExitStatusNe, FrontendInner, FrontendMessage, FrontendMessageNe, QueryResult,
 };
 pub use hit::{
 	clone_hit_arc, ActionKind, ArcDynHit, Hit, HitActionContext, RefDynHitActionContext, ScoredHit, SimpleHit,

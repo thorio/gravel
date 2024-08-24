@@ -1,11 +1,11 @@
 use abi_stable::external_types::crossbeam_channel::RSender;
 use gravel_core::config::Hotkey;
 use gravel_core::hotkeys::Listener;
-use gravel_ffi::FrontendMessageNe;
+use gravel_core::CoreMessage;
 
 /// Initializes a hotkey listener on a different thread.
 /// See [`Listener`].
-pub fn hotkeys(hotkeys: &[Hotkey], sender: RSender<FrontendMessageNe>) {
+pub fn hotkeys(hotkeys: &[Hotkey], sender: RSender<CoreMessage>) {
 	if hotkeys.is_empty() {
 		log::debug!("no hotkeys configured");
 		return;
@@ -22,7 +22,7 @@ pub fn hotkeys(hotkeys: &[Hotkey], sender: RSender<FrontendMessageNe>) {
 
 		let result = listener.register_emacs(binding, move || {
 			sender_clone
-				.send(FrontendMessageNe::new((&action).into()))
+				.send(CoreMessage::Frontend((&action).into()))
 				.inspect_err(|e| log::error!("unable to send hotkey action message: {e}"))
 				.ok();
 		});

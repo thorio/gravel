@@ -1,6 +1,7 @@
 use crate::{ActionKind, ArcDynHit, PluginConfigAdapter, ScoredHit};
-use abi_stable::std_types::{RBox, RString, RVec};
-use abi_stable::{external_types::crossbeam_channel::RReceiver, sabi_trait, StableAbi};
+use abi_stable::std_types::{RBox, ROption, RString, RVec};
+use abi_stable::traits::IntoReprRust;
+use abi_stable::{sabi_trait, StableAbi};
 
 /// FFI-safe [`FrontendInner`] trait object.
 pub type BoxDynFrontend = FrontendInner_TO<'static, RBox<()>>;
@@ -10,7 +11,7 @@ pub type BoxDynFrontend = FrontendInner_TO<'static, RBox<()>>;
 /// It does some boilerplate conversions to reduce complexity in the real [`Frontend`].
 #[sabi_trait]
 pub trait FrontendInner {
-	fn run(&mut self, receiver: RReceiver<FrontendMessageNe>) -> FrontendExitStatusNe;
+	fn run(&mut self) -> FrontendExitStatusNe;
 }
 
 /// Abstracts functionality required for a frontend.
@@ -40,11 +41,11 @@ pub trait FrontendInner {
 /// }
 /// ```
 pub trait Frontend {
-	/// Constructs a new frontend.
+	/// Constructs a new frontend. Events must be received and handled by calling [`FrontendContextExt::recv`].
 	fn new(engine: BoxDynFrontendContext, config: &PluginConfigAdapter<'_>) -> Self;
 
-	/// Runs the UI. Messages sent to the `receiver` must be handled.
-	fn run(&mut self, receiver: RReceiver<FrontendMessageNe>) -> FrontendExitStatus;
+	/// Runs the UI; must block until ready to exit.
+	fn run(&mut self) -> FrontendExitStatus;
 }
 
 /// FFI-safe [`FrontendContext`] trait object.
@@ -53,6 +54,10 @@ pub type BoxDynFrontendContext = FrontendContext_TO<'static, RBox<()>>;
 /// Context object providing core functionality to the [`Frontend`].
 #[sabi_trait]
 pub trait FrontendContext {
+	/// Use [`FrontendContextExt::recv`] instead.
+	#[doc(hidden)]
+	fn recv_raw(&self) -> ROption<FrontendMessageNe>;
+
 	/// Runs the query against configured providers and returns results.
 	///
 	/// The return value is a token unique to each query, allowing frontends to
@@ -62,6 +67,21 @@ pub trait FrontendContext {
 	/// Executes the passed hit's action.
 	fn run_hit_action(&self, hit: &ArcDynHit, kind: ActionKind);
 }
+
+pub trait FrontendContextExt: FrontendContext {
+	/// Attempts to receive one [`FrontendMessage`].
+	///
+	/// Returns [`None`] if there is no message or the message is from a newer version of the plugin interface.
+	fn recv(&self) -> Option<FrontendMessage> {
+		self.recv_raw()
+			.into_rust()?
+			.into_enum()
+			.inspect_err(|e| log::warn!("unknown FrontendMessage, this plugin is out of date: {e}"))
+			.ok()
+	}
+}
+
+impl<T: FrontendContext> FrontendContextExt for T {}
 
 /// A Collection of scored hits returned by the [`FrontendContext`].
 #[repr(C)]
@@ -76,13 +96,13 @@ impl QueryResult {
 	}
 }
 
-/// Non-exhaustive variant of [`FrontendMessage`].
+/// Non-exhaustive wrapper around [`FrontendMessage`].
 pub type FrontendMessageNe = FrontendMessage_NE;
 
 /// Represents actions the [`Frontend`] should take.
 ///
-/// These values are to be received by the frontend via a provided
-/// [`RReceiver`] and must be handled.
+/// These values are to be received by the frontend via
+/// [`FrontendContextExt::recv`] and must be handled.
 #[repr(u8)]
 #[derive(StableAbi, Debug)]
 #[sabi(kind(WithNonExhaustive(size = 40, traits(Debug))))]
@@ -113,7 +133,7 @@ pub enum FrontendMessage {
 	QueryResult(u32, QueryResult),
 }
 
-/// Non-exhaustive variant of [`FrontendExitStatus`].
+/// Non-exhaustive wrapper around [`FrontendExitStatus`].
 pub type FrontendExitStatusNe = FrontendExitStatus_NE;
 
 /// This is returned when a [`Frontend`] exits and tells gravel what to do.

@@ -1,4 +1,4 @@
-use super::cli::LogArgs;
+use crate::cli::LogArgs;
 use anyhow::Result;
 use chrono::Local;
 use fern::{Dispatch, FormatCallback};
