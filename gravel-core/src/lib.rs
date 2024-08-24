@@ -10,7 +10,6 @@ use abi_stable::traits::{IntoReprC, IntoReprRust};
 use engine::QueryEngine;
 use gravel_ffi::{clone_hit_arc, ActionKind, ArcDynHit};
 use gravel_ffi::{BoxDynFrontendContext, FrontendContext, FrontendMessage, FrontendMessageNe};
-use performance::Stopwatch;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::time::Duration;
 
@@ -68,15 +67,13 @@ impl Core {
 	}
 
 	fn run_action(&self, hit: &ArcDynHit, kind: ActionKind) {
-		let stopwatch = Stopwatch::start();
-
-		self.engine.run_hit_action(hit, kind);
-
-		log::trace!("hit action took {stopwatch}");
+		timed!("hit action took", {
+			self.engine.run_hit_action(hit, kind);
+		});
 	}
 
 	fn query(&self, token: u32, query: &str) {
-		let result = self.engine.query(query.into_c());
+		let result = timed!(("full query {token} took"), { self.engine.query(query.into_c()) });
 
 		self.send_frontend(FrontendMessage::QueryResult(token, result));
 	}

@@ -1,5 +1,4 @@
-use crate::performance::Stopwatch;
-use crate::{scoring, CoreMessage};
+use crate::{performance::Stopwatch, scoring, timed, CoreMessage};
 use abi_stable::std_types::RString;
 use abi_stable::{external_types::crossbeam_channel::RSender, sabi_trait, std_types::RStr, traits::IntoReprRust};
 use gravel_ffi::{ActionKind, ArcDynHit, FrontendMessage, HitActionContext, ProviderResult, RefDynHitActionContext};
@@ -55,12 +54,7 @@ impl QueryEngine {
 			return QueryResult::default();
 		}
 
-		let stopwatch = Stopwatch::start();
-
-		let result = inner(self, query);
-
-		log::trace!("full query took {stopwatch}");
-		result
+		inner(self, query)
 	}
 
 	pub fn run_hit_action(&self, hit: &ArcDynHit, kind: ActionKind) {
@@ -112,16 +106,14 @@ impl QueryEngine {
 fn query_all<'a>(providers: impl Iterator<Item = &'a ProviderInfo>, query: &str) -> QueryResult {
 	let hits = providers.flat_map(|p| query_one(p, query).hits).collect_vec();
 
-	let stopwatch = Stopwatch::start();
+	timed!("scoring took", {
+		let hits = match query.trim() {
+			"*" => scoring::to_unscored(hits),
+			_ => scoring::to_scored(hits, query),
+		};
 
-	let hits = match query.trim() {
-		"*" => scoring::to_unscored(hits),
-		_ => scoring::to_scored(hits, query),
-	};
-
-	log::trace!("scoring took {stopwatch}");
-
-	QueryResult::new(hits)
+		QueryResult::new(hits)
+	})
 }
 
 fn query_one(info: &ProviderInfo, query: &str) -> ProviderResult {

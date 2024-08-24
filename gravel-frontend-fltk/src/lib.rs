@@ -147,6 +147,7 @@ impl FltkFrontend {
 			return;
 		}
 
+		log::trace!("hiding frontend");
 		self.ui.window.hide();
 		self.visible = false;
 		self.last_hide_time = SystemTime::now();
@@ -154,8 +155,11 @@ impl FltkFrontend {
 
 	fn show(&mut self) {
 		if self.should_ignore_show() {
+			log::trace!("ignoring show request");
 			return;
 		}
+
+		log::trace!("showing frontend");
 
 		// select the entire previous query so it is overwritten when the user starts typing
 		self.input_select_all();
@@ -315,6 +319,8 @@ impl FltkFrontend {
 
 		let x = sx + (sw - width) / 2;
 		let y = sy + (sh - max_height) / 2;
+
+		log::trace!("setting position: ({x}, {y}) on screen {screen_num} ({sx}, {sy}, {sw}, {sh})");
 
 		self.ui.window.set_screen_num(screen_num);
 		self.ui.window.set_pos(x, y);
