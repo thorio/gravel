@@ -69,14 +69,9 @@ pub struct Hotkey {
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum HotkeyAction {
-	// TODO: remove aliases on next breaking
-	#[serde(alias = "ShowHide")]
 	ShowHide,
-	#[serde(alias = "Show")]
 	Show,
-	#[serde(alias = "Hide")]
 	Hide,
-	#[serde(alias = "ShowWith")]
 	ShowWith(String),
 }
 

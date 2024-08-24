@@ -42,7 +42,7 @@ impl<'a> PluginConfigAdapter<'a> {
 /// Used internally by gravel, do not use in plugins.
 #[doc(hidden)]
 pub mod __private_api {
-	use abi_stable::std_types::RString;
+	use abi_stable::std_types::{RStr, RString};
 	use abi_stable::StableAbi;
 	use figment::providers::{Format, Yaml};
 	use figment::Figment;
@@ -79,7 +79,7 @@ pub mod __private_api {
 	#[repr(u8)]
 	#[derive(StableAbi, Debug)]
 	pub enum ConfigSource {
-		String(RString), // TODO: refactor with RStr<'static>
+		String(RStr<'static>),
 		File(RString),
 	}
 }

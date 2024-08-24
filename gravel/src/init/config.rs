@@ -1,4 +1,4 @@
-use abi_stable::std_types::RString;
+use abi_stable::std_types::{RStr, RString};
 use gravel_core::config::{ConfigManager, DEFAULT_CONFIG};
 use gravel_core::paths::config_dir;
 use gravel_ffi::config::__private_api::{ConfigLayer, ConfigSource, MergeStrategy};
@@ -34,7 +34,7 @@ fn sources() -> Vec<ConfigLayer> {
 
 	use {ConfigSource as C, MergeStrategy as S};
 	vec![
-		ConfigLayer(C::String(RString::from(DEFAULT_CONFIG)), S::Merge),
+		ConfigLayer(C::String(RStr::from(DEFAULT_CONFIG)), S::Merge),
 		ConfigLayer(C::File(user_config_path), S::Merge),
 		ConfigLayer(C::File(platform_config_path), S::AdMerge),
 		ConfigLayer(C::File(host_config_path), S::AdMerge),
