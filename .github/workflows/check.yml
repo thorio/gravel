@@ -1,6 +1,7 @@
-name: lint & test
+name: check
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "develop" ]
 
@@ -15,7 +16,7 @@ jobs:
       - name: setup rust cache
         uses: Swatinem/rust-cache@v2
 
-      - name: install tools
+      - name: install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install libx11-dev libxext-dev libxft-dev libxinerama-dev libxcursor-dev libxrender-dev libxfixes-dev libpango1.0-dev libgl1-mesa-dev libglu1-mesa-dev libgtk-3-bin libwayland-dev wayland-protocols libdbus-1-dev libxkbcommon-dev xdg-utils xvfb -y --no-install-recommends
@@ -23,20 +24,8 @@ jobs:
       - name: checkout repository
         uses: actions/checkout@v4
 
-      - name: check formatting
-        run: cargo fmt --check
-
-      - name: lint
-        run: cargo clippy
-
-      - name: lint (dynamic plugins)
-        run: cargo clippy --no-default-features
-
-      - name: check docs
-        run: cargo doc --no-deps
-
-      - name: test
-        run: cargo test --verbose
+      - name: check
+        run: cargo make --no-workspace ci-check
 
   windows:
     runs-on: windows-2022
@@ -47,17 +36,5 @@ jobs:
       - name: checkout repository
         uses: actions/checkout@v4
 
-      - name: check formatting
-        run: cargo fmt --check
-
-      - name: lint
-        run: cargo clippy
-
-      - name: lint (dynamic plugins)
-        run: cargo clippy --no-default-features
-
-      - name: check docs
-        run: cargo doc --no-deps
-
-      - name: test
-        run: cargo test --verbose
+      - name: check
+        run: cargo make --no-workspace ci-check

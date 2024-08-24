@@ -4,8 +4,6 @@ use serde::Deserialize;
 
 pub const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
-/// Reads the [`DeserializedLayoutConfig`] from the adapter and transforms
-/// it to the final [`Config`].
 pub fn get(adapter: &PluginConfigAdapter<'_>) -> Config {
 	let config = adapter.get::<Config>(DEFAULT_CONFIG);
 

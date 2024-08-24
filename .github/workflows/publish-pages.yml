@@ -1,4 +1,4 @@
-name: pages
+name: publish-pages
 
 on:
   workflow_dispatch:

@@ -1,6 +1,16 @@
 [config]
 skip_core_tasks = true
 
+[tasks.ci-check]
+script_runner = "sh"
+script = '''
+	cargo fmt --check
+	cargo clippy
+	cargo clippy --no-default-features
+	cargo doc --no-deps --document-private-items
+	cargo test --verbose
+'''
+
 [tasks.ci-ubuntu]
 run_task = { name = ["release-deb", "release-tar", "release-config"] }
 

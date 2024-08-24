@@ -6,14 +6,14 @@ use gravel_ffi::{BoxDynProvider, QueryResult};
 use itertools::Itertools;
 use std::iter::once;
 
-/// Holds a [`Provider`] and some additional metadata.
+/// Holds a [`BoxDynProvider`] and some additional metadata.
 struct ProviderInfo {
 	pub name: String,
 	pub provider: BoxDynProvider,
 	pub keyword: Option<String>,
 }
 
-/// Aggregates and scores hits from the given [`gravel_ffi::Provider`]s.
+/// Aggregates and scores hits from the given [`BoxDynProvider`]s.
 pub struct QueryEngine {
 	providers: Vec<ProviderInfo>,
 	action_context: ActionContext,
@@ -101,7 +101,7 @@ impl QueryEngine {
 	}
 }
 
-/// Queries providers; aggregates, scores and orders [`Hit`]s.
+/// Queries providers; aggregates, scores and orders [`ArcDynHit`]s.
 #[allow(single_use_lifetimes)]
 fn query_all<'a>(providers: impl Iterator<Item = &'a ProviderInfo>, query: &str) -> QueryResult {
 	let hits = providers.flat_map(|p| query_one(p, query).hits).collect_vec();
