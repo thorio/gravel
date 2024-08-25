@@ -32,7 +32,7 @@ pub trait FrontendInner {
 ///         Self { }
 ///     }
 ///
-///     fn run(&mut self, receiver: RReceiver<FrontendMessageNe>) -> FrontendExitStatus {
+///     fn run(&mut self) -> FrontendExitStatus {
 ///         // run UI here
 ///
 ///         // gravel will exit when this function returns
