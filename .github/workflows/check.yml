@@ -16,6 +16,9 @@ jobs:
       - name: setup rust cache
         uses: Swatinem/rust-cache@v2
 
+      - name: install rust tools
+        run: cargo install --debug cargo-make
+
       - name: install dependencies
         run: |
           sudo apt-get update
@@ -32,6 +35,9 @@ jobs:
     steps:
       - name: setup rust cache
         uses: Swatinem/rust-cache@v2
+
+      - name: install rust tools
+        run: cargo install --debug cargo-make
 
       - name: checkout repository
         uses: actions/checkout@v4
