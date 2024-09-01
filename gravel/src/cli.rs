@@ -22,6 +22,8 @@ pub enum Command {
 	/// Start the daemon without spawning a new process [default]
 	#[allow(rustdoc::broken_intra_doc_links)] // [] used verbatim in clap help text
 	Daemon,
+	Show,
+	Hide,
 }
 
 #[derive(clap::Args, Debug)]

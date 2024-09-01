@@ -1,12 +1,13 @@
 use gravel_ffi::paths;
 use lazy_static::lazy_static;
 use std::env::{self, consts::DLL_EXTENSION};
+use std::ffi::OsString;
 use std::path::PathBuf;
 
 const APP_NAME: &str = "gravel";
 
 pub fn config_dir() -> PathBuf {
-	if let Ok(path) = env::var("GRAVEL_CONFIG_PATH") {
+	if let Some(path) = env::var_os("GRAVEL_CONFIG_PATH") {
 		return path.into();
 	}
 
@@ -28,4 +29,13 @@ pub fn plugin_globs() -> impl Iterator<Item = PathBuf> {
 	}
 
 	paths::xdg_data_globs(&PLUGIN_DIR)
+}
+
+pub fn display() -> Option<OsString> {
+	#[cfg(feature = "wayland")]
+	if let Some(display) = env::var_os("WAYLAND_DISPLAY") {
+		return Some(display);
+	}
+
+	env::var_os("DISPLAY")
 }

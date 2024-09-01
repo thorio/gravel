@@ -1,4 +1,4 @@
-//! Handles attaching and detaching a console if running under windows subsystem
+//! Handles attaching and detaching a console if running under windows subsystem.
 //! I hate this.
 
 use winapi::um::wincon::{AttachConsole, FreeConsole, ATTACH_PARENT_PROCESS};

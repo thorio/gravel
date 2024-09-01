@@ -4,7 +4,6 @@
 // Without this, windows will open an additional console window for the application
 #![windows_subsystem = "windows"]
 
-use anyhow::{Context, Result};
 use cli::Command;
 
 mod cli;
@@ -20,9 +19,7 @@ fn main() {
 	#[cfg(windows)]
 	windows_console::attach();
 
-	// unwrap so we hit color_eyre's panic handler
-	#[allow(clippy::unwrap_used)]
-	run().unwrap();
+	run();
 
 	#[cfg(windows)]
 	windows_console::detach();
@@ -30,14 +27,18 @@ fn main() {
 	log::debug!("exiting");
 }
 
-fn run() -> Result<()> {
+fn run() {
 	let args = cli::parse();
-	init::logging(args.logging).context("failed to set up logging")?;
+	init::logging(&args.logging).expect("failed to set up logging");
 	let config = init::config();
 
-	match args.command.unwrap_or(Command::Daemon) {
+	let result = match args.command.as_ref().unwrap_or(&Command::Daemon) {
 		Command::Daemon => run::daemon(&config),
-	}
+		Command::Show => run::show(&config, &args),
+		Command::Hide => run::hide(&config, &args),
+	};
+
+	result.inspect_err(|e| log::error!("{e}")).ok();
 }
 
 #[cfg(test)]

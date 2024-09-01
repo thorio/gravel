@@ -37,7 +37,7 @@ fn register_builtins(registry: &mut PluginRegistry) {
 mod external {
 	use glob::{glob, Paths};
 	use gravel_core::plugin::{load_library_from_path, PluginRegistry};
-	use gravel_core::{config::ExternalPluginPolicy, paths};
+	use gravel_core::{config::ExternalPluginPolicy, env};
 	use gravel_ffi::{logging::StaticLogTarget, PluginLibRef};
 	use itertools::Itertools;
 	use std::path::PathBuf;
@@ -53,7 +53,7 @@ mod external {
 
 		log::trace!("looking for external plugin libraries");
 
-		let definitions = paths::plugin_globs()
+		let definitions = env::plugin_globs()
 			.filter_map(expand_glob)
 			.flatten()
 			.filter_map(Result::ok)

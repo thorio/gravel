@@ -1,6 +1,6 @@
 use abi_stable::std_types::{RStr, RString};
 use gravel_core::config::{ConfigManager, DEFAULT_CONFIG};
-use gravel_core::paths::config_dir;
+use gravel_core::env::config_dir;
 use gravel_ffi::config::__private_api::{ConfigLayer, ConfigSource, MergeStrategy};
 use std::env::consts;
 

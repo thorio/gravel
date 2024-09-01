@@ -3,20 +3,20 @@ use anyhow::Result;
 use chrono::Local;
 use fern::{Dispatch, FormatCallback};
 use file_rotate::{compression::Compression, suffix::AppendCount, ContentLimit, FileRotate};
-use gravel_core::paths;
+use gravel_core::env;
 use log::{LevelFilter, Log, Record};
 use std::fmt::Arguments;
 use std::io::Write;
 use std::path::Path;
 
-pub fn logging(args: LogArgs) -> Result<()> {
+pub fn logging(args: &LogArgs) -> Result<()> {
 	let mut dispatch = Dispatch::new().level(args.verbosity.log_level_filter());
 
 	if !args.no_stderr_log {
 		dispatch = chain_stderr(dispatch);
 	}
 
-	let log_path = &args.log_file.unwrap_or_else(paths::log_path);
+	let log_path = &args.log_file.clone().unwrap_or_else(env::log_path);
 	if log_path.to_str() != Some("off") {
 		dispatch = chain_file(dispatch, log_path);
 	}

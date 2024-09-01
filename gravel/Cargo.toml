@@ -22,7 +22,7 @@ system = ["gravel-provider-system"]
 websearch = ["gravel-provider-websearch"]
 
 # experimental
-wayland = ["gravel-frontend-fltk/wayland"]
+wayland = ["gravel-frontend-fltk/wayland", "gravel-core/wayland"]
 
 [dependencies]
 gravel-core = { path = "../gravel-core" }
@@ -49,7 +49,6 @@ glob.workspace = true
 hostname.workspace = true
 itertools.workspace = true
 log.workspace = true
-single-instance.workspace = true
 stderrlog.workspace = true
 
 [target.'cfg(windows)'.dependencies]

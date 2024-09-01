@@ -45,11 +45,18 @@ impl ConfigManager {
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
-	pub single_instance: Option<String>,
+	pub ipc: Ipc,
 	pub external_plugins: ExternalPluginPolicy,
 	pub hotkeys: Vec<Hotkey>,
 	pub frontend: Frontend,
 	pub providers: Vec<Provider>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Ipc {
+	pub enabled: bool,
+	pub name: String,
+	pub append_display: bool,
 }
 
 #[derive(Debug, Deserialize)]

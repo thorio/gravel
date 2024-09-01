@@ -15,8 +15,9 @@ use std::{thread, time::Duration};
 
 pub mod config;
 pub mod engine;
+pub mod env;
 pub mod hotkeys;
-pub mod paths;
+pub mod ipc;
 pub mod performance;
 pub mod plugin;
 pub mod scoring;

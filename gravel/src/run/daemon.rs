@@ -1,13 +1,14 @@
-use crate::init::init;
-use anyhow::{Context, Result};
-use gravel_core::config::ConfigManager;
-use gravel_core::timed;
+use crate::init::{self, init};
+use anyhow::{bail, Context, Result};
+use gravel_core::{config::ConfigManager, ipc::get_name, timed};
 use gravel_ffi::{FrontendExitStatus, FrontendExitStatusNe};
 use log::Level;
 use std::path::{Path, PathBuf};
 use std::{env, process::Command};
 
 pub fn daemon(config: &ConfigManager) -> Result<()> {
+	check_ipc(config)?;
+
 	let (core, ipc, mut frontend) = timed!(Level::Info, "initialization took", { init(config) });
 
 	log::trace!("starting frontend");
@@ -18,9 +19,29 @@ pub fn daemon(config: &ConfigManager) -> Result<()> {
 	core.spawn();
 	let exit_status = frontend.run();
 
-	drop(ipc);
+	if let Some(ipc) = ipc {
+		ipc.quit();
+	}
 
 	on_exit(exit_status, executable)
+}
+
+fn check_ipc(config: &ConfigManager) -> Result<()> {
+	let ipc_config = &config.root().ipc;
+	if !ipc_config.enabled {
+		log::trace!("ipc is disabled, skipping duplicate instance check");
+		return Ok(());
+	}
+
+	let name = get_name(ipc_config);
+
+	if init::is_duplicate_instance(&*name)? {
+		bail!("duplicate instance with name '{name}' detected, exiting");
+	}
+
+	log::trace!("duplicate instance check passed");
+
+	Ok(())
 }
 
 fn on_exit(status: FrontendExitStatusNe, executable: Result<PathBuf>) -> Result<()> {

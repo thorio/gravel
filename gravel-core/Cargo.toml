@@ -3,6 +3,10 @@ name = "gravel-core"
 version.workspace = true
 edition.workspace = true
 
+[features]
+# experimental
+wayland = []
+
 [dependencies]
 gravel-ffi = { path = "../gravel-ffi" }
 
@@ -10,12 +14,14 @@ abi_stable.workspace = true
 enumflags2.workspace = true
 fuzzy-matcher.workspace = true
 hotkey.workspace = true
+ipmb.workspace = true
 itertools.workspace = true
 lazy_static.workspace = true
 log.workspace = true
 nameof.workspace = true
 serde.workspace = true
 thiserror.workspace = true
+type-uuid.workspace = true
 
 [dev-dependencies]
 rstest.workspace = true

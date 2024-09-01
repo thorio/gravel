@@ -13,9 +13,11 @@
 ## Finally, you can add ~/.config/gravel/host/yourhostname.yml
 ## for host-specific changes. This works like the others, but trumps them.
 
-## Configures the key for single-instance functionality.
-## Set to null to disable.
-single_instance: gravel
+## TODO: document this
+ipc:
+  enabled: true
+  name: gravel
+  append_display: true
 
 ## Governs if external plugin libraries are loaded.
 ## Libraries are discovered in ~/.local/share/gravel/plugins/*.{so,dll}
