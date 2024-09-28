@@ -11,14 +11,17 @@ impl Xvfb {
 	/// Start new Xvfb server with sequential display number.
 	#[cfg(unix)]
 	pub fn new() -> Result<Self, io::Error> {
-		use std::process::Command;
 		use std::sync::atomic::{AtomicUsize, Ordering};
+		use std::{process::Command, thread, time::Duration};
 
 		static DISPLAY_COUNTER: AtomicUsize = AtomicUsize::new(42);
 
 		let display = format!(":{}", DISPLAY_COUNTER.fetch_add(1, Ordering::SeqCst));
 
 		let process = Command::new("Xvfb").arg(&display).arg("-ac").spawn()?;
+
+		// TODO implement polling/signaling
+		thread::sleep(Duration::from_millis(1000));
 
 		Ok(Self {
 			process: Some(process),

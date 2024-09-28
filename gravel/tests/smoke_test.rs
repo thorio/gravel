@@ -1,4 +1,4 @@
-#![allow(unused_crate_dependencies, clippy::missing_panics_doc)]
+#![allow(unused_crate_dependencies, clippy::missing_panics_doc, clippy::print_stderr)]
 
 use gravel_test_utils::xvfb::Xvfb;
 use itertools::Itertools;
@@ -27,10 +27,14 @@ pub fn run_gravel(mut bin: Command, xvfb: Xvfb) {
 		.env("GRAVEL_CONFIG_PATH", "tests/config")
 		.env("DISPLAY", xvfb.display())
 		.arg("--log-file=off")
+		.arg("-vv")
 		.output()
 		.expect("gravel broke");
 
-	assert!(output.status.success());
+	// TODO: capture *and* stream to console
+	eprintln!("{}", String::from_utf8_lossy(&output.stderr));
+
+	assert_eq!(Some(0), output.status.code());
 
 	let stderr_string = String::from_utf8(output.stderr).expect("application must output valid UTF-8");
 
