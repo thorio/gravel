@@ -1,8 +1,9 @@
 use anyhow::Result;
 use gravel_ffi::SimpleHit;
+use std::ffi::OsStr;
 use std::thread::sleep;
 use std::time::Duration;
-use sysinfo::{Process, System};
+use sysinfo::{Process, ProcessesToUpdate, System};
 use thiserror::Error;
 use winapi::shared::minwindef::DWORD;
 use winapi::um::errhandlingapi;
@@ -38,7 +39,7 @@ pub fn query() -> Result<impl Iterator<Item = SimpleHit>> {
 	// TODO: sysinfo crate loads a lot of unnecessary data into memory,
 	// replace with native calls (or a crate that does streaming)
 	let mut sys = System::new();
-	sys.refresh_processes();
+	sys.refresh_processes(ProcessesToUpdate::All, true);
 
 	let hits = sys
 		.processes()
@@ -51,9 +52,10 @@ pub fn query() -> Result<impl Iterator<Item = SimpleHit>> {
 }
 
 fn get_hit(pid: sysinfo::Pid, process: &Process) -> SimpleHit {
-	let cmdline = process.cmd().join(" ");
+	let cmdline = process.cmd().join(OsStr::new(" "));
+	let cmdline = cmdline.to_string_lossy();
 
-	super::get_hit(process.name(), pid.as_u32(), &cmdline)
+	super::get_hit(&process.name().to_string_lossy(), pid.as_u32(), &cmdline)
 }
 
 fn open_process(desired_access: DWORD, pid: Pid) -> Result<Handle, KillError> {

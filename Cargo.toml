@@ -55,7 +55,7 @@ shellexpand = "3.1.0"
 single-instance = "0.3.3"
 stderrlog = { version = "0.6.0", default-features = false }
 syn = "2.0.68"
-sysinfo = { version = "0.33.1", default-features = false }
+sysinfo = { version = "0.33.1", default-features = false, features = ["system"] }
 system_shutdown = "4.0.1"
 thiserror = "2.0.9"
 urlencoding = "2.1.3"
