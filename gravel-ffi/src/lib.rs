@@ -6,9 +6,11 @@
 // since you can't just slap these on generated code they're disabled for the whole crate
 #![allow(
 	clippy::empty_docs,
+	clippy::needless_lifetimes,
 	clippy::used_underscore_binding,
-	unused_qualifications,
-	single_use_lifetimes
+	non_local_definitions,
+	single_use_lifetimes,
+	unused_qualifications
 )]
 
 mod cache;

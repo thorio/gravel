@@ -1,5 +1,5 @@
 use color_eyre::config::{HookBuilder, PanicHook};
-use std::panic::{set_hook, PanicInfo};
+use std::panic::{set_hook, PanicHookInfo};
 
 const ISSUE_URL: &str = concat!(env!("CARGO_PKG_REPOSITORY"), "/issues/new");
 
@@ -17,7 +17,7 @@ fn get_eyre() -> PanicHook {
 	eyre_panic
 }
 
-fn log_panic(panic_info: &PanicInfo<'_>) {
+fn log_panic(panic_info: &PanicHookInfo<'_>) {
 	let payload = panic_info
 		.payload()
 		.downcast_ref::<String>()
