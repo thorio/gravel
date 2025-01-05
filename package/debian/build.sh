@@ -1,6 +1,8 @@
 #/usr/bin/env bash
 set -e
 
+# TODO: add dependency libwayland-client0 when wayland is ready
+
 reporoot=$(git rev-parse --show-toplevel)
 pkgdir="$reporoot/package/debian/pkg"
 
