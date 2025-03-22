@@ -1,4 +1,4 @@
-use syn::{parse_quote, File, Ident, Type};
+use syn::{File, Ident, Type, parse_quote};
 
 pub fn provider(plugin_name: &str, impl_type: &Type) -> File {
 	let plugin = plugin(plugin_name, parse_quote! { with_provider });

@@ -8,7 +8,7 @@ use abi_stable::sabi_trait;
 use abi_stable::std_types::{ROption, RString};
 use abi_stable::traits::{IntoReprC, IntoReprRust};
 use engine::QueryEngine;
-use gravel_ffi::{clone_hit_arc, ActionKind, ArcDynHit};
+use gravel_ffi::{ActionKind, ArcDynHit, clone_hit_arc};
 use gravel_ffi::{BoxDynFrontendContext, FrontendContext, FrontendMessage, FrontendMessageNe};
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::{thread, time::Duration};

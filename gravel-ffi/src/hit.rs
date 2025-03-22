@@ -1,6 +1,6 @@
 use abi_stable::pointer_trait::ImmutableRef;
 use abi_stable::std_types::{RArc, ROption, RStr, RString};
-use abi_stable::{sabi_trait, traits::IntoReprC, RRef, StableAbi};
+use abi_stable::{RRef, StableAbi, sabi_trait, traits::IntoReprC};
 use std::fmt::Debug;
 
 /// The maximum score a [`Hit`] can have.

@@ -1,4 +1,4 @@
-use enumflags2::{bitflags, BitFlags};
+use enumflags2::{BitFlags, bitflags};
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct ParsedBinding {

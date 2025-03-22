@@ -1,7 +1,7 @@
 //! Handles attaching and detaching a console if running under windows subsystem
 //! I hate this.
 
-use winapi::um::wincon::{AttachConsole, FreeConsole, ATTACH_PARENT_PROCESS};
+use winapi::um::wincon::{ATTACH_PARENT_PROCESS, AttachConsole, FreeConsole};
 
 // Attempts to attach the parent processes console and fails silently if the parent has no console
 pub fn attach() {

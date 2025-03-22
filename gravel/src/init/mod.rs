@@ -18,7 +18,7 @@ pub use plugins::plugins;
 
 use ::single_instance::SingleInstance;
 use abi_stable::external_types::crossbeam_channel;
-use gravel_core::{config::ConfigManager, plugin::PluginRegistry, Core, CoreMessage, FrontendCtx};
+use gravel_core::{Core, CoreMessage, FrontendCtx, config::ConfigManager, plugin::PluginRegistry};
 use gravel_ffi::{BoxDynFrontend, FrontendMessageNe};
 
 pub fn init(config: &ConfigManager) -> (Core, Option<SingleInstance>, BoxDynFrontend) {

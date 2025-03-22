@@ -113,9 +113,9 @@ impl Log for ForwardLogger {
 
 /// Contains FFI-safe versions and associated conversions for [`log`] types.
 mod log_types {
+	use abi_stable::StableAbi;
 	use abi_stable::std_types::{ROption, RStr, RString};
 	use abi_stable::traits::{IntoReprC, IntoReprRust};
-	use abi_stable::StableAbi;
 	use log::{Level, LevelFilter, Log, Metadata, Record, RecordBuilder};
 	use std::fmt::Arguments;
 

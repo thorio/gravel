@@ -13,7 +13,7 @@
 //!
 //! Launches applications using explorer.
 
-use glob::{glob, Paths};
+use glob::{Paths, glob};
 use gravel_ffi::prelude::*;
 use itertools::Itertools;
 use serde::Deserialize;

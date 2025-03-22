@@ -1,6 +1,6 @@
-use crate::{logging::BoxDynLogTarget, PluginDefinition};
+use crate::{PluginDefinition, logging::BoxDynLogTarget};
+use abi_stable::{StableAbi, library::RootModule, sabi_types::VersionStrings, std_types::RVec};
 use abi_stable::{declare_root_module_statics, package_version_strings};
-use abi_stable::{library::RootModule, sabi_types::VersionStrings, std_types::RVec, StableAbi};
 
 /// [`RootModule`] for a plugin. It is auto-implemented using the macros.
 #[repr(C)]

@@ -1,6 +1,6 @@
 use anyhow::Result;
 use gravel_ffi::SimpleHit;
-use nix::sys::signal::{kill, Signal};
+use nix::sys::signal::{Signal, kill};
 use procfs::process::Process;
 
 pub type Pid = i32;

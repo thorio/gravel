@@ -1,7 +1,7 @@
 use crate::{ActionKind, ArcDynHit, PluginConfigAdapter, ScoredHit};
 use abi_stable::std_types::{RBox, ROption, RString, RVec};
 use abi_stable::traits::IntoReprRust;
-use abi_stable::{sabi_trait, StableAbi};
+use abi_stable::{StableAbi, sabi_trait};
 
 /// FFI-safe [`FrontendInner`] trait object.
 pub type BoxDynFrontend = FrontendInner_TO<'static, RBox<()>>;

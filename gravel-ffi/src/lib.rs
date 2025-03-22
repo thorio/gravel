@@ -30,10 +30,10 @@ mod provider;
 /// <sub>may not actually contain *all* types required; terms and conditions apply</sub>
 pub mod prelude {
 	pub use crate::{
-		gravel_frontend, gravel_provider, ActionKind, ArcDynHit, BoxDynFrontendContext, Frontend, FrontendContext,
-		FrontendContextExt, FrontendExitStatus, FrontendMessage, FrontendMessageNe, Hit, HitCache, PluginConfigAdapter,
-		Provider, ProviderResult, QueryResult, RefDynHitActionContext, ScoredHit, SimpleHit, StaticHitCache, MAX_SCORE,
-		MIN_SCORE,
+		ActionKind, ArcDynHit, BoxDynFrontendContext, Frontend, FrontendContext, FrontendContextExt,
+		FrontendExitStatus, FrontendMessage, FrontendMessageNe, Hit, HitCache, MAX_SCORE, MIN_SCORE,
+		PluginConfigAdapter, Provider, ProviderResult, QueryResult, RefDynHitActionContext, ScoredHit, SimpleHit,
+		StaticHitCache, gravel_frontend, gravel_provider,
 	};
 
 	pub use abi_stable::external_types::crossbeam_channel::RReceiver;
@@ -48,8 +48,8 @@ pub use frontend::{
 	FrontendExitStatusNe, FrontendInner, FrontendMessage, FrontendMessageNe, QueryResult,
 };
 pub use hit::{
-	clone_hit_arc, ActionKind, ArcDynHit, Hit, HitActionContext, RefDynHitActionContext, ScoredHit, SimpleHit,
-	MAX_SCORE, MIN_SCORE,
+	ActionKind, ArcDynHit, Hit, HitActionContext, MAX_SCORE, MIN_SCORE, RefDynHitActionContext, ScoredHit, SimpleHit,
+	clone_hit_arc,
 };
 pub use plugin::{PluginDefinition, PluginMetadata};
 pub use prefix::{PluginLib, PluginLibRef};

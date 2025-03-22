@@ -2,7 +2,7 @@
 //! See `gravel_ffi::Provider` and `gravel_ffi::Frontend` for usage instructions
 
 use proc_macro::TokenStream as TokenStream1;
-use syn::{parse_quote, File, ItemImpl};
+use syn::{File, ItemImpl, parse_quote};
 
 mod declare;
 mod util;

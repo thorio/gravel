@@ -1,6 +1,6 @@
 use abi_stable::external_types::crossbeam_channel::RSender;
-use gravel_core::config::ConfigManager;
 use gravel_core::CoreMessage;
+use gravel_core::config::ConfigManager;
 use gravel_core::{engine::QueryEngine, plugin::PluginRegistry};
 
 /// Initializes the configured [`gravel_ffi::Provider`]s and the [`QueryEngine`].

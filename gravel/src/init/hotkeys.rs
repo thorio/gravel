@@ -1,7 +1,7 @@
 use abi_stable::external_types::crossbeam_channel::RSender;
+use gravel_core::CoreMessage;
 use gravel_core::config::Hotkey;
 use gravel_core::hotkeys::Listener;
-use gravel_core::CoreMessage;
 
 /// Initializes a hotkey listener on a different thread.
 /// See [`Listener`].

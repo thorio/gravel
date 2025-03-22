@@ -1,5 +1,5 @@
 use crate::Config;
-use gravel_ffi::{paths, RefDynHitActionContext, SimpleHit};
+use gravel_ffi::{RefDynHitActionContext, SimpleHit, paths};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 

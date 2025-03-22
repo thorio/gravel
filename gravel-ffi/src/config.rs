@@ -1,5 +1,5 @@
-use abi_stable::std_types::{RSlice, RString};
 use abi_stable::StableAbi;
+use abi_stable::std_types::{RSlice, RString};
 use figment::providers::{Format, Yaml};
 use serde::Deserialize;
 
@@ -42,10 +42,10 @@ impl<'a> PluginConfigAdapter<'a> {
 /// Used internally by gravel, do not use in plugins.
 #[doc(hidden)]
 pub mod __private_api {
-	use abi_stable::std_types::{RStr, RString};
 	use abi_stable::StableAbi;
-	use figment::providers::{Format, Yaml};
+	use abi_stable::std_types::{RStr, RString};
 	use figment::Figment;
+	use figment::providers::{Format, Yaml};
 
 	// I'd really like to keep the app's figment and re-use it for plugins,
 	// but unfortunately it can't safely pass through FFI-boundaries.

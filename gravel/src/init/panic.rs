@@ -1,5 +1,5 @@
 use color_eyre::config::{HookBuilder, PanicHook};
-use std::panic::{set_hook, PanicHookInfo};
+use std::panic::{PanicHookInfo, set_hook};
 
 const ISSUE_URL: &str = concat!(env!("CARGO_PKG_REPOSITORY"), "/issues/new");
 

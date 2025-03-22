@@ -1,8 +1,8 @@
 use crate::config::PluginConfigAdapter;
-use crate::hit::{clone_hit_arc, ArcDynHit};
+use crate::hit::{ArcDynHit, clone_hit_arc};
+use abi_stable::StableAbi;
 use abi_stable::sabi_trait;
 use abi_stable::std_types::{RBox, RStr, RVec};
-use abi_stable::StableAbi;
 
 /// FFI-safe [`ProviderInner`] trait object.
 pub type BoxDynProvider = ProviderInner_TO<'static, RBox<()>>;

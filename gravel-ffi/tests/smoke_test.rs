@@ -4,7 +4,7 @@ use abi_stable::std_types::{ROption, RSlice, RString};
 use abi_stable::traits::IntoReprC;
 use gravel_core::plugin::load_library_from_path;
 use gravel_ffi::PluginLibRef;
-use gravel_ffi::{logging::NoOpLogTarget, PluginConfigAdapter};
+use gravel_ffi::{PluginConfigAdapter, logging::NoOpLogTarget};
 use gravel_test_utils::mock::MockHitActionContext;
 use std::path::PathBuf;
 

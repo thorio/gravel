@@ -1,6 +1,6 @@
 [workspace.package]
 version = "0.0.0-dev" # patched by CI
-edition = "2021"
+edition = "2024"
 
 [workspace]
 resolver = "2"

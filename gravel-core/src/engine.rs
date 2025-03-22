@@ -1,4 +1,4 @@
-use crate::{performance::Stopwatch, scoring, timed, CoreMessage};
+use crate::{CoreMessage, performance::Stopwatch, scoring, timed};
 use abi_stable::std_types::RString;
 use abi_stable::{external_types::crossbeam_channel::RSender, sabi_trait, std_types::RStr, traits::IntoReprRust};
 use gravel_ffi::{ActionKind, ArcDynHit, FrontendMessage, HitActionContext, ProviderResult, RefDynHitActionContext};

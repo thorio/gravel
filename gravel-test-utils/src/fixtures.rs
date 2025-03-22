@@ -1,4 +1,4 @@
-use crate::data::{TestHit, TEST_HITS_ARCHEOLOGISTS};
+use crate::data::{TEST_HITS_ARCHEOLOGISTS, TestHit};
 use crate::xvfb::Xvfb;
 use rstest::fixture;
 

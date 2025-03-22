@@ -2,7 +2,7 @@ use crate::cli::LogArgs;
 use anyhow::Result;
 use chrono::Local;
 use fern::{Dispatch, FormatCallback};
-use file_rotate::{compression::Compression, suffix::AppendCount, ContentLimit, FileRotate};
+use file_rotate::{ContentLimit, FileRotate, compression::Compression, suffix::AppendCount};
 use gravel_core::paths;
 use log::{LevelFilter, Log, Record};
 use std::fmt::Arguments;

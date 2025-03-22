@@ -74,9 +74,11 @@ mod tests {
 
 	#[rstest]
 	pub fn should_return_globs() {
-		// this is fine for now because there's only one test that deals with env vars
-		env::set_var(XDG_DATA_HOME, "/home/user/.xdg/share");
-		env::set_var(XDG_DATA_DIRS, "/share:/data");
+		unsafe {
+			// this is fine for now because there's only one test that deals with env vars
+			env::set_var(XDG_DATA_HOME, "/home/user/.xdg/share");
+			env::set_var(XDG_DATA_DIRS, "/share:/data");
+		}
 
 		let paths = xdg_data_globs("test/*").collect::<Vec<_>>();
 

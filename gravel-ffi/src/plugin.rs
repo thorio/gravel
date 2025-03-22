@@ -1,7 +1,7 @@
 use crate::frontend::BoxDynFrontend;
 use crate::provider::BoxDynProvider;
-use crate::{config::PluginConfigAdapter, BoxDynFrontendContext};
-use abi_stable::{std_types::RString, StableAbi};
+use crate::{BoxDynFrontendContext, config::PluginConfigAdapter};
+use abi_stable::{StableAbi, std_types::RString};
 
 pub type ProviderFactory = extern "C" fn(&PluginConfigAdapter<'_>) -> BoxDynProvider;
 pub type FrontendFactory = extern "C" fn(BoxDynFrontendContext, &PluginConfigAdapter<'_>) -> BoxDynFrontend;

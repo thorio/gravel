@@ -35,10 +35,10 @@ fn register_builtins(registry: &mut PluginRegistry) {
 }
 
 mod external {
-	use glob::{glob, Paths};
-	use gravel_core::plugin::{load_library_from_path, PluginRegistry};
+	use glob::{Paths, glob};
+	use gravel_core::plugin::{PluginRegistry, load_library_from_path};
 	use gravel_core::{config::ExternalPluginPolicy, paths};
-	use gravel_ffi::{logging::StaticLogTarget, PluginLibRef};
+	use gravel_ffi::{PluginLibRef, logging::StaticLogTarget};
 	use itertools::Itertools;
 	use std::path::PathBuf;
 
