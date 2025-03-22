@@ -1,4 +1,6 @@
+# ensure other running instances do not interfere with the test
 single_instance: null
+hotkeys: []
 
 frontend:
   plugin: fltk
