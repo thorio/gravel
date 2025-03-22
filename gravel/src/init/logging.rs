@@ -48,7 +48,6 @@ fn chain_file(dispatch: Dispatch, path: &Path) -> Dispatch {
 		AppendCount::new(2),
 		ContentLimit::Lines(2000),
 		Compression::None,
-		#[cfg(unix)]
 		None,
 	);
 
