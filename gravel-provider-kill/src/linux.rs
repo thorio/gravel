@@ -37,7 +37,7 @@ fn get_cmdline_binary(args: &[String]) -> Option<String> {
 		.split(' ')
 		.next()?
 		.split('/')
-		.last()
+		.next_back()
 		.map(ToOwned::to_owned)
 }
 

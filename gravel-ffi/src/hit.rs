@@ -185,17 +185,14 @@ impl Hit for SimpleHit {
 		(action)(self, context);
 	}
 
-	#[must_use]
 	fn title(&self) -> RStr<'_> {
 		self.title.as_rstr()
 	}
 
-	#[must_use]
 	fn subtitle(&self) -> RStr<'_> {
 		self.subtitle.as_rstr()
 	}
 
-	#[must_use]
 	fn override_score(&self) -> ROption<u32> {
 		self.override_score
 	}

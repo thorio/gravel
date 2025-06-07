@@ -29,14 +29,11 @@ pub fn build(config: &Config) -> Ui {
 	let mut input = build_input(config);
 
 	let do_auto_hide = config.behaviour.auto_hide;
-	let sender_clone = sender.clone();
-	window.handle(move |_window, event| on_window_event(event, &sender_clone, do_auto_hide));
+	window.handle(move |_window, event| on_window_event(event, &sender, do_auto_hide));
 
-	let sender_clone = sender.clone();
-	input.handle(move |_input, event| on_input_event(event, &sender_clone));
+	input.handle(move |_input, event| on_input_event(event, &sender));
 
 	let hits = (0..config.layout.max_hits).map(|i| build_hit(i, config)).collect();
-
 	let scrollbar = build_scrollbar(config);
 
 	window.end();
@@ -45,8 +42,7 @@ pub fn build(config: &Config) -> Ui {
 	if config.behaviour.start_hidden {
 		// HACK: hiding the window right after it's created doesn't work on linux
 		// and causes high cpu usage on windows, so wait a bit and then hide it.
-		let sender_clone = sender.clone();
-		app::add_timeout3(0.05, move |_handle| sender_clone.send(Event::HideWindow));
+		app::add_timeout3(0.05, move |_handle| sender.send(Event::HideWindow));
 	}
 
 	Ui {
