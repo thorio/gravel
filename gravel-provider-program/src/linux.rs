@@ -15,13 +15,13 @@ pub fn get_program(path: &Path) -> Option<SimpleHit> {
 		.inspect_err(|e| log::debug!("unable to parse desktop entry {path:?}: {e}"))
 		.ok()?;
 
-	let section = entry.section("Desktop Entry");
+	let section = entry.section("Desktop Entry")?;
 
-	if section.attr("NoDisplay") == Some("true") {
+	if section.attr("NoDisplay") == ["true"] {
 		return None;
 	}
 
-	let name = section.attr("Name").unwrap_or(filename);
+	let name = section.attr("Name").first().map_or(filename, String::as_str);
 
 	let filename = filename.to_owned();
 	let hit = SimpleHit::new(name, path.to_string_lossy(), move |_, ctx| run_program(&filename, ctx));

@@ -5,13 +5,12 @@ use itertools::Itertools;
 use rstest::{fixture, rstest};
 use std::process::Command;
 use std::time::Duration;
-use test_bin::get_test_bin;
 
 use gravel_test_utils::fixtures::xvfb;
 
 #[fixture]
 fn bin() -> Command {
-	get_test_bin("gravel")
+	test_bin::get_test_bin!("gravel")
 }
 
 /// Check if gravel starts up correctly.
