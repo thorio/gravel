@@ -1,4 +1,4 @@
-#![allow(unused_crate_dependencies, clippy::missing_panics_doc, clippy::print_stderr)]
+#![expect(unused_crate_dependencies, clippy::print_stderr)]
 
 use gravel_test_utils::xvfb::Xvfb;
 use itertools::Itertools;

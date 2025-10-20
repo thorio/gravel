@@ -20,7 +20,7 @@ pub struct Args {
 #[derive(Subcommand, Debug)]
 pub enum Command {
 	/// Start the daemon without spawning a new process [default]
-	#[allow(rustdoc::broken_intra_doc_links)] // [] used verbatim in clap help text
+	#[expect(rustdoc::broken_intra_doc_links)] // [] used verbatim in clap help text
 	Daemon,
 }
 
@@ -34,7 +34,6 @@ pub struct LogArgs {
 	pub no_stderr_log: bool,
 
 	/// Set to "off" to disable [default: "$XDG_STATE_DIR/gravel/current.log"]
-	#[allow(rustdoc::broken_intra_doc_links)]
 	#[arg(long)]
 	pub log_file: Option<PathBuf>,
 }

@@ -11,7 +11,6 @@ pub struct PluginLib {
 	pub plugin: extern "C" fn(log_target: BoxDynLogTarget) -> RVec<PluginDefinition>,
 }
 
-#[allow(clippy::use_self)]
 impl RootModule for PluginLibRef {
 	declare_root_module_statics! {PluginLibRef}
 

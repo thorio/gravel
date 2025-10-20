@@ -48,7 +48,7 @@ fn parent_dir(path: RStr<'_>) -> Option<&Path> {
 fn run_explorer(link_path: impl AsRef<OsStr> + Debug, context: RefDynHitActionContext<'_>) {
 	log::debug!("starting explorer with {link_path:?}");
 
-	#[allow(clippy::zombie_processes)]
+	#[expect(clippy::zombie_processes)]
 	Command::new("explorer")
 		.arg(link_path)
 		.spawn()

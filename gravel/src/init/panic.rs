@@ -4,7 +4,7 @@ use std::panic::{PanicHookInfo, set_hook};
 const ISSUE_URL: &str = concat!(env!("CARGO_PKG_REPOSITORY"), "/issues/new");
 
 pub fn panic() {
-	#[allow(clippy::print_stderr)]
+	#[expect(clippy::print_stderr)]
 	set_hook(Box::new(move |panic_info| {
 		log_panic(panic_info);
 		eprintln!("{}", get_eyre().panic_report(panic_info));

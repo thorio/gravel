@@ -33,7 +33,7 @@ pub fn get_program(path: &Path) -> Option<SimpleHit> {
 fn run_program(desktop_file: &str, context: RefDynHitActionContext<'_>) {
 	log::debug!("starting application '{desktop_file}'");
 
-	#[allow(clippy::zombie_processes)]
+	#[expect(clippy::zombie_processes)]
 	Command::new("gtk-launch")
 		.arg(desktop_file)
 		// explicitly prevent stream inheritance

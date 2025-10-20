@@ -1,7 +1,7 @@
 //! Really a unit test, but can't be in-module due to
 //! circular dependency gravel-ffi <-> gravel-test-utils
 
-#![allow(unused_crate_dependencies)]
+#![expect(unused_crate_dependencies)]
 
 use gravel_ffi::{ArcDynHit, HitCache, StaticHitCache};
 use gravel_test_utils::{data::TestHit, util::slices_equal};

@@ -114,8 +114,6 @@ pub struct SimpleHit {
 	pub title: RString,
 	pub subtitle: RString,
 	pub override_score: ROption<u32>,
-
-	#[allow(clippy::type_complexity)]
 	pub action: SimpleHitAction,
 	pub secondary_action: Option<SimpleHitAction>,
 }

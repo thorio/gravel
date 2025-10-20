@@ -34,7 +34,7 @@ pub enum KillError {
 }
 
 // Needs to be Result to maintain same signature as linux implementation
-#[allow(clippy::unnecessary_wraps)]
+#[expect(clippy::unnecessary_wraps)]
 pub fn query() -> Result<impl Iterator<Item = SimpleHit>> {
 	// TODO: sysinfo crate loads a lot of unnecessary data into memory,
 	// replace with native calls (or a crate that does streaming)

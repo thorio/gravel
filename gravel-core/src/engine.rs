@@ -102,7 +102,7 @@ impl QueryEngine {
 }
 
 /// Queries providers; aggregates, scores and orders [`ArcDynHit`]s.
-#[allow(single_use_lifetimes)]
+#[expect(single_use_lifetimes)]
 fn query_all<'a>(providers: impl Iterator<Item = &'a ProviderInfo>, query: &str) -> QueryResult {
 	let hits = providers.flat_map(|p| query_one(p, query).hits).collect_vec();
 

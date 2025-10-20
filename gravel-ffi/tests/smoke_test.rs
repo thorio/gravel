@@ -1,4 +1,4 @@
-#![allow(unused_crate_dependencies, clippy::missing_panics_doc)]
+#![expect(unused_crate_dependencies, clippy::missing_panics_doc)]
 
 use abi_stable::std_types::{ROption, RSlice, RString};
 use abi_stable::traits::IntoReprC;

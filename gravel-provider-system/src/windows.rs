@@ -1,5 +1,5 @@
 // Needs to be Result to maintain same signature as linux implementation
-#![allow(clippy::unnecessary_wraps)]
+#![expect(clippy::unnecessary_wraps)]
 
 use anyhow::Result;
 use winapi::um::{powrprof, winuser};

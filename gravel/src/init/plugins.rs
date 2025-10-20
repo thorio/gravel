@@ -88,7 +88,7 @@ mod external {
 			.ok()
 	}
 
-	#[allow(clippy::print_stderr)]
+	#[expect(clippy::print_stderr)]
 	fn load_lib(path: PathBuf) -> Option<PluginLibRef> {
 		log::trace!("attempting to load plugin library from {path:?}");
 

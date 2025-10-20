@@ -21,7 +21,7 @@ fn main() {
 	windows_console::attach();
 
 	// unwrap so we hit color_eyre's panic handler
-	#[allow(clippy::unwrap_used)]
+	#[expect(clippy::unwrap_used)]
 	run().unwrap();
 
 	#[cfg(windows)]
