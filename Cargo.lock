@@ -1118,6 +1118,7 @@ name = "gravel-core"
 version = "0.0.0-dev"
 dependencies = [
  "abi_stable",
+ "arboard",
  "enumflags2",
  "fuzzy-matcher",
  "gravel-ffi",
@@ -1170,9 +1171,7 @@ name = "gravel-provider-calculator"
 version = "0.0.0-dev"
 dependencies = [
  "abi_stable",
- "arboard",
  "gravel-ffi",
- "log",
  "mexprp",
  "rstest",
  "serde",

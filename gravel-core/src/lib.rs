@@ -13,6 +13,9 @@ use gravel_ffi::{BoxDynFrontendContext, FrontendContext, FrontendMessage, Fronte
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::{thread, time::Duration};
 
+use crate::clipboard::Clipboard;
+
+pub mod clipboard;
 pub mod config;
 pub mod engine;
 pub mod hotkeys;
@@ -25,6 +28,7 @@ pub struct Core {
 	engine: QueryEngine,
 	frontend_sender: RSender<FrontendMessageNe>,
 	receiver: RReceiver<CoreMessage>,
+	clipboard: Clipboard,
 }
 
 pub enum CoreMessage {
@@ -32,6 +36,7 @@ pub enum CoreMessage {
 	Query(u32, String),
 	RunAction(ArcDynHit, ActionKind),
 	ClearCaches,
+	SetClipboardText(String),
 }
 
 impl Core {
@@ -44,6 +49,7 @@ impl Core {
 			engine,
 			frontend_sender,
 			receiver,
+			clipboard: Clipboard::new(),
 		}
 	}
 
@@ -65,6 +71,7 @@ impl Core {
 			CoreMessage::Query(token, query) => self.query(token, &query),
 			CoreMessage::RunAction(hit, kind) => self.run_action(&hit, kind),
 			CoreMessage::ClearCaches => self.clear_caches(),
+			CoreMessage::SetClipboardText(content) => self.clipboard.set_text(&content),
 		}
 
 		None

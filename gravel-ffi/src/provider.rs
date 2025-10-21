@@ -36,7 +36,6 @@ pub trait ProviderInner: Send {
 ///     }
 ///
 ///     fn query(&self, query: &str) -> ProviderResult {
-///
 ///         ProviderResult::empty()
 ///     }
 /// }
@@ -74,6 +73,12 @@ impl ProviderResult {
 	pub fn from_cached<'a>(hits: impl IntoIterator<Item = &'a ArcDynHit>) -> Self {
 		let hits = hits.into_iter().map(clone_hit_arc).collect();
 		Self { hits }
+	}
+
+	/// Constructs a new [`ProviderResult`] with one or no hits.
+	#[must_use]
+	pub fn from_option(hit: Option<impl Into<ArcDynHit>>) -> Self {
+		hit.map_or_else(Self::empty, Self::single)
 	}
 
 	/// Constructs an empty [`ProviderResult`].

@@ -5,24 +5,15 @@
 //!
 //! Selecting the hit copies the calculated value to the system's clipboard.
 
-use arboard::Clipboard;
+use abi_stable::reexports::SelfOps;
 use gravel_ffi::prelude::*;
 use mexprp::Answer;
 use serde::Deserialize;
-use std::cell::OnceCell;
-use std::sync::{Arc, Mutex};
 
 const DEFAULT_CONFIG: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.yml"));
 
 struct CalculatorProvider {
 	config: Config,
-	clipboard: OnceCell<Option<Arc<Mutex<Clipboard>>>>,
-}
-
-impl CalculatorProvider {
-	fn get_clipboard(&self) -> Option<Arc<Mutex<Clipboard>>> {
-		self.clipboard.get_or_init(create_clipboard).clone()
-	}
 }
 
 #[gravel_provider("calculator")]
@@ -30,43 +21,35 @@ impl Provider for CalculatorProvider {
 	fn new(config: &PluginConfigAdapter<'_>) -> Self {
 		Self {
 			config: config.get(DEFAULT_CONFIG),
-			clipboard: OnceCell::new(),
 		}
 	}
 
 	fn query(&self, query: &str) -> ProviderResult {
 		let query = query.trim();
-		let result = eval(query);
 
-		let Some(result) = result else {
-			return ProviderResult::empty();
-		};
-
-		if query == result || matches!(query, "e" | "pi" | "i") {
-			return ProviderResult::empty();
-		}
-
-		let clipboard = self.get_clipboard();
-
-		let hit = SimpleHit::new(result, self.config.subtitle.clone(), move |hit, ctx| {
-			do_copy(clipboard.clone(), hit.title().as_str(), ctx);
-		})
-		.with_secondary(|hit, ctx| {
-			ctx.set_query(hit.title().into_rust().to_owned().into_c());
-		})
-		.with_score(MAX_SCORE);
-
-		ProviderResult::single(hit)
+		eval(query)
+			.filter(|r| !query_was_const(query, r))
+			.map(|r| self.get_hit(r))
+			.piped(ProviderResult::from_option)
 	}
 }
 
-fn create_clipboard() -> Option<Arc<Mutex<Clipboard>>> {
-	log::trace!("spawning clipboard instance");
+impl CalculatorProvider {
+	fn get_hit(&self, result: String) -> SimpleHit {
+		SimpleHit::new(result, self.config.subtitle.clone(), move |hit, ctx| {
+			ctx.set_clipboard_text(hit.title().to_string().into_c());
+			ctx.hide_frontend();
+		})
+		.with_secondary(|hit, ctx| {
+			ctx.set_query(hit.title().as_str().to_owned().into_c());
+		})
+		.with_score(MAX_SCORE)
+	}
+}
 
-	Clipboard::new()
-		.inspect_err(|e| log::error!("unable to initialize clipboard: {e}"))
-		.ok()
-		.map(|c| Arc::new(Mutex::new(c)))
+// queries that do not require any calculation should be ignored
+fn query_was_const(query: &str, result: &str) -> bool {
+	query == result || matches!(query, "e" | "pi" | "i")
 }
 
 fn eval(expression: &str) -> Option<String> {
@@ -76,22 +59,6 @@ fn eval(expression: &str) -> Option<String> {
 		_ => None,
 	}
 	.map(|r| round(r, 10).to_string())
-}
-
-fn do_copy(clipboard: Option<Arc<Mutex<Clipboard>>>, result: &str, context: RefDynHitActionContext<'_>) {
-	let Some(clipboard_mutex) = clipboard else {
-		return;
-	};
-
-	log::debug!("copying value to clipboard: {result}");
-
-	let mut guard = clipboard_mutex.lock().expect("thread holding the mutex can't panic");
-	guard
-		.set_text(result)
-		.inspect_err(|e| log::error!("unable to set clipboard: {e}"))
-		.ok();
-
-	context.hide_frontend();
 }
 
 fn round(number: f64, precision: u32) -> f64 {

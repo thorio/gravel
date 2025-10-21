@@ -104,6 +104,9 @@ pub trait HitActionContext {
 
 	/// Clears caches in the entire application.
 	fn clear_caches(&self);
+
+	/// Writes to the system clipboard.
+	fn set_clipboard_text(&self, content: RString);
 }
 
 type SimpleHitAction = Box<dyn Fn(&SimpleHit, RefDynHitActionContext<'_>) + Send + Sync>;

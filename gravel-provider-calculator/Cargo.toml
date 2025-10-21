@@ -13,8 +13,6 @@ no-root = []
 gravel-ffi = { path = "../gravel-ffi" }
 
 abi_stable.workspace = true
-arboard.workspace = true
-log.workspace = true
 mexprp.workspace = true
 serde.workspace = true
 

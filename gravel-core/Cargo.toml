@@ -7,6 +7,7 @@ edition.workspace = true
 gravel-ffi = { path = "../gravel-ffi" }
 
 abi_stable.workspace = true
+arboard.workspace = true
 enumflags2.workspace = true
 fuzzy-matcher.workspace = true
 hotkey.workspace = true

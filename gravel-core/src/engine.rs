@@ -178,6 +178,10 @@ impl HitActionContext for ActionContext {
 		self.send_frontend(FrontendMessage::ShowWithQuery(query));
 	}
 
+	fn set_clipboard_text(&self, content: RString) {
+		self.send(CoreMessage::SetClipboardText(content.into_rust()));
+	}
+
 	fn clear_caches(&self) {
 		self.send(CoreMessage::ClearCaches);
 	}
