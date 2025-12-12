@@ -198,14 +198,10 @@ enum Action {
 
 #[derive(Deserialize, Debug, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
+#[derive(Default)]
 enum PostAction {
 	Nothing,
+	#[default]
 	Hide,
 	Refresh,
-}
-
-impl Default for PostAction {
-	fn default() -> Self {
-		Self::Hide
-	}
 }

@@ -123,16 +123,11 @@ impl HitCache {
 	}
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 enum Strategy {
+	#[default]
 	Lazy,
 	MaxAge(Duration),
-}
-
-impl Default for Strategy {
-	fn default() -> Self {
-		Self::Lazy
-	}
 }
 
 #[derive(Default, Debug)]
