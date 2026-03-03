@@ -9,6 +9,7 @@ pub struct ParsedBinding {
 #[bitflags]
 #[repr(u8)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[expect(clippy::use_self, reason = "inside bitflags macro expansion")]
 pub enum Modifier {
 	Alt,
 	Control,
