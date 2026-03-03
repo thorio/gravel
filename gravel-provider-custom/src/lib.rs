@@ -110,15 +110,20 @@ fn into_hit(config: HitConfig) -> SimpleHit {
 	let subtitle = config.subtitle.unwrap_or_default();
 	let wait = config.wait.unwrap_or(true);
 
-	SimpleHit::new(config.title, subtitle, move |h, context| {
+	let mut hit = SimpleHit::new(config.title, subtitle, move |h, context| {
 		run_action(&config.action, wait, h);
 		run_post_action(context, config.post_action);
 	})
-	.with_secondary(move |hit, context| {
-		run_action(&config.secondary_action, wait, hit);
-		run_post_action(context, config.post_action);
-	})
-	.with_score(config.override_score)
+	.with_score(config.override_score);
+
+	if let Some(secondary_action) = config.secondary_action {
+		hit = hit.with_secondary(move |hit, context| {
+			run_action(&secondary_action, wait, hit);
+			run_post_action(context, config.post_action);
+		});
+	}
+
+	hit
 }
 
 fn run_action(action: &Action, wait: bool, hit: &SimpleHit) {
@@ -181,7 +186,7 @@ struct HitConfig {
 	pub override_score: Option<u32>,
 	pub wait: Option<bool>,
 	pub action: Action,
-	pub secondary_action: Action,
+	pub secondary_action: Option<Action>,
 
 	#[serde(default)]
 	pub post_action: PostAction,
